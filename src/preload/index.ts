@@ -24,7 +24,7 @@ const api = {
     ipcRenderer.invoke('update-settings', settings)
   },
   getSettings: () => {
-    ipcRenderer.invoke('get-settings')
+    return ipcRenderer.invoke('get-settings')
   }
 }
 

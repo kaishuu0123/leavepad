@@ -208,7 +208,6 @@ const GeneralTabsContent = ({ settingsForm }) => {
 
   const exportNotes = () => {
     const fileName = 'notes.json'
-    console.log(notes)
     const data = new Blob([JSON.stringify(notes, null, 2)], { type: 'text/json' })
     const jsonURL = window.URL.createObjectURL(data)
     const link = document.createElement('a')
