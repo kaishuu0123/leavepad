@@ -1,0 +1,51 @@
+name: Electron App Build/release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: yarn install
+        run: yarn install
+      - name: Build Windows
+        if: ${{ matrix.os == 'windows-latest'}}
+        run: |
+          yarn build:win
+      - name: Build macOS
+        if: ${{ matrix.os == 'macos-latest'}}
+        run: |
+          xattr -cr .
+          yarn build:mac
+      - name: Build Linux
+        if: ${{ matrix.os == 'ubuntu-latest'}}
+        run: |
+          sudo snap install snapcraft --classic
+          yarn build:linux
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/*.zip
+            dist/*.dmg
+            dist/*.exe
+            dist/*.snap
+            dist/*.AppImage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
