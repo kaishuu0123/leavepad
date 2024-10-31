@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { Note } from '../types'
+import { Note } from '../../../../types'
 import { leavepadStore } from '@renderer/main'
 
 export const notesAtom = atom<Note[]>([])

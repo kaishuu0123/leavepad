@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { NoteTab } from '../types'
+import { NoteTab } from '../../../../types'
 import { clearCurrentNote } from './notes'
 import { leavepadStore } from '@renderer/main'
 
