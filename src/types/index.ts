@@ -19,12 +19,14 @@ export type CursorPosition = {
 }
 
 export type ConfigurableMonacoEditorOptions =
+  | 'automaticLayout'
   | 'language'
   | 'insertSpaces'
   | 'minimap'
   | 'padding'
   | 'quickSuggestions'
   | 'renderWhitespace'
+  | 'stickyScroll'
   | 'tabSize'
   | 'useTabStops'
   | 'fontFamily'
@@ -36,6 +38,7 @@ export const defaultNoteEditorSettings: NoteEditorSettings = {
   sortBy: 'createdAt',
   sortOrder: 'desc',
   editorOptions: {
+    automaticLayout: true,
     language: 'plaintext',
     insertSpaces: true,
     minimap: {
@@ -47,6 +50,9 @@ export const defaultNoteEditorSettings: NoteEditorSettings = {
     },
     quickSuggestions: false,
     renderWhitespace: 'all',
+    stickyScroll: {
+      enabled: false
+    },
     tabSize: 2,
     useTabStops: false,
     fontFamily:

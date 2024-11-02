@@ -11,7 +11,7 @@
   "descending": "降順",
   "line": "行",
   "col": "列",
-  "blankWindowDescription": "ノートを追加するか Notes からノートを選択してください",
+  "blankWindowDescription": "ノートを追加するか <br /> Notes からノートを選択してください",
   "deleteAlertDialogTitleMessage": "{{noteName}} を削除しますか？",
   "ok": "OK",
   "cancel": "キャンセル",

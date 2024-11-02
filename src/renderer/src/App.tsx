@@ -38,7 +38,7 @@ import {
   onTabCloseClick
 } from './lib/atoms/tabs'
 import { getTime } from 'date-fns'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
 
 initializeNoteEditor()
@@ -86,6 +86,10 @@ function App(): JSX.Element {
     }
     fetchNotes()
     fetchSettings()
+
+    window.addEventListener('resize', () => {
+      editorRef.current?.layout()
+    })
   }, [])
 
   useEffect(() => {
@@ -321,7 +325,9 @@ function App(): JSX.Element {
         <div className="flex h-screen w-9/12 xl:w-10/12">
           {noteTabs.length === 0 ? (
             <div className="flex flex-col items-center justify-center w-full h-screen">
-              <h1 className="text-2xl text-muted-foreground">{t('blankWindowDescription')}</h1>
+              <h1 className="text-2xl text-muted-foreground">
+                <Trans i18nKey="blankWindowDescription" />
+              </h1>
             </div>
           ) : (
             <div className="flex flex-col w-full h-screen">
@@ -361,7 +367,7 @@ function App(): JSX.Element {
                 </ContextMenu>
               </div>
 
-              <div className="grow">
+              <div className="grow overflow-y-auto">
                 <NoteEditor
                   currentNote={currentNote}
                   onDidChangeCursorPosition={onDidChangeCursorPosition}
