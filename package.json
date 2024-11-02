@@ -1,6 +1,6 @@
 {
   "name": "leavepad",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "An Electron application with React and TypeScript",
   "license": "MIT",
   "type": "module",
