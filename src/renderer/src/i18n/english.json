@@ -40,6 +40,8 @@
     "tabSize": "Tab size",
     "tabSizeDescription": "The number of spaces a tab is equal to.",
     "useTabStops": "useTabStops",
-    "useTabStopsDescription": "Inserting and deleting whitespace follows tab stops."
+    "useTabStopsDescription": "Inserting and deleting whitespace follows tab stops.",
+    "wordWrap": "wordWrap",
+    "wordWrapDescription": "Lines will wrap according to the wordWrap setting."
   }
 }

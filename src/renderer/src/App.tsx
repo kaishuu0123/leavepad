@@ -24,7 +24,7 @@ import {
 } from './components/ui/dialog'
 import { GlobalSettingsTabs } from './components/global-settings-tabs'
 import { cn } from './lib/utils'
-import { CursorPosition, Note, NoteEditorSettings } from '../../types'
+import { CursorPosition, defaultNoteEditorSettings, Note, NoteEditorSettings } from '../../types'
 import { useAtom } from 'jotai'
 import { currentNoteEditorSettingsAtom } from './lib/atoms/note-editor-settings'
 import { currentNoteAtom, notesAtom } from './lib/atoms/notes'
@@ -82,7 +82,7 @@ function App(): JSX.Element {
     }
     const fetchSettings = async () => {
       const settings = await window.api.getSettings()
-      setCurrentNoteEditorSettings(settings)
+      setCurrentNoteEditorSettings({ ...defaultNoteEditorSettings, ...settings })
     }
     fetchNotes()
     fetchSettings()
@@ -275,7 +275,7 @@ function App(): JSX.Element {
               </DialogTrigger>
               <DialogContent
                 className={cn(
-                  'bg-background text-foreground max-w-3xl overflow-y-auto max-h-screen gap-2',
+                  'flex flex-col bg-background text-foreground max-w-2xl h-[90%] gap-2',
                   currentNoteEditorSettings.themeName === 'dark' && 'dark'
                 )}
                 aria-describedby={undefined}
@@ -287,14 +287,14 @@ function App(): JSX.Element {
                 </DialogHeader>
                 <div
                   data-orientation="horizontal"
-                  className="shrink-0 bg-border h-[1px] w-full my-2"
+                  className="flex-shrink-0 bg-border h-[1px] w-full my-2"
                 ></div>
-                <div className="flex w-full pb-3">
+                <div className="grow flex w-full min-h-0 pb-3">
                   <GlobalSettingsTabs settingsForm={settingsForm} />
                 </div>
                 <div
                   data-orientation="horizontal"
-                  className="shrink-0 bg-border h-[1px] w-full my-2"
+                  className="flex-shrink-0 bg-border h-[1px] w-full my-2"
                 ></div>
                 <div className="flex gap-3 justify-end">
                   <Button

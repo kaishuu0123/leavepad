@@ -31,6 +31,7 @@ export type ConfigurableMonacoEditorOptions =
   | 'useTabStops'
   | 'fontFamily'
   | 'fontSize'
+  | 'wordWrap'
 
 export const defaultNoteEditorSettings: NoteEditorSettings = {
   language: 'english',
@@ -55,6 +56,7 @@ export const defaultNoteEditorSettings: NoteEditorSettings = {
     },
     tabSize: 2,
     useTabStops: false,
+    wordWrap: 'off',
     fontFamily:
       "Consolas, Menlo, Monaco, 'Courier New', 'Droid Sans Mono', 'monospace', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
   }

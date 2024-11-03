@@ -1,12 +1,12 @@
 {
   "name": "leavepad",
-  "version": "0.3.0",
-  "description": "An Electron application with React and TypeScript",
+  "version": "0.4.0",
+  "description": "Leavepad is a multi-platform notepad. focuses on writing memos.",
   "license": "MIT",
   "type": "module",
   "main": "./out/main/index.js",
   "author": "kaishuu0123@gmail.com",
-  "homepage": "https://electron-vite.org",
+  "homepage": "https://github.com/kaishuu0123/leavepad",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",

@@ -67,6 +67,10 @@ function NoteEditor(
 
     if (ref.current != null) {
       ref.current.onDidChangeCursorPosition(onDidChangeCursorPosition)
+
+      // for DEBUG
+      // @ts-ignore
+      window.editor = editor
     }
   }
 

@@ -40,6 +40,8 @@
     "tabSize": "タブサイズ",
     "tabSizeDescription": "1 つのタブに相当するスペースの数",
     "useTabStops": "useTabStops",
-    "useTabStopsDescription": "空白の挿入や削除はタブ位置に従って行われます。"
+    "useTabStopsDescription": "空白の挿入や削除はタブ位置に従って行われます。",
+    "wordWrap": "wordWrap",
+    "wordWrapDescription": "行は、wordWrap の設定に従って折り返します。"
   }
 }

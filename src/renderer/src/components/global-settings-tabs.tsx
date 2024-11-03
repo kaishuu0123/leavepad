@@ -148,6 +148,24 @@ const EditorTabsContent = ({ settingsForm }) => {
               </FormItem>
             )}
           />
+          <FormField
+            control={settingsForm.control}
+            name="editorOptions.wordWrap"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t('globalSettingsGroup.wordWrap')}</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value === 'on'}
+                    onCheckedChange={(event) => {
+                      field.onChange(event ? 'on' : 'off')
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>{t('globalSettingsGroup.wordWrapDescription')}</FormDescription>
+              </FormItem>
+            )}
+          />
         </Form>
       </div>
     </TabsContent>
@@ -278,21 +296,25 @@ const GlobalSettingsTabs = ({ settingsForm }) => {
   const { t } = useTranslation()
 
   return (
-    <Tabs defaultValue="general" className="w-full space-y-6">
-      <TabsList className="flex w-full">
-        <TabsTrigger value="general" className="grow">
-          {t('globalSettingsGroup.general')}
-        </TabsTrigger>
-        <TabsTrigger value="notes" className="grow">
-          {t('globalSettingsGroup.notes')}
-        </TabsTrigger>
-        <TabsTrigger value="editor" className="grow">
-          {t('globalSettingsGroup.editor')}
-        </TabsTrigger>
-      </TabsList>
-      <GeneralTabsContent settingsForm={settingsForm} />
-      <NotesTabsContent settingsForm={settingsForm} />
-      <EditorTabsContent settingsForm={settingsForm} />
+    <Tabs defaultValue="general" className="flex flex-col w-full space-y-6 h-full">
+      <div>
+        <TabsList className="flex w-full">
+          <TabsTrigger value="general" className="grow">
+            {t('globalSettingsGroup.general')}
+          </TabsTrigger>
+          <TabsTrigger value="notes" className="grow">
+            {t('globalSettingsGroup.notes')}
+          </TabsTrigger>
+          <TabsTrigger value="editor" className="grow">
+            {t('globalSettingsGroup.editor')}
+          </TabsTrigger>
+        </TabsList>
+      </div>
+      <div className="grow h-full overflow-y-auto">
+        <GeneralTabsContent settingsForm={settingsForm} />
+        <NotesTabsContent settingsForm={settingsForm} />
+        <EditorTabsContent settingsForm={settingsForm} />
+      </div>
     </Tabs>
   )
 }
