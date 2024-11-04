@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="256" height="256" src="https://raw.github.com/kaishuu0123/leavepad/main/build/icon.png">
+</p>
+
 # Leavepad
 
 <a href="https://github.com/kaishuu0123/leavepad/releases">
