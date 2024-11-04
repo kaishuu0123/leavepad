@@ -1,9 +1,12 @@
 # Leavepad
 
+![GitHub Release](https://img.shields.io/github/v/release/kaishuu0123/leavepad)
+
 Leavepad is a multi-platform notepad. focuses on writing memos. File editing is not supported.
 
 - [Motivation](#motivation)
 - [Support platform](#support-platform)
+- [Download](#download)
 - [Screenshots](#screenshots)
   - [Features](#features)
   - [Language](#language)
@@ -23,6 +26,10 @@ Leavepad is a multi-platform notepad. focuses on writing memos. File editing is 
 Therefore, I decided to create a memo application by Electron for my own use.
 
 Note that file (local file) editing is not supported. (I don't need it).
+
+## Download
+
+- [Download from releases](https://github.com/kaishuu0123/leavepad/releases)
 
 ## Support platform
 
