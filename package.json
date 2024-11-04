@@ -1,6 +1,6 @@
 {
   "name": "leavepad",
-  "version": "0.4.1",
+  "version": "1.0.0",
   "description": "Leavepad is a multi-platform notepad. focuses on writing memos.",
   "license": "MIT",
   "type": "module",
