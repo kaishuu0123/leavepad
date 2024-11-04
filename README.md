@@ -40,9 +40,9 @@ Note that file (local file) editing is not supported. (I don't need it).
 
 ### Language
 
-| English                                                                                           | 日本語 (Japanese)                                                                                  |     |
-| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | --- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_english.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_japanese.png) |     |
+| English                                                                                           | 日本語 (Japanese)                                                                                  |
+| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_english.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_japanese.png) |
 
 ### Theme
 
