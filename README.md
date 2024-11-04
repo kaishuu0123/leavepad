@@ -1,6 +1,10 @@
 # Leavepad
 
+<a href="https://github.com/kaishuu0123/leavepad/releases">
+
 ![GitHub Release](https://img.shields.io/github/v/release/kaishuu0123/leavepad)
+
+</a>
 
 Leavepad is a multi-platform notepad. focuses on writing memos. File editing is not supported.
 
