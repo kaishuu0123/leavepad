@@ -13,8 +13,8 @@
 Leavepad is a multi-platform notepad. focuses on writing memos. File editing is not supported.
 
 - [Motivation](#motivation)
-- [Support platform](#support-platform)
 - [Download](#download)
+- [Support platform](#support-platform)
 - [Screenshots](#screenshots)
   - [Features](#features)
   - [Language](#language)
