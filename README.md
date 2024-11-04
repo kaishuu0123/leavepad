@@ -34,9 +34,9 @@ Note that file (local file) editing is not supported. (I don't need it).
 
 ### Features
 
-| Basic View                                                                                           | Global Settings                                                                                           |     |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | --- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_basic_view.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_global_settings.png) |     |
+| Basic View                                                                                           | Global Settings                                                                                           |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_basic_view.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_global_settings.png) |
 
 ### Language
 
