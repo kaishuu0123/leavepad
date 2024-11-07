@@ -40,17 +40,8 @@ import {
 import { getTime } from 'date-fns'
 import { Trans, useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
-import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger
-} from './components/ui/drawer'
+import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from './components/ui/drawer'
+import LogoImg from './assets/leavepad_logo.svg'
 
 initializeNoteEditor()
 
@@ -163,6 +154,10 @@ function App(): JSX.Element {
 
     // Add tab when not included noteTabs.
     setNoteTabs([...noteTabs, { id: note.id, name: note.name }])
+
+    if (editorRef.current != null) {
+      editorRef.current.focus()
+    }
   }
 
   const onNoteCardSetName = async (changedNote: Note, title: string) => {
@@ -231,14 +226,42 @@ function App(): JSX.Element {
       >
         <div
           className={cn(
-            'flex flex-col h-screen space-y-4',
-            isSidebarOpen === true ? 'w-3/12 xl:w-2/12' : 'w-1/12 xl:w-1/12'
+            'flex flex-col h-screen space-y-2',
+            isSidebarOpen === true ? 'w-3/12 xl:w-2/12' : ''
           )}
         >
-          <div className="px-2 mt-4">
+          <div className="mt-2">
+            {isSidebarOpen === true ? (
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-start space-x-2 rounded-none"
+                onClick={() => {
+                  setSidebarOpen(!isSidebarOpen)
+                }}
+              >
+                <div className="w-8 h-8 object-contain">
+                  <img src={LogoImg} />
+                </div>
+                <div className="grow text-left">Leavepad</div>
+                <div className="codicon codicon-chevron-left"></div>
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-start space-x-2 rounded-none"
+                onClick={() => setSidebarOpen(!isSidebarOpen)}
+              >
+                <div className="codicon codicon-chevron-right w-full"></div>
+              </Button>
+            )}
+          </div>
+
+          <Separator />
+
+          <div className="px-2">
             <Button className="w-full items-center justify-start" onClick={AddNote}>
-              <span className="codicon codicon-new-file"></span>{' '}
-              <span className={cn(isSidebarOpen === true ? '' : 'hidden')}>{t('createNote')}</span>
+              <span className="codicon codicon-new-file"></span>
+              {isSidebarOpen === true && <span>{t('createNote')}</span>}
             </Button>
           </div>
 
@@ -345,9 +368,11 @@ function App(): JSX.Element {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex rounded-none py-1 gap-1 w-full h-full items-center justify-center"
+                  className="flex rounded-none py-1 gap-1 w-full h-full items-center justify-center text-sm"
                 >
-                  <div className="codicon codicon-settings-gear"></div>
+                  <div className="flex items-center min-h-5">
+                    <div className="codicon codicon-settings-gear"></div>
+                  </div>
                   <div className={cn('text-sm', isSidebarOpen === true ? '' : 'hidden')}>
                     {t('globalSettings')}
                   </div>
@@ -403,10 +428,7 @@ function App(): JSX.Element {
         </div>
         <Separator orientation="vertical" className="h-screen" />
         <div
-          className={cn(
-            'flex h-screen w-9/12 xl:w-10/12',
-            isSidebarOpen === true ? 'w-9/12 xl:w-10/12' : 'w-11/12 xl:w-11/12'
-          )}
+          className={cn('flex h-screen', isSidebarOpen === true ? 'w-9/12 xl:w-10/12' : 'w-full')}
         >
           {noteTabs.length === 0 ? (
             <div className="flex flex-col items-center justify-center w-full h-screen">
