@@ -40,6 +40,17 @@ import {
 import { getTime } from 'date-fns'
 import { Trans, useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
+import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger
+} from './components/ui/drawer'
 
 initializeNoteEditor()
 
@@ -61,6 +72,7 @@ function App(): JSX.Element {
   const [cursorPosition, setCursorPositon] = useState<CursorPosition>({ line: 1, col: 1 })
   const [globalSettingsOpen, setGlobalSettingsOpen] = useState(false)
   const [currentSearchValue, setCurrentSearchValue] = useState('')
+  const [isSidebarOpen, setSidebarOpen] = useState(ttrue)
 
   const sortNotes = (unsortedNotes: Note[]) => {
     const sortBy = currentNoteEditorSettings.sortBy
@@ -217,48 +229,114 @@ function App(): JSX.Element {
           currentNoteEditorSettings.themeName === 'dark' && 'dark'
         )}
       >
-        <div className="flex flex-col h-screen w-3/12 xl:w-2/12 space-y-4">
+        <div
+          className={cn(
+            'flex flex-col h-screen space-y-4',
+            isSidebarOpen === true ? 'w-3/12 xl:w-2/12' : 'w-1/12 xl:w-1/12'
+          )}
+        >
           <div className="px-2 mt-4">
             <Button className="w-full items-center justify-start" onClick={AddNote}>
-              <span className="codicon codicon-new-file"></span> {t('createNote')}
+              <span className="codicon codicon-new-file"></span>{' '}
+              <span className={cn(isSidebarOpen === true ? '' : 'hidden')}>{t('createNote')}</span>
             </Button>
           </div>
 
           <Separator />
 
-          <div className="flex items-center px-2">
-            <div className="grow">
-              <h2 className="text-lg font-bold">Notes</h2>
+          {isSidebarOpen === true ? (
+            <div className="px-2">
+              <div className="flex items-center w-full">
+                <div className="grow">
+                  <h2 className="text-lg font-bold">Notes</h2>
+                </div>
+                <div className="grow flex justify-end">
+                  <span className="text-sm">{notes.length}</span>
+                </div>
+              </div>
             </div>
-            <div className="grow flex justify-end">
-              <span className="text-sm">{notes.length}</span>
-            </div>
-          </div>
+          ) : (
+            <></>
+          )}
 
-          <div className="px-2">
-            <Input
-              placeholder={t('searchByNoteName')}
-              defaultValue={currentSearchValue}
-              onChange={(e) => setCurrentSearchValue(e.target.value)}
-            />
-          </div>
+          {isSidebarOpen === true ? (
+            <div className="px-2">
+              <Input
+                placeholder={t('searchByNoteName')}
+                defaultValue={currentSearchValue}
+                onChange={(e) => setCurrentSearchValue(e.target.value)}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
 
           <div className="grow overflow-y-auto px-2">
-            <ScrollArea type="always" className="h-full">
-              <div className="flex flex-col h-full items-start gap-2 text-left text-sm">
-                {filterNotesByName(notes).map((note, _i) => {
-                  return (
-                    <NoteCard
-                      key={note.id}
-                      note={note}
-                      onClick={onNoteCardClick}
-                      onNoteCardSetName={onNoteCardSetName}
-                      onDeleteNote={DeleteNote}
-                    />
-                  )
-                })}
-              </div>
-            </ScrollArea>
+            {isSidebarOpen === true ? (
+              <ScrollArea type="always" className="h-full">
+                <div className="flex flex-col h-full items-start gap-2 text-left text-sm">
+                  {filterNotesByName(notes).map((note, _i) => {
+                    return (
+                      <NoteCard
+                        key={note.id}
+                        note={note}
+                        onClick={onNoteCardClick}
+                        onNoteCardSetName={onNoteCardSetName}
+                        onDeleteNote={DeleteNote}
+                      />
+                    )
+                  })}
+                </div>
+              </ScrollArea>
+            ) : (
+              <Drawer direction="left">
+                <DrawerTrigger asChild>
+                  <Button>
+                    <div className="codicon codicon-note"></div>
+                  </Button>
+                </DrawerTrigger>
+                <DrawerContent className="w-4/12 h-full rounded-none py-3">
+                  <div className="flex flex-col h-full space-y-4">
+                    <div className="px-3">
+                      <div className="flex items-center w-full">
+                        <div className="grow">
+                          <h2 className="text-lg font-bold">Notes</h2>
+                        </div>
+                        <div className="grow flex justify-end">
+                          <span className="text-sm">{notes.length}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="px-3">
+                      <Input
+                        placeholder={t('searchByNoteName')}
+                        defaultValue={currentSearchValue}
+                        onChange={(e) => setCurrentSearchValue(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="grow overflow-y-auto px-3">
+                      <ScrollArea type="always" className="h-full">
+                        <div className="flex flex-col h-full items-start gap-2 text-left text-sm">
+                          {filterNotesByName(notes).map((note, _i) => {
+                            return (
+                              <NoteCard
+                                key={note.id}
+                                note={note}
+                                onClick={onNoteCardClick}
+                                onNoteCardSetName={onNoteCardSetName}
+                                onDeleteNote={DeleteNote}
+                              />
+                            )
+                          })}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+                </DrawerContent>
+              </Drawer>
+            )}
           </div>
 
           <div className="flex-shrink items-center border-t">
@@ -270,7 +348,9 @@ function App(): JSX.Element {
                   className="flex rounded-none py-1 gap-1 w-full h-full items-center justify-center"
                 >
                   <div className="codicon codicon-settings-gear"></div>
-                  <div className="text-sm">{t('globalSettings')}</div>
+                  <div className={cn('text-sm', isSidebarOpen === true ? '' : 'hidden')}>
+                    {t('globalSettings')}
+                  </div>
                 </Button>
               </DialogTrigger>
               <DialogContent
@@ -322,7 +402,12 @@ function App(): JSX.Element {
           </div>
         </div>
         <Separator orientation="vertical" className="h-screen" />
-        <div className="flex h-screen w-9/12 xl:w-10/12">
+        <div
+          className={cn(
+            'flex h-screen w-9/12 xl:w-10/12',
+            isSidebarOpen === true ? 'w-9/12 xl:w-10/12' : 'w-11/12 xl:w-11/12'
+          )}
+        >
           {noteTabs.length === 0 ? (
             <div className="flex flex-col items-center justify-center w-full h-screen">
               <h1 className="text-2xl text-muted-foreground">
