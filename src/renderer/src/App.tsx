@@ -72,7 +72,7 @@ function App(): JSX.Element {
   const [cursorPosition, setCursorPositon] = useState<CursorPosition>({ line: 1, col: 1 })
   const [globalSettingsOpen, setGlobalSettingsOpen] = useState(false)
   const [currentSearchValue, setCurrentSearchValue] = useState('')
-  const [isSidebarOpen, setSidebarOpen] = useState(ttrue)
+  const [isSidebarOpen, setSidebarOpen] = useState(true)
 
   const sortNotes = (unsortedNotes: Note[]) => {
     const sortBy = currentNoteEditorSettings.sortBy
