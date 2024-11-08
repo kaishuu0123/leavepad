@@ -80,6 +80,17 @@ const EditorTabsContent = ({ settingsForm }) => {
         <Form {...settingsForm}>
           <FormField
             control={settingsForm.control}
+            name="editorOptions.fontSize"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t('globalSettingsGroup.fontSize')}</FormLabel>
+                <Input {...field} />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={settingsForm.control}
             name="editorOptions.language"
             render={({ field }) => (
               <FormItem className="flex flex-col">

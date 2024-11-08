@@ -91,6 +91,8 @@ function App(): JSX.Element {
     fetchNotes()
     fetchSettings()
 
+    document.fonts.load('16px HackGen')
+
     window.addEventListener('resize', () => {
       editorRef.current?.layout()
     })
