@@ -34,7 +34,7 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
     <div
       key={note.id}
       className={cn(
-        'flex flex-col w-full items-start gap-2 border rounded-lg p-3 text-left text-sm transition-all hover:bg-accent group'
+        'flex flex-col w-full items-start gap-2 border rounded-sm px-3 py-2 text-left text-sm transition-all hover:bg-accent group'
       )}
       onClick={() => onClick(note)}
     >
@@ -58,7 +58,7 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
                 autoFocus={true}
               />
             ) : (
-              <span className="text-base font-semibold align-middle truncate">{note.name}</span>
+              <span className="text-sm font-semibold align-middle truncate">{note.name}</span>
             )}
           </div>
         </button>
@@ -162,15 +162,31 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
       </div>
 
       <div className="flex flex-col w-full">
-        <div className="flex gap-1 justify-end text-muted-foreground text-xs">
-          <div className="text-nowrap truncate">{t('createdAt')}:</div>
-          <div className="text-nowrap truncate font-mono" title={formatToISO8601(note.createdAt)}>
+        <div className="grid grid-rows-1 grid-cols-3 space-x-1 justify-start text-muted-foreground text-xs">
+          <div className="text-nowrap truncate">
+            <div className="flex">
+              <div>{t('createdAt')}</div>
+              <div className="grow text-right">:</div>
+            </div>
+          </div>
+          <div
+            className="col-span-2 text-nowrap truncate font-mono"
+            title={formatToISO8601(note.createdAt)}
+          >
             {formatToRecent(note.createdAt)}
           </div>
         </div>
-        <div className="flex gap-1 justify-end text-muted-foreground text-xs">
-          <div className="text-nowrap truncate">{t('updatedAt')}:</div>
-          <div className="text-nowrap truncate font-mono" title={formatToISO8601(note.updatedAt)}>
+        <div className="grid grid-rows-1 grid-cols-3 space-x-1 justify-start text-muted-foreground text-xs">
+          <div className="text-nowrap truncate">
+            <div className="flex">
+              <div>{t('updatedAt')}</div>
+              <div className="grow text-right">:</div>
+            </div>
+          </div>
+          <div
+            className="col-span-2 text-nowrap truncate font-mono"
+            title={formatToISO8601(note.updatedAt)}
+          >
             {formatToRecent(note.updatedAt)}
           </div>
         </div>

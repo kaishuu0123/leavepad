@@ -18,14 +18,14 @@ function NoteTabs({ noteTabs, activeTabId, onTabClick, onTabCloseClick }): JSX.E
   return (
     <ScrollArea ref={ref} type="always" className="w-full h-full">
       <Tabs value={activeTabId} className="h-full" onValueChange={onTabChange}>
-        <TabsList className="w-full gap-2 rounded-none justify-start pb-0">
+        <TabsList className="w-full gap-2 rounded-none justify-start p-0 pt-1">
           {tabs.map((tab) => {
             return (
               <TabsTrigger
                 key={tab}
                 value={tab}
                 data-tab-id={tab}
-                className="flex items-center gap-3 h-full rounded-none rounded-t-md"
+                className="flex items-center gap-3 h-full rounded-none rounded-t-sm"
                 asChild
               >
                 <div>
