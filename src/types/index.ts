@@ -58,7 +58,7 @@ export const defaultNoteEditorSettings: NoteEditorSettings = {
     useTabStops: false,
     wordWrap: 'off',
     fontFamily:
-      "Consolas, Menlo, Monaco, 'Courier New', 'Droid Sans Mono', 'monospace', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
+      "HackGen, Consolas, Menlo, Monaco, 'Courier New', 'Droid Sans Mono', 'monospace', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
   }
 }
 

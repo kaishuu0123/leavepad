@@ -40,7 +40,7 @@ import {
 import { getTime } from 'date-fns'
 import { Trans, useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
-import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from './components/ui/drawer'
+import { Drawer, DrawerContent, DrawerTrigger } from './components/ui/drawer'
 import LogoImg from './assets/leavepad_logo.svg'
 
 initializeNoteEditor()
@@ -64,6 +64,7 @@ function App(): JSX.Element {
   const [globalSettingsOpen, setGlobalSettingsOpen] = useState(false)
   const [currentSearchValue, setCurrentSearchValue] = useState('')
   const [isSidebarOpen, setSidebarOpen] = useState(true)
+  const [isDrawerOpen, setDrawerOpen] = useState(false)
 
   const sortNotes = (unsortedNotes: Note[]) => {
     const sortBy = currentNoteEditorSettings.sortBy
@@ -146,6 +147,10 @@ function App(): JSX.Element {
   const onNoteCardClick = (note: Note) => {
     setCurrentNote(note)
 
+    if (isDrawerOpen === true) {
+      setDrawerOpen(false)
+    }
+
     const noteTab = noteTabs.find((tab) => tab.id === note.id)
     // Focus exists tab.
     if (noteTab) {
@@ -154,10 +159,6 @@ function App(): JSX.Element {
 
     // Add tab when not included noteTabs.
     setNoteTabs([...noteTabs, { id: note.id, name: note.name }])
-
-    if (editorRef.current != null) {
-      editorRef.current.focus()
-    }
   }
 
   const onNoteCardSetName = async (changedNote: Note, title: string) => {
@@ -312,7 +313,7 @@ function App(): JSX.Element {
                 </div>
               </ScrollArea>
             ) : (
-              <Drawer direction="left">
+              <Drawer direction="left" open={isDrawerOpen} onOpenChange={setDrawerOpen}>
                 <DrawerTrigger asChild>
                   <Button>
                     <div className="codicon codicon-note"></div>

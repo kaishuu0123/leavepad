@@ -48,7 +48,7 @@ function createWindow(): void {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
+  electronApp.setAppUserModelId('me.saino.leavepad')
 
   const userDir = app.getPath('userData')
   const defaultData: Note[] = []

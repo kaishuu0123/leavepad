@@ -2,6 +2,7 @@
 @import './fonts/geist-mono.css';
 @import './fonts/noto-sans.css';
 @import './fonts/noto-color-emoji.css';
+@import './fonts/hackgen.css';
 @import '../../../../node_modules/@vscode/codicons/dist/codicon.css';
 
 @tailwind base;

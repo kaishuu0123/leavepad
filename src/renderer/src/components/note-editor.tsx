@@ -54,7 +54,7 @@ function NoteEditor(
 ): JSX.Element {
   const [settings] = useAtom(currentNoteEditorSettingsAtom)
 
-  const handleEditorDidMount = (editor, _monaco) => {
+  const handleEditorDidMount = (monacoEditor, _monaco) => {
     if (ref == null) {
       return
     }
@@ -63,14 +63,18 @@ function NoteEditor(
     }
     // here is the editor instance
     // you can store it in `useRef` for further usage
-    ref.current = editor
+    ref.current = monacoEditor
 
     if (ref.current != null) {
       ref.current.onDidChangeCursorPosition(onDidChangeCursorPosition)
 
       // for DEBUG
       // @ts-ignore
-      window.editor = editor
+      window.editor = monacoEditor
+      // @ts-ignore
+      window.monaco = monaco
+
+      monaco.editor.remeasureFonts()
     }
   }
 
