@@ -40,7 +40,7 @@ class DbSingleton {
     }
   }
 
-  static getInstance() {
+  static getInstance(): DbSingleton {
     if (!DbSingleton.instance) {
       DbSingleton.instance = new DbSingleton()
       // ... any one time initialization goes here ...
@@ -48,7 +48,7 @@ class DbSingleton {
     return DbSingleton.instance
   }
 
-  public async initDbs() {
+  public async initDbs(): Promise<void> {
     await this.dbs.notesDb.read()
     await this.dbs.settingsDb.read()
     await this.dbs.appStateDb.read()

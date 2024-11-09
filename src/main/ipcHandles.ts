@@ -4,7 +4,7 @@ import { uuidv7 } from 'uuidv7'
 import { AppState, Note, NoteEditorSettings } from '../types'
 import { dbInstance } from './db_singleton'
 
-export const registerIpcHandles = (ipcMain) => {
+export const registerIpcHandles = (ipcMain): void => {
   const { notesDb, settingsDb, appStateDb } = dbInstance.dbs
 
   ipcMain.handle('get-notes', (): Note[] => {

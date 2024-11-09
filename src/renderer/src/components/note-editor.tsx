@@ -9,7 +9,7 @@ import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import { ForwardedRef, forwardRef, useEffect } from 'react'
+import { ForwardedRef, forwardRef } from 'react'
 
 export function initializeNoteEditor() {
   self.MonacoEnvironment = {
@@ -74,10 +74,9 @@ function NoteEditor(
         monaco.editor.remeasureFonts()
       })
 
-      // for DEBUG
-      // @ts-ignore
+      // @ts-ignore for DEBUG
       window.editor = monacoEditor
-      // @ts-ignore
+      // @ts-ignore for DEBUG
       window.monaco = monaco
     }
   }

@@ -53,7 +53,6 @@ initializeNoteEditor()
 
 function App(): JSX.Element {
   const { t } = useTranslation()
-  // @ts-ignore
   const _ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined)
   const [notes, setNotes] = useAtom(notesAtom)

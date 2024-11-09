@@ -4,32 +4,32 @@ import { AppState, Note, NoteEditorSettings } from '../types'
 
 // Custom APIs for renderer
 const api = {
-  getNotes: () => {
+  getNotes: (): Promise<Note[]> => {
     return ipcRenderer.invoke('get-notes')
   },
-  getNote: (noteId: string) => {
+  getNote: (noteId: string): Promise<Note> => {
     return ipcRenderer.invoke('get-note', noteId)
   },
-  createNote: async () => {
+  createNote: async (): Promise<Note> => {
     const note = await ipcRenderer.invoke('create-note')
     return note
   },
-  updateNote: (willUpdateNote: Note) => {
+  updateNote: (willUpdateNote: Note): Promise<Note> => {
     return ipcRenderer.invoke('update-note', willUpdateNote)
   },
-  deleteNote: (noteId: string) => {
+  deleteNote: (noteId: string): Promise<void> => {
     return ipcRenderer.invoke('delete-note', noteId)
   },
-  updateSettings: (settings: NoteEditorSettings) => {
-    ipcRenderer.invoke('update-settings', settings)
+  updateSettings: (settings: NoteEditorSettings): Promise<void> => {
+    return ipcRenderer.invoke('update-settings', settings)
   },
-  getSettings: () => {
+  getSettings: (): Promise<NoteEditorSettings> => {
     return ipcRenderer.invoke('get-settings')
   },
-  getAppState: () => {
+  getAppState: (): Promise<AppState> => {
     return ipcRenderer.invoke('get-app-state')
   },
-  updateAppState: (appState: AppState) => {
+  updateAppState: (appState: AppState): Promise<void> => {
     return ipcRenderer.invoke('update-app-state', appState)
   }
 }
