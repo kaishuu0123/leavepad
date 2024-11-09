@@ -24,6 +24,8 @@ Leavepad is a multi-platform notepad. focuses on writing memos. File editing is 
   - [Install](#install)
   - [Development](#development)
   - [Build](#build)
+- [LICENSE](#license)
+  - [FONT LICENSE](#font-license)
 
 ## Motivation
 
