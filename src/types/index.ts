@@ -70,3 +70,19 @@ export type NoteEditorSettings = {
   sortOrder: string
   editorOptions: Pick<editor.IStandaloneEditorConstructionOptions, ConfigurableMonacoEditorOptions>
 }
+
+export type AppState = {
+  isSidebarOpen: boolean
+  windowWidth: number | undefined
+  windowHeight: number | undefined
+  windowX: number | undefined
+  windowY: number | undefined
+}
+
+export const defaultAppState: AppState = {
+  isSidebarOpen: true,
+  windowWidth: undefined,
+  windowHeight: undefined,
+  windowX: undefined,
+  windowY: undefined
+}

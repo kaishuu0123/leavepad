@@ -4,7 +4,13 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import { createStore, Provider } from 'jotai'
-import { defaultNoteEditorSettings, Note, NoteEditorSettings } from '../../types'
+import {
+  AppState,
+  defaultAppState,
+  defaultNoteEditorSettings,
+  Note,
+  NoteEditorSettings
+} from '../../types'
 import { LowSync } from 'lowdb'
 import { LocalStorage } from 'lowdb/browser'
 import { uuidv7 } from 'uuidv7'
@@ -22,6 +28,8 @@ if (window.api === undefined) {
     defaultNoteEditorSettings
   )
   settingsDb.read()
+  const appStateDb = new LowSync(new LocalStorage<AppState>('leavepad-app-state'), defaultAppState)
+  appStateDb.read()
 
   window.api = {
     getNotes: async (): Promise<Note[]> => {
@@ -84,12 +92,19 @@ if (window.api === undefined) {
 
       return note
     },
+    getSettings: async () => {
+      return settingsDb.data
+    },
     updateSettings: async (settings: NoteEditorSettings) => {
       settingsDb.data = settings
       await settingsDb.write()
     },
-    getSettings: async () => {
-      return settingsDb.data
+    getAppState: async () => {
+      return appStateDb.data
+    },
+    updateAppState: async (appState: AppState) => {
+      appStateDb.data = appState
+      await appStateDb.write()
     }
   }
 }

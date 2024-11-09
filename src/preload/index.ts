@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { Note, NoteEditorSettings } from '../types'
+import { AppState, Note, NoteEditorSettings } from '../types'
 
 // Custom APIs for renderer
 const api = {
@@ -25,6 +25,12 @@ const api = {
   },
   getSettings: () => {
     return ipcRenderer.invoke('get-settings')
+  },
+  getAppState: () => {
+    return ipcRenderer.invoke('get-app-state')
+  },
+  updateAppState: (appState: AppState) => {
+    return ipcRenderer.invoke('update-app-state', appState)
   }
 }
 

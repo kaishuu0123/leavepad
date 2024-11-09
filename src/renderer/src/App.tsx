@@ -24,7 +24,13 @@ import {
 } from './components/ui/dialog'
 import { GlobalSettingsTabs } from './components/global-settings-tabs'
 import { cn } from './lib/utils'
-import { CursorPosition, defaultNoteEditorSettings, Note, NoteEditorSettings } from '../../types'
+import {
+  AppState,
+  CursorPosition,
+  defaultNoteEditorSettings,
+  Note,
+  NoteEditorSettings
+} from '../../types'
 import { useAtom } from 'jotai'
 import { currentNoteEditorSettingsAtom } from './lib/atoms/note-editor-settings'
 import { currentNoteAtom, notesAtom } from './lib/atoms/notes'
@@ -65,6 +71,7 @@ function App(): JSX.Element {
   const [currentSearchValue, setCurrentSearchValue] = useState('')
   const [isSidebarOpen, setSidebarOpen] = useState(true)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
+  const [appState, setAppState] = useState<AppState | undefined>(undefined)
 
   const sortNotes = (unsortedNotes: Note[]) => {
     const sortBy = currentNoteEditorSettings.sortBy
@@ -88,14 +95,29 @@ function App(): JSX.Element {
       const settings = await window.api.getSettings()
       setCurrentNoteEditorSettings({ ...defaultNoteEditorSettings, ...settings })
     }
+    const fetchAppState = async () => {
+      const appState = await window.api.getAppState()
+      setAppState(appState)
+      setSidebarOpen(appState.isSidebarOpen)
+    }
+
     fetchNotes()
     fetchSettings()
+    fetchAppState()
 
     document.fonts.load('14px HackGen')
     document.fonts.load('14px NOTONOTO')
 
     window.addEventListener('resize', () => {
       editorRef.current?.layout()
+
+      window.api.updateAppState({
+        isSidebarOpen: isSidebarOpen,
+        windowWidth: window.outerWidth,
+        windowHeight: window.outerHeight,
+        windowX: appState?.windowX,
+        windowY: appState?.windowY
+      })
     })
   }, [])
 
@@ -220,6 +242,18 @@ function App(): JSX.Element {
     return notes
   }
 
+  const onClickSidebarMinimize = () => {
+    setSidebarOpen(!isSidebarOpen)
+
+    window.api.updateAppState({
+      isSidebarOpen: !isSidebarOpen,
+      windowWidth: window.outerWidth,
+      windowHeight: window.outerHeight,
+      windowX: appState?.windowX,
+      windowY: appState?.windowY
+    })
+  }
+
   return (
     <>
       <div
@@ -239,9 +273,7 @@ function App(): JSX.Element {
               <Button
                 variant="ghost"
                 className="w-full flex items-center justify-start space-x-2 rounded-none"
-                onClick={() => {
-                  setSidebarOpen(!isSidebarOpen)
-                }}
+                onClick={onClickSidebarMinimize}
               >
                 <div className="w-8 h-8 object-contain">
                   <img src={LogoImg} />
@@ -253,7 +285,7 @@ function App(): JSX.Element {
               <Button
                 variant="ghost"
                 className="w-full flex items-center justify-start space-x-2 rounded-none"
-                onClick={() => setSidebarOpen(!isSidebarOpen)}
+                onClick={onClickSidebarMinimize}
               >
                 <div className="codicon codicon-chevron-right w-full"></div>
               </Button>
@@ -263,7 +295,13 @@ function App(): JSX.Element {
           <Separator />
 
           <div className="px-2">
-            <Button className="w-full items-center justify-start" onClick={AddNote}>
+            <Button
+              className={cn(
+                'w-full items-center justify-start',
+                isSidebarOpen === false && 'p-2 h-8'
+              )}
+              onClick={AddNote}
+            >
               <span className="codicon codicon-new-file"></span>
               {isSidebarOpen === true && <span>{t('createNote')}</span>}
             </Button>
@@ -318,7 +356,7 @@ function App(): JSX.Element {
             ) : (
               <Drawer direction="left" open={isDrawerOpen} onOpenChange={setDrawerOpen}>
                 <DrawerTrigger asChild>
-                  <Button>
+                  <Button className={cn(isSidebarOpen === false && 'p-2 h-8')}>
                     <div className="codicon codicon-note"></div>
                   </Button>
                 </DrawerTrigger>

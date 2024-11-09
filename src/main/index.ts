@@ -1,20 +1,18 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import path, { join } from 'path'
+import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-import { getTime } from 'date-fns'
-import { defaultNoteEditorSettings, Note, NoteEditorSettings } from '../types'
-import { JSONFileSyncPreset } from 'lowdb/node'
-import { uuidv7 } from 'uuidv7'
+import { registerIpcHandles } from './ipcHandles'
+import { dbInstance } from './db_singleton'
 
 function createWindow(): void {
+  const appStateData = dbInstance.dbs.appStateDb.data
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    // width: 1024,
-    // height: 768,
-    width: 800,
-    height: 600,
+    width: appStateData?.windowWidth != null ? appStateData?.windowWidth : 800,
+    height: appStateData?.windowHeight != null ? appStateData?.windowHeight : 600,
     useContentSize: true,
     show: false,
     autoHideMenuBar: true,
@@ -25,8 +23,22 @@ function createWindow(): void {
     }
   })
 
+  if (appStateData.windowX != null && appStateData.windowY != null) {
+    mainWindow.setPosition(appStateData.windowX, appStateData.windowY, false)
+  } else {
+    mainWindow.center()
+  }
+
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  mainWindow.on('move', async () => {
+    const bounds = mainWindow.getBounds()
+    const appStateDb = dbInstance.dbs.appStateDb
+    appStateDb.data.windowX = bounds.x
+    appStateDb.data.windowY = bounds.y
+    await appStateDb.write()
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -50,16 +62,6 @@ app.whenReady().then(async () => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('me.saino.leavepad')
 
-  const userDir = app.getPath('userData')
-  const defaultData: Note[] = []
-  const notesDb = JSONFileSyncPreset<Note[]>(path.join(userDir, 'notes.json'), defaultData)
-  await notesDb.read()
-  const settingsDb = JSONFileSyncPreset<NoteEditorSettings>(
-    path.join(userDir, 'settings.json'),
-    defaultNoteEditorSettings
-  )
-  await settingsDb.read()
-
   // Default open or close DevTools by F12 in development
   // and ignore CommandOrControl + R in production.
   // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
@@ -70,91 +72,7 @@ app.whenReady().then(async () => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  ipcMain.handle('get-notes', (): Note[] => {
-    return notesDb.data
-  })
-
-  ipcMain.handle(
-    'get-note',
-    (_event: Electron.IpcMainInvokeEvent, noteId: string): Note | undefined => {
-      const note = notesDb.data.find((note) => {
-        note.id == noteId
-      })
-
-      return note
-    }
-  )
-
-  ipcMain.handle('create-note', async () => {
-    const note: Note = {
-      id: uuidv7(),
-      name: `No Name ${notesDb.data.length + 1}`,
-      body: '',
-      createdAt: getTime(new Date()),
-      updatedAt: getTime(new Date())
-    }
-    notesDb.data.push(note)
-    await notesDb.write()
-
-    return note
-  })
-
-  ipcMain.handle(
-    'update-note',
-    async (_event: Electron.IpcMainInvokeEvent, willUpdateNote: Note) => {
-      const note = notesDb.data.find((note) => {
-        note.id === willUpdateNote.id
-      })
-
-      const newNotes = notesDb.data.map((note) => {
-        if (note.id === willUpdateNote.id) {
-          return { ...note, ...willUpdateNote }
-        } else {
-          return note
-        }
-      })
-
-      notesDb.data = newNotes
-
-      await notesDb.write()
-
-      return note
-    }
-  )
-
-  ipcMain.handle('delete-note', async (_event: Electron.IpcMainInvokeEvent, noteId: string) => {
-    const note = notesDb.data.find((note) => {
-      note.id === noteId
-    })
-
-    const newNotes = notesDb.data
-      .map((note) => {
-        if (note.id === noteId) {
-          return undefined
-        } else {
-          return note
-        }
-      })
-      .filter((note) => note != null)
-
-    notesDb.data = newNotes
-
-    await notesDb.write()
-
-    return note
-  })
-
-  ipcMain.handle(
-    'update-settings',
-    async (_event: Electron.IpcMainInvokeEvent, settings: NoteEditorSettings) => {
-      settingsDb.data = settings
-      await settingsDb.write()
-    }
-  )
-
-  ipcMain.handle('get-settings', async (_event: Electron.IpcMainInvokeEvent) => {
-    return settingsDb.data
-  })
+  registerIpcHandles(ipcMain)
 
   createWindow()
 

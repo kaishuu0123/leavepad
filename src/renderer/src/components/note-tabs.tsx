@@ -37,7 +37,10 @@ function NoteTabs({ noteTabs, activeTabId, onTabClick, onTabCloseClick }): JSX.E
                       variant="ghost"
                       className="flex items-center w-4 h-4 rounded-none"
                       size="icon"
-                      onClick={() => onTabCloseClick(tab)}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onTabCloseClick(tab)
+                      }}
                     >
                       <div className="codicon codicon-close"></div>
                     </Button>

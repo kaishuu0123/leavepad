@@ -70,7 +70,8 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
               size="icon"
               title={t('save')}
               className="w-6 h-6"
-              onClick={(_e) => {
+              onClick={(e) => {
+                e.stopPropagation()
                 saveNoteCardName(note)
               }}
             >
@@ -83,7 +84,8 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
               size="icon"
               title={t('rename')}
               className="w-6 h-6"
-              onClick={(_e) => {
+              onClick={(e) => {
+                e.stopPropagation()
                 setEditing(true)
               }}
             >
