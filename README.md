@@ -95,3 +95,35 @@ $ yarn build:mac
 # For Linux
 $ yarn build:linux
 ```
+
+# LICENSE
+
+- MIT
+
+## FONT LICENSE
+
+```
+"Geist Mono" is lisenced under the SIL Open Font License 1.1
+Copyright (c) 2023 Vercel, in collaboration with basement.studio
+by https://github.com/vercel/geist-font
+
+"Geist Sans" is lisenced under the SIL Open Font License 1.1
+Copyright (c) 2023 Vercel, in collaboration with basement.studio
+by https://github.com/vercel/geist-font
+
+"白源", "HackGen" is lisenced under the SIL Open Font License 1.1
+Copyright (c) 2019, Yuko OTAWARA. with Reserved Font Name "白源", "HackGen"
+by https://github.com/yuru7/HackGen/
+
+"NOTONOTO" is lisenced under the SIL Open Font License 1.1
+Copyright (c) 2024 Yuko Otawara, with Reserved Font Name "NOTONOTO"
+by https://github.com/yuru7/NOTONOTO/
+
+"Noto Color Emoji" is lisenced under the SIL Open Font License 1.1
+Copyright 2021 Google Inc. All Rights Reserved.
+by https://fonts.google.com/noto/specimen/Noto+Color+Emoji/
+
+"Noto Sans Japanese" is lisenced under the SIL Open Font License 1.1
+Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'
+by https://fonts.google.com/noto/specimen/Noto+Sans+JP
+```
