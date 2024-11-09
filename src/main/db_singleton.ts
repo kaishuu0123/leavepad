@@ -53,6 +53,12 @@ class DbSingleton {
     await this.dbs.settingsDb.read()
     await this.dbs.appStateDb.read()
   }
+
+  public async writeAllDbs(): Promise<void> {
+    await this.dbs.notesDb.write()
+    await this.dbs.settingsDb.write()
+    await this.dbs.appStateDb.write()
+  }
 }
 
 const instance = DbSingleton.getInstance()

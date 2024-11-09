@@ -6,11 +6,13 @@ import icon from '../../resources/icon.png?asset'
 import { registerIpcHandles } from './ipcHandles'
 import { dbInstance } from './db_singleton'
 
+let mainWindow: BrowserWindow
+
 function createWindow(): void {
   const appStateData = dbInstance.dbs.appStateDb.data
 
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: appStateData?.windowWidth != null ? appStateData?.windowWidth : 800,
     height: appStateData?.windowHeight != null ? appStateData?.windowHeight : 600,
     useContentSize: true,
@@ -72,9 +74,9 @@ app.whenReady().then(async () => {
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
-  registerIpcHandles(ipcMain)
-
   createWindow()
+
+  registerIpcHandles(ipcMain, mainWindow)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
@@ -86,7 +88,8 @@ app.whenReady().then(async () => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
+app.on('window-all-closed', async () => {
+  await dbInstance.writeAllDbs()
   if (process.platform !== 'darwin') {
     app.quit()
   }

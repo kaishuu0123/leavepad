@@ -3,8 +3,9 @@ import { uuidv7 } from 'uuidv7'
 
 import { AppState, Note, NoteEditorSettings } from '../types'
 import { dbInstance } from './db_singleton'
+import { BrowserWindow } from 'electron'
 
-export const registerIpcHandles = (ipcMain): void => {
+export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => {
   const { notesDb, settingsDb, appStateDb } = dbInstance.dbs
 
   ipcMain.handle('get-notes', (): Note[] => {
@@ -100,7 +101,16 @@ export const registerIpcHandles = (ipcMain): void => {
   ipcMain.handle(
     'update-app-state',
     async (_event: Electron.IpcMainInvokeEvent, appState: AppState) => {
-      appStateDb.data = appState
+      const bounds = mainWindow.getBounds()
+
+      appStateDb.data = {
+        ...appState,
+        windowX: bounds.x,
+        windowY: bounds.y,
+        windowWidth: bounds.width,
+        windowHeight: bounds.height
+      }
+
       await appStateDb.write()
     }
   )
