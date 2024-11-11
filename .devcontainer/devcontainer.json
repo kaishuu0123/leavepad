@@ -28,7 +28,9 @@
         "stylelint.vscode-stylelint",
         "mikestead.dotenv",
         "bradlc.vscode-tailwindcss",
-        "csstools.postcss"
+        "csstools.postcss",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml"
       ],
       "settings": {
         "editor.formatOnSave": true

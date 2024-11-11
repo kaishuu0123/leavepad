@@ -108,10 +108,10 @@ function App(): JSX.Element {
     document.fonts.load('14px HackGen')
     document.fonts.load('14px NOTONOTO')
 
-    window.addEventListener('resize', () => {
+    window.addEventListener('resize', async () => {
       editorRef.current?.layout()
 
-      window.api.updateAppState({
+      await window.api.updateAppState({
         isSidebarOpen: isSidebarOpen,
         windowWidth: window.outerWidth,
         windowHeight: window.outerHeight,
@@ -164,7 +164,7 @@ function App(): JSX.Element {
       updatedAt: getTime(new Date())
     }
 
-    window.api.updateNote(willUpdateNote)
+    await window.api.updateNote(willUpdateNote)
     const notes = await window.api.getNotes()
     setNotes(sortNotes(notes))
   }
@@ -193,7 +193,10 @@ function App(): JSX.Element {
       updatedAt: getTime(new Date())
     }
 
-    window.api.updateNote(willUpdateNote)
+    // Update note.
+    await window.api.updateNote(willUpdateNote)
+
+    // Get all notes after updating note.
     const notes = await window.api.getNotes()
     setNotes(sortNotes(notes))
 
@@ -212,10 +215,10 @@ function App(): JSX.Element {
     )
   }
 
-  const onGlobalSettingsSubmit = (value: NoteEditorSettings) => {
+  const onGlobalSettingsSubmit = async (value: NoteEditorSettings) => {
     setCurrentNoteEditorSettings(value)
     i18n.changeLanguage(value.language)
-    window.api.updateSettings(value)
+    await window.api.updateSettings(value)
   }
 
   if (currentNote == null) {
@@ -242,10 +245,10 @@ function App(): JSX.Element {
     return notes
   }
 
-  const onClickSidebarMinimize = () => {
+  const onClickSidebarMinimize = async () => {
     setSidebarOpen(!isSidebarOpen)
 
-    window.api.updateAppState({
+    await window.api.updateAppState({
       isSidebarOpen: !isSidebarOpen,
       windowWidth: window.outerWidth,
       windowHeight: window.outerHeight,
