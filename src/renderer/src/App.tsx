@@ -107,19 +107,26 @@ function App(): JSX.Element {
 
     document.fonts.load('14px HackGen')
     document.fonts.load('14px NOTONOTO')
+  }, [])
 
-    window.addEventListener('resize', async () => {
+  useEffect(() => {
+    const updateWindowState = () => {
       editorRef.current?.layout()
 
-      await window.api.updateAppState({
+      window.api.updateAppState({
         isSidebarOpen: isSidebarOpen,
         windowWidth: window.outerWidth,
         windowHeight: window.outerHeight,
         windowX: appState?.windowX,
         windowY: appState?.windowY
       })
-    })
-  }, [])
+    }
+    window.addEventListener('resize', updateWindowState)
+
+    return () => {
+      window.removeEventListener("resize", updateWindowState)
+    }
+  }, [isSidebarOpen])
 
   useEffect(() => {
     // re-sort when global settings changed
@@ -246,10 +253,11 @@ function App(): JSX.Element {
   }
 
   const onClickSidebarMinimize = async () => {
-    setSidebarOpen(!isSidebarOpen)
+    const nextState = !isSidebarOpen
+    setSidebarOpen(nextState)
 
     await window.api.updateAppState({
-      isSidebarOpen: !isSidebarOpen,
+      isSidebarOpen: nextState,
       windowWidth: window.outerWidth,
       windowHeight: window.outerHeight,
       windowX: appState?.windowX,
@@ -278,7 +286,7 @@ function App(): JSX.Element {
                 className="w-full flex items-center justify-start space-x-2 rounded-none"
                 onClick={onClickSidebarMinimize}
               >
-                <div className="w-8 h-8 object-contain">
+                <div className="min-w-8 w-8 min-h-8 h-8">
                   <img src={LogoImg} />
                 </div>
                 <div className="grow text-left">Leavepad</div>
