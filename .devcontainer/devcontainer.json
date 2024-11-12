@@ -30,7 +30,8 @@
         "bradlc.vscode-tailwindcss",
         "csstools.postcss",
         "ms-azuretools.vscode-docker",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "github.vscode-github-actions"
       ],
       "settings": {
         "editor.formatOnSave": true

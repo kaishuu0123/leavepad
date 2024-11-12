@@ -32,6 +32,9 @@ jobs:
         run: |
           xattr -cr .
           yarn build:mac
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
       - name: Build Linux
         if: ${{ matrix.os == 'ubuntu-latest'}}
         run: |
