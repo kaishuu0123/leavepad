@@ -19,6 +19,7 @@ import {
 import { useAtom } from 'jotai'
 import { notesAtom } from '@renderer/lib/atoms/notes'
 import { useTranslation } from 'react-i18next'
+import { ScrollArea } from './ui/scroll-area'
 
 const LanguageComboboxForm = ({ form, field }) => {
   const languages = monaco.languages.getLanguages()
@@ -322,9 +323,11 @@ const GlobalSettingsTabs = ({ settingsForm }) => {
         </TabsList>
       </div>
       <div className="grow h-full overflow-y-auto">
-        <GeneralTabsContent settingsForm={settingsForm} />
-        <NotesTabsContent settingsForm={settingsForm} />
-        <EditorTabsContent settingsForm={settingsForm} />
+        <ScrollArea type="always" className="h-full">
+          <GeneralTabsContent settingsForm={settingsForm} />
+          <NotesTabsContent settingsForm={settingsForm} />
+          <EditorTabsContent settingsForm={settingsForm} />
+        </ScrollArea>
       </div>
     </Tabs>
   )
