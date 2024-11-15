@@ -163,33 +163,19 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
         )}
       </div>
 
-      <div className="flex flex-col w-full">
-        <div className="grid grid-rows-1 grid-cols-3 space-x-1 justify-start text-muted-foreground text-xs">
-          <div className="text-nowrap truncate">
-            <div className="flex">
-              <div>{t('createdAt')}</div>
-              <div className="grow text-right">:</div>
-            </div>
-          </div>
-          <div
-            className="col-span-2 text-nowrap truncate font-mono"
-            title={formatToISO8601(note.createdAt)}
-          >
+      <div className="grid grid-cols-1 sm:grid-cols-[min-content_min-content_1fr] gap-x-0.5 text-muted-foreground text-xs">
+        <div className="grid grid-cols-subgrid col-span-full">
+          <div className="text-nowrap truncate">{t('createdAt')}</div>
+          <div className="hidden sm:block">:</div>
+          <div className="text-nowrap truncate font-mono" title={formatToISO8601(note.createdAt)}>
             {formatToRecent(note.createdAt)}
           </div>
         </div>
-        <div className="grid grid-rows-1 grid-cols-3 space-x-1 justify-start text-muted-foreground text-xs">
-          <div className="text-nowrap truncate">
-            <div className="flex">
-              <div>{t('updatedAt')}</div>
-              <div className="grow text-right">:</div>
-            </div>
-          </div>
-          <div
-            className="col-span-2 text-nowrap truncate font-mono"
-            title={formatToISO8601(note.updatedAt)}
-          >
-            {formatToRecent(note.updatedAt)}
+        <div className="grid grid-cols-subgrid col-span-full">
+          <div className="text-nowrap truncate">{t('updatedAt')}</div>
+          <div className="hidden sm:block">:</div>
+          <div className="text-nowrap truncate font-mono" title={formatToISO8601(note.createdAt)}>
+            {formatToRecent(note.createdAt)}
           </div>
         </div>
       </div>

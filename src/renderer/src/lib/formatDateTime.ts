@@ -1,4 +1,4 @@
-import { format, formatISO, isSameDay, isSameYear } from 'date-fns'
+import { format, formatISO, isSameDay } from 'date-fns'
 
 export const formatToISO8601 = (dateTimeMilliSeconds: number | undefined) => {
   if (dateTimeMilliSeconds == null) {

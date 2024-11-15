@@ -124,7 +124,7 @@ function App(): JSX.Element {
     window.addEventListener('resize', updateWindowState)
 
     return () => {
-      window.removeEventListener("resize", updateWindowState)
+      window.removeEventListener('resize', updateWindowState)
     }
   }, [isSidebarOpen])
 
@@ -371,7 +371,7 @@ function App(): JSX.Element {
                     <div className="codicon codicon-note"></div>
                   </Button>
                 </DrawerTrigger>
-                <DrawerContent className="w-4/12 h-full rounded-none py-3">
+                <DrawerContent className="w-6/12 md:w-4/12 lg:max-2xl:w-3/12 h-full rounded-none py-3">
                   <div className="flex flex-col h-full space-y-4">
                     <div className="px-3">
                       <div className="flex items-center w-full">
