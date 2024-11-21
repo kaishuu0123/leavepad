@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -7,6 +7,9 @@ import { registerIpcHandles } from './ipcHandles'
 import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
+
+// Disable Application Menu when boot
+Menu.setApplicationMenu(null)
 
 function createWindow(): void {
   const appStateData = dbInstance.dbs.appStateDb.data
