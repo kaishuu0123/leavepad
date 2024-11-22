@@ -8,8 +8,10 @@ import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
 
-// Disable Application Menu when boot
-Menu.setApplicationMenu(null)
+if (process.platform !== 'darwin') {
+  // Disable Application Menu when boot except darwin
+  Menu.setApplicationMenu(null)
+}
 
 function createWindow(): void {
   const appStateData = dbInstance.dbs.appStateDb.data
