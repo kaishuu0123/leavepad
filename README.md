@@ -12,20 +12,22 @@
 
 Leavepad is a multi-platform notepad. focuses on writing memos. File editing is not supported.
 
-- [Motivation](#motivation)
-- [Download](#download)
-- [Support platform](#support-platform)
-- [Screenshots](#screenshots)
-  - [Features](#features)
-  - [Language](#language)
-  - [Theme](#theme)
-- [Recommended IDE Setup](#recommended-ide-setup)
-- [Project Setup](#project-setup)
-  - [Install](#install)
-  - [Development](#development)
-  - [Build](#build)
-- [LICENSE](#license)
-  - [FONT LICENSE](#font-license)
+* [Motivation](#motivation)
+* [Download](#download)
+* [Support platform](#support-platform)
+* [Screenshots](#screenshots)
+  + [Features](#features)
+  + [Language](#language)
+  + [Theme](#theme)
+* [Saved data location (Path)](#saved-data-location-path)
+* [Development](#development)
+  + [Recommended IDE Setup](#recommended-ide-setup)
+  + [Project Setup](#project-setup)
+      - [Install](#install)
+      - [Development](#development-1)
+      - [Build](#build)
+* [LICENSE](#license)
+  + [FONT LICENSE](#font-license)
 
 ## Motivation
 
@@ -67,25 +69,45 @@ Note that file (local file) editing is not supported. (I don't need it).
 | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_light.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_dark.png) |
 
-## Recommended IDE Setup
+## Saved data location (Path)
+
+Notes are stored in electron's `app.getPath("userData")`
+
+- windows
+  - `C:\Users\<username>\AppData\Roaming\leavepad`
+  - shortcut: `%APPDATA%\leavepad`
+- macOS
+  - `~/Library/Application Support/leavepad`
+- Linux
+  - `~/.config/leavepad/`
+
+Files
+
+- `notes.json`
+- `settings.json`
+- `app-state.json`
+
+
+## Development
+### Recommended IDE Setup
 
 - [VSCode](https://code.visualstudio.com/) + [devcontainer](https://code.visualstudio.com/docs/devcontainers/tutorial)
 
-## Project Setup
+### Project Setup
 
-### Install
+#### Install
 
 ```bash
 $ yarn
 ```
 
-### Development
+#### Development
 
 ```bash
 $ yarn dev
 ```
 
-### Build
+#### Build
 
 ```bash
 # For windows
