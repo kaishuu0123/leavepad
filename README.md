@@ -100,7 +100,7 @@ $ yarn build:linux
 
 # LICENSE
 
-- MIT
+MIT
 
 ## FONT LICENSE
 
