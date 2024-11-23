@@ -53,19 +53,19 @@ Note that file (local file) editing is not supported. (I don't need it).
 
 | Basic View                                                                                           | Global Settings                                                                                           |
 | ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_basic_view.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_global_settings.png) |
+| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/basic_view.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/global_settings.png) |
 
 ### Language
 
 | English                                                                                           | 日本語 (Japanese)                                                                                  |
 | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_english.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_japanese.png) |
+| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_english.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_japanese.png) |
 
 ### Theme
 
 | light                                                                                                 | dark                                                                                                 |
 | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_theme_light.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241104_theme_dark.png) |
+| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_light.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_dark.png) |
 
 ## Recommended IDE Setup
 
