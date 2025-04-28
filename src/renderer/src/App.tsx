@@ -392,7 +392,7 @@ function App(): JSX.Element {
 
                     <div className="px-3">
                       <Input
-                        placeholder={t('searchByNoteName')}
+                        placeholder={t('searchByNoteNameOrNoteBody')}
                         defaultValue={currentSearchValue}
                         onChange={(e) => setCurrentSearchValue(e.target.value)}
                       />
