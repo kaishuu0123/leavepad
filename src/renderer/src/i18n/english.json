@@ -1,6 +1,6 @@
 {
   "createNote": "New note",
-  "searchByNoteName": "Search by note name",
+  "searchByNoteNameOrNoteBody": "Search by note name or note body",
   "rename": "Rename",
   "delete": "Delete",
   "save": "Save",
@@ -15,6 +15,7 @@
   "deleteAlertDialogTitleMessage": "Permanently delete {{noteName}} ?",
   "ok": "OK",
   "cancel": "Cancel",
+  "close": "Close",
   "contextMenu": {
     "close": "Close",
     "closeOthers": "Close Others",
