@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="256" height="256" src="https://raw.github.com/kaishuu0123/leavepad/main/build/icon.png">
+  <img width="128" height="128" src="https://raw.github.com/kaishuu0123/leavepad/main/build/icon.png">
 </p>
 
 # Leavepad
