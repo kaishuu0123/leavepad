@@ -47,7 +47,6 @@ import { getTime } from 'date-fns'
 import { Trans, useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
 import { Drawer, DrawerContent, DrawerTrigger } from './components/ui/drawer'
-import LogoImg from './assets/leavepad_logo.svg'
 
 initializeNoteEditor()
 
@@ -245,7 +244,7 @@ function App(): JSX.Element {
     if (currentSearchValue != null && currentSearchValue != '') {
       const regex = new RegExp(currentSearchValue)
       return notes.filter((note) => {
-        return regex.test(note.name)
+        return regex.test(note.name) || regex.test(note.body)
       })
     }
 
@@ -275,35 +274,22 @@ function App(): JSX.Element {
       >
         <div
           className={cn(
-            'flex flex-col h-screen space-y-2',
+            'flex flex-col h-screen space-y-2 relative',
             isSidebarOpen === true ? 'w-3/12 xl:w-2/12' : ''
           )}
         >
-          <div className="mt-2">
-            {isSidebarOpen === true ? (
-              <Button
-                variant="ghost"
-                className="w-full flex items-center justify-start space-x-2 rounded-none"
-                onClick={onClickSidebarMinimize}
-              >
-                <div className="min-w-8 w-8 min-h-8 h-8">
-                  <img src={LogoImg} />
-                </div>
-                <div className="grow text-left">Leavepad</div>
-                <div className="codicon codicon-chevron-left"></div>
-              </Button>
+          <Button
+            className={cn('absolute left-[100%] top-[50%] -ml-3 w-7 h-7 z-10')}
+            variant="outline"
+            size="icon"
+            onClick={onClickSidebarMinimize}
+          >
+            {isSidebarOpen ? (
+              <span className="codicon codicon-chevron-left"></span>
             ) : (
-              <Button
-                variant="ghost"
-                className="w-full flex items-center justify-start space-x-2 rounded-none"
-                onClick={onClickSidebarMinimize}
-              >
-                <div className="codicon codicon-chevron-right w-full"></div>
-              </Button>
+              <span className="codicon codicon-chevron-right"></span>
             )}
-          </div>
-
-          <Separator />
+          </Button>
 
           <div className="px-2">
             <Button
@@ -338,7 +324,7 @@ function App(): JSX.Element {
           {isSidebarOpen === true ? (
             <div className="px-2">
               <Input
-                placeholder={t('searchByNoteName')}
+                placeholder={t('searchByNoteNameOrNoteBody')}
                 defaultValue={currentSearchValue}
                 onChange={(e) => setCurrentSearchValue(e.target.value)}
               />
@@ -365,14 +351,34 @@ function App(): JSX.Element {
                 </div>
               </ScrollArea>
             ) : (
-              <Drawer direction="left" open={isDrawerOpen} onOpenChange={setDrawerOpen}>
+              <Drawer
+                direction="left"
+                open={isDrawerOpen}
+                onOpenChange={setDrawerOpen}
+                dismissible={false}
+              >
                 <DrawerTrigger asChild>
                   <Button className={cn(isSidebarOpen === false && 'p-2 h-8')}>
-                    <div className="codicon codicon-note"></div>
+                    <div
+                      className="codicon codicon-note"
+                      onClick={() => setDrawerOpen(false)}
+                    ></div>
                   </Button>
                 </DrawerTrigger>
                 <DrawerContent className="w-6/12 md:w-4/12 lg:max-2xl:w-3/12 h-full rounded-none py-3">
                   <div className="flex flex-col h-full space-y-4">
+                    <div className="px-3">
+                      <div className="flex items-center w-full">
+                        <Button
+                          className="w-full items-center justify-start"
+                          onClick={() => setDrawerOpen(false)}
+                        >
+                          <span className="codicon codicon-close"></span>
+                          <span>{t('close')}</span>
+                        </Button>
+                      </div>
+                    </div>
+
                     <div className="px-3">
                       <div className="flex items-center w-full">
                         <div className="grow">
