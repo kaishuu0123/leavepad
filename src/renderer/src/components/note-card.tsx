@@ -34,7 +34,7 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
     <div
       key={note.id}
       className={cn(
-        'flex flex-col w-full items-start gap-2 border rounded-sm px-3 py-2 text-left text-sm transition-all hover:bg-accent group'
+        'flex flex-col w-full items-start gap-1 border rounded-sm px-3 py-2 text-left text-sm transition-all hover:bg-accent group'
       )}
       onClick={() => onClick(note)}
     >
@@ -50,6 +50,7 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
                 onBlur={(_e) => {
                   saveNoteCardName(note)
                 }}
+                onClick={(e) => e.stopPropagation()}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && e.nativeEvent.isComposing === false) {
                     saveNoteCardName(note)
