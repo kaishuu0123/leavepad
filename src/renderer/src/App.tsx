@@ -337,11 +337,12 @@ function App(): JSX.Element {
             {isSidebarOpen === true ? (
               <ScrollArea type="always" className="h-full">
                 <div className="flex flex-col h-full items-start gap-2 text-left text-sm">
-                  {filterNotesByName(notes).map((note, _i) => {
+                  {filterNotesByName(notes).map((note, index) => {
                     return (
                       <NoteCard
                         key={note.id}
                         note={note}
+                        index={index}
                         onClick={onNoteCardClick}
                         onNoteCardSetName={onNoteCardSetName}
                         onDeleteNote={DeleteNote}
@@ -401,11 +402,12 @@ function App(): JSX.Element {
                     <div className="grow overflow-y-auto px-3">
                       <ScrollArea type="always" className="h-full">
                         <div className="flex flex-col h-full items-start gap-2 text-left text-sm">
-                          {filterNotesByName(notes).map((note, _i) => {
+                          {filterNotesByName(notes).map((note, index) => {
                             return (
                               <NoteCard
                                 key={note.id}
                                 note={note}
+                                index={index}
                                 onClick={onNoteCardClick}
                                 onNoteCardSetName={onNoteCardSetName}
                                 onDeleteNote={DeleteNote}
