@@ -10,6 +10,7 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -19,7 +20,7 @@ import { currentNoteEditorSettingsAtom } from '@renderer/lib/atoms/note-editor-s
 import { useAtom } from 'jotai'
 import { useTranslation } from 'react-i18next'
 
-function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Element {
+function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote, index }): JSX.Element {
   const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
   const [noteName, setNoteName] = useState(note.name)
@@ -36,10 +37,16 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
       className={cn(
         'flex flex-col w-full items-start gap-1 border rounded-sm px-3 py-2 text-left text-sm transition-all hover:bg-accent group'
       )}
+      role="button"
+      tabIndex={index}
       onClick={() => onClick(note)}
     >
       <div className="flex w-full gap-1 justify-center">
-        <button className="flex items-center flex-grow truncate">
+        {/*
+         * Reason for specifying 'truncate w-0'
+         * refs: https://github.com/radix-ui/primitives/issues/926#issuecomment-2763624511
+         */}
+        <button className="flex items-center flex-grow truncate w-0">
           <div className="flex items-center truncate min-h-6">
             {editing ? (
               <Input
@@ -54,6 +61,16 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && e.nativeEvent.isComposing === false) {
                     saveNoteCardName(note)
+                  }
+                }}
+                // HACK
+                //   Disable click events by doing preventDefault on onKeyUp.
+                //   If do preventDefault on onKeyDown, can't input space character.
+                //   refs: https://stackoverflow.com/questions/22280139/prevent-space-button-from-triggering-any-other-button-click-in-jquery
+                onKeyUp={(e) => {
+                  if (e.key === ' ') {
+                    // Prevent for onClick
+                    e.preventDefault()
                   }
                 }}
                 autoFocus={true}
@@ -138,10 +155,11 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote }): JSX.Eleme
               )}
             >
               <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
+                <AlertDialogTitle>Delete note?</AlertDialogTitle>
+                <AlertDialogDescription className="flex items-center gap-2">
                   <div className="codicon codicon-warning"></div>
                   <div>{t('deleteAlertDialogTitleMessage', { noteName: note.name })}</div>
-                </AlertDialogTitle>
+                </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
