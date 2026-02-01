@@ -193,8 +193,8 @@ function NoteCard({ note, onClick, onNoteCardSetName, onDeleteNote, index }): JS
         <div className="grid grid-cols-subgrid col-span-full">
           <div className="text-nowrap truncate">{t('updatedAt')}</div>
           <div className="hidden sm:block">:</div>
-          <div className="text-nowrap truncate font-mono" title={formatToISO8601(note.createdAt)}>
-            {formatToRecent(note.createdAt)}
+          <div className="text-nowrap truncate font-mono" title={formatToISO8601(note.updatedAt)}>
+            {formatToRecent(note.updatedAt)}
           </div>
         </div>
       </div>
