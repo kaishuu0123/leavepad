@@ -3,14 +3,10 @@
 {
   "name": "Leavepad devcontainer",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  "build": { "dockerfile": "Dockerfile" },
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
-      "version": "20.17.0"
-    },
+    "ghcr.io/devcontainers/features/node:1": { "version": "24.13.0" },
     "ghcr.io/devcontainers/features/desktop-lite:1": {
       "version": "latest",
       "noVncVersion": "1.2.0",
@@ -40,9 +36,7 @@
         "redhat.vscode-yaml",
         "github.vscode-github-actions"
       ],
-      "settings": {
-        "editor.formatOnSave": true
-      }
+      "settings": { "editor.formatOnSave": true }
     }
   }
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
