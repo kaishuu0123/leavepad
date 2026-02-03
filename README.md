@@ -12,22 +12,22 @@
 
 Leavepad is a multi-platform notepad. focuses on writing memos. File editing is not supported.
 
-* [Motivation](#motivation)
-* [Download](#download)
-* [Support platform](#support-platform)
-* [Screenshots](#screenshots)
-  + [Features](#features)
-  + [Language](#language)
-  + [Theme](#theme)
-* [Saved data location (Path)](#saved-data-location-path)
-* [Development](#development)
-  + [Recommended IDE Setup](#recommended-ide-setup)
-  + [Project Setup](#project-setup)
-      - [Install](#install)
-      - [Development](#development-1)
-      - [Build](#build)
-* [LICENSE](#license)
-  + [FONT LICENSE](#font-license)
+- [Motivation](#motivation)
+- [Download](#download)
+- [Support platform](#support-platform)
+- [Screenshots](#screenshots)
+  - [Features](#features)
+  - [Language](#language)
+  - [Theme](#theme)
+- [Saved data location (Path)](#saved-data-location-path)
+- [Development](#development)
+  - [Recommended IDE Setup](#recommended-ide-setup)
+  - [Project Setup](#project-setup)
+    - [Install](#install)
+    - [Development](#development-1)
+    - [Build](#build)
+- [LICENSE](#license)
+  - [FONT LICENSE](#font-license)
 
 ## Motivation
 
@@ -59,8 +59,8 @@ Note that file (local file) editing is not supported. (I don't need it).
 
 ### Language
 
-| English                                                                                           | 日本語 (Japanese)                                                                                  |
-| ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| English                                                                                                    | 日本語 (Japanese)                                                                                           |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_english.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_japanese.png) |
 
 ### Theme
@@ -87,8 +87,8 @@ Files
 - `settings.json`
 - `app-state.json`
 
-
 ## Development
+
 ### Recommended IDE Setup
 
 - [VSCode](https://code.visualstudio.com/) + [devcontainer](https://code.visualstudio.com/docs/devcontainers/tutorial)

@@ -4,8 +4,8 @@
  * by https://github.com/vercel/geist-font
  */
 @font-face {
-  font-family: "Geist Mono";
-  src: url("./GeistMono/GeistMono_wght.ttf") format("truetype");
+  font-family: 'Geist Mono';
+  src: url('./GeistMono/GeistMono_wght.ttf') format('truetype');
   font-weight: 100 900;
   font-display: swap;
 }
