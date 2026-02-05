@@ -1,0 +1,1994 @@
+diff --git a/electron.vite.config.ts b/electron.vite.config.ts
+index 628e902..da787d7 100644
+--- a/electron.vite.config.ts
++++ b/electron.vite.config.ts
+@@ -7,17 +7,34 @@ export default defineConfig({
+     plugins: [externalizeDepsPlugin()]
+   },
+   preload: {
+-    plugins: [externalizeDepsPlugin()]
++    plugins: [externalizeDepsPlugin()],
++    build: {
++      rollupOptions: {
++        input: {
++          index: resolve(__dirname, 'src/preload/index.ts'),
++          fileEditor: resolve(__dirname, 'src/preload/fileEditor.ts')
++        }
++      }
++    }
+   },
+   renderer: {
+     resolve: {
+       alias: {
+-        '@renderer': resolve('src/renderer/src')
++        '@renderer': resolve('src/renderer/src'),
++        '@file-editor': resolve('src/renderer/file-editor/src')
+       }
+     },
+     plugins: [react()],
+     server: {
+       host: '0.0.0.0'
++    },
++    build: {
++      rollupOptions: {
++        input: {
++          index: resolve(__dirname, 'src/renderer/index.html'),
++          'file-editor': resolve(__dirname, 'src/renderer/file-editor/index.html')
++        }
++      }
+     }
+   }
+ })
+diff --git a/leavepad_20260205.patch b/leavepad_20260205.patch
+new file mode 100644
+index 0000000..e69de29
+diff --git a/src/main/fileEditorIpcHandles.ts b/src/main/fileEditorIpcHandles.ts
+new file mode 100644
+index 0000000..1be2e6f
+--- /dev/null
++++ b/src/main/fileEditorIpcHandles.ts
+@@ -0,0 +1,145 @@
++import { dialog, BrowserWindow, ipcMain } from 'electron'
++import { readFile, writeFile } from 'fs/promises'
++import { basename } from 'path'
++import { FileInfo } from '../types'
++
++export const registerFileEditorIpcHandles = (): void => {
++  // Open file dialog
++  ipcMain.handle(
++    'file-editor:open-dialog',
++    async (_event: Electron.IpcMainInvokeEvent): Promise<FileInfo | null> => {
++      const focusedWindow = BrowserWindow.getFocusedWindow()
++      const result = await dialog.showOpenDialog(focusedWindow!, {
++        properties: ['openFile'],
++        filters: [
++          { name: 'All Files', extensions: ['*'] },
++          {
++            name: 'Text Files',
++            extensions: [
++              'txt',
++              'md',
++              'json',
++              'js',
++              'ts',
++              'tsx',
++              'jsx',
++              'html',
++              'css',
++              'scss',
++              'less',
++              'py',
++              'go',
++              'rs',
++              'java',
++              'c',
++              'cpp',
++              'h',
++              'hpp',
++              'xml',
++              'yaml',
++              'yml',
++              'toml',
++              'ini',
++              'conf',
++              'sh',
++              'bash',
++              'zsh',
++              'fish',
++              'ps1',
++              'bat',
++              'cmd'
++            ]
++          }
++        ]
++      })
++
++      if (result.canceled || result.filePaths.length === 0) {
++        return null
++      }
++
++      const filePath = result.filePaths[0]
++      const content = await readFile(filePath, 'utf-8')
++      const fileName = basename(filePath)
++
++      return { filePath, fileName, content }
++    }
++  )
++
++  // Read file
++  ipcMain.handle(
++    'file-editor:read-file',
++    async (_event: Electron.IpcMainInvokeEvent, filePath: string): Promise<FileInfo> => {
++      const content = await readFile(filePath, 'utf-8')
++      const fileName = basename(filePath)
++      return { filePath, fileName, content }
++    }
++  )
++
++  // Write file
++  ipcMain.handle(
++    'file-editor:write-file',
++    async (
++      _event: Electron.IpcMainInvokeEvent,
++      filePath: string,
++      content: string
++    ): Promise<void> => {
++      await writeFile(filePath, content, 'utf-8')
++    }
++  )
++
++  // Save dialog (Save As)
++  ipcMain.handle(
++    'file-editor:save-dialog',
++    async (
++      _event: Electron.IpcMainInvokeEvent,
++      defaultFileName?: string
++    ): Promise<string | null> => {
++      const focusedWindow = BrowserWindow.getFocusedWindow()
++      const result = await dialog.showSaveDialog(focusedWindow!, {
++        defaultPath: defaultFileName,
++        filters: [
++          { name: 'All Files', extensions: ['*'] },
++          {
++            name: 'Text Files',
++            extensions: ['txt', 'md', 'json', 'js', 'ts', 'tsx', 'jsx', 'html', 'css', 'py', 'go']
++          }
++        ]
++      })
++
++      if (result.canceled || !result.filePath) {
++        return null
++      }
++
++      return result.filePath
++    }
++  )
++
++  // Confirm unsaved changes dialog
++  ipcMain.handle(
++    'file-editor:confirm-close',
++    async (
++      _event: Electron.IpcMainInvokeEvent,
++      fileName: string
++    ): Promise<'save' | 'discard' | 'cancel'> => {
++      const focusedWindow = BrowserWindow.getFocusedWindow()
++      const result = await dialog.showMessageBox(focusedWindow!, {
++        type: 'question',
++        buttons: ['Save', "Don't Save", 'Cancel'],
++        defaultId: 0,
++        cancelId: 2,
++        title: 'Unsaved Changes',
++        message: `Do you want to save the changes to "${fileName}"?`,
++        detail: "Your changes will be lost if you don't save them."
++      })
++
++      switch (result.response) {
++        case 0:
++          return 'save'
++        case 1:
++          return 'discard'
++        default:
++          return 'cancel'
++      }
++    }
++  )
++}
+diff --git a/src/main/fileEditorWindow.ts b/src/main/fileEditorWindow.ts
+new file mode 100644
+index 0000000..dad94ec
+--- /dev/null
++++ b/src/main/fileEditorWindow.ts
+@@ -0,0 +1,98 @@
++import { BrowserWindow, ipcMain } from 'electron'
++import { join } from 'path'
++import { is } from '@electron-toolkit/utils'
++import icon from '../../resources/icon.png?asset'
++
++let fileEditorWindow: BrowserWindow | null = null
++
++export function createFileEditorWindow(filePath?: string): BrowserWindow {
++  // If window already exists, focus it and optionally open new file
++  if (fileEditorWindow && !fileEditorWindow.isDestroyed()) {
++    fileEditorWindow.focus()
++    if (filePath) {
++      fileEditorWindow.webContents.send('file-editor:open-file-path', filePath)
++    }
++    return fileEditorWindow
++  }
++
++  fileEditorWindow = new BrowserWindow({
++    width: 800,
++    height: 600,
++    useContentSize: true,
++    show: false,
++    autoHideMenuBar: true,
++    title: 'File Editor - Leavepad',
++    ...(process.platform === 'linux' ? { icon } : {}),
++    webPreferences: {
++      preload: join(__dirname, '../preload/fileEditor.mjs'),
++      sandbox: false,
++      contextIsolation: true,
++      nodeIntegration: false
++    }
++  })
++
++  fileEditorWindow.center()
++
++  fileEditorWindow.on('ready-to-show', () => {
++    fileEditorWindow?.show()
++    // If a file path was provided, send it to the renderer after the window is ready
++    if (filePath) {
++      // Wait a bit for React to initialize
++      setTimeout(() => {
++        fileEditorWindow?.webContents.send('file-editor:open-file-path', filePath)
++      }, 100)
++    }
++  })
++
++  fileEditorWindow.on('closed', () => {
++    fileEditorWindow = null
++  })
++
++  // Handle close with unsaved changes
++  fileEditorWindow.on('close', async (e) => {
++    if (fileEditorWindow) {
++      e.preventDefault()
++      fileEditorWindow.webContents.send('file-editor:request-close')
++    }
++  })
++
++  // Load the file editor renderer
++  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
++    const devUrl = process.env['ELECTRON_RENDERER_URL'].replace(/\/$/, '')
++    fileEditorWindow.loadURL(`${devUrl}/file-editor/index.html`)
++  } else {
++    fileEditorWindow.loadFile(join(__dirname, '../renderer/file-editor/index.html'))
++  }
++
++  return fileEditorWindow
++}
++
++export function getFileEditorWindow(): BrowserWindow | null {
++  return fileEditorWindow
++}
++
++// IPC handler for confirming close from renderer
++export function registerFileEditorWindowHandlers(): void {
++  ipcMain.on('file-editor:confirm-close-complete', () => {
++    if (fileEditorWindow) {
++      fileEditorWindow.removeAllListeners('close')
++      fileEditorWindow.close()
++      fileEditorWindow = null
++    }
++  })
++
++  ipcMain.on('file-editor:cancel-close', () => {
++    // Do nothing, user cancelled the close
++  })
++
++  ipcMain.on('file-editor:update-title', (_event, title: string) => {
++    if (fileEditorWindow && !fileEditorWindow.isDestroyed()) {
++      fileEditorWindow.setTitle(title)
++    }
++  })
++
++  // Open file in editor from main window (drag & drop)
++  ipcMain.on('open-file-in-editor', (_event, filePath: string) => {
++    createFileEditorWindow(filePath)
++  })
++}
+diff --git a/src/main/index.ts b/src/main/index.ts
+index b94ed43..415dc58 100644
+--- a/src/main/index.ts
++++ b/src/main/index.ts
+@@ -1,18 +1,18 @@
+-import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
++import { app, shell, BrowserWindow, ipcMain, Menu, MenuItemConstructorOptions } from 'electron'
+ import { join } from 'path'
+ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+ import icon from '../../resources/icon.png?asset'
+ 
+ import { registerIpcHandles } from './ipcHandles'
++import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
++import {
++  createFileEditorWindow,
++  registerFileEditorWindowHandlers
++} from './fileEditorWindow'
+ import { dbInstance } from './db_singleton'
+ 
+ let mainWindow: BrowserWindow
+ 
+-if (process.platform !== 'darwin') {
+-  // Disable Application Menu when boot except darwin
+-  Menu.setApplicationMenu(null)
+-}
+-
+ function createWindow(): void {
+   const appStateData = dbInstance.dbs.appStateDb.data
+ 
+@@ -63,6 +63,95 @@ function createWindow(): void {
+   }
+ }
+ 
++function createApplicationMenu(): void {
++  const isMac = process.platform === 'darwin'
++
++  const template: MenuItemConstructorOptions[] = [
++    // App menu (macOS only)
++    ...(isMac
++      ? [
++          {
++            label: app.name,
++            submenu: [
++              { role: 'about' as const },
++              { type: 'separator' as const },
++              { role: 'services' as const },
++              { type: 'separator' as const },
++              { role: 'hide' as const },
++              { role: 'hideOthers' as const },
++              { role: 'unhide' as const },
++              { type: 'separator' as const },
++              { role: 'quit' as const }
++            ]
++          }
++        ]
++      : []),
++    // File menu
++    {
++      label: 'File',
++      submenu: [
++        {
++          label: 'Open File...',
++          accelerator: 'CmdOrCtrl+Shift+O',
++          click: (): void => {
++            createFileEditorWindow()
++          }
++        },
++        { type: 'separator' },
++        isMac ? { role: 'close' } : { role: 'quit' }
++      ]
++    },
++    // Edit menu
++    {
++      label: 'Edit',
++      submenu: [
++        { role: 'undo' },
++        { role: 'redo' },
++        { type: 'separator' },
++        { role: 'cut' },
++        { role: 'copy' },
++        { role: 'paste' },
++        ...(isMac
++          ? [
++              { role: 'pasteAndMatchStyle' as const },
++              { role: 'delete' as const },
++              { role: 'selectAll' as const }
++            ]
++          : [{ role: 'delete' as const }, { type: 'separator' as const }, { role: 'selectAll' as const }])
++      ]
++    },
++    // View menu
++    {
++      label: 'View',
++      submenu: [
++        { role: 'reload' },
++        { role: 'forceReload' },
++        { role: 'toggleDevTools' },
++        { type: 'separator' },
++        { role: 'resetZoom' },
++        { role: 'zoomIn' },
++        { role: 'zoomOut' },
++        { type: 'separator' },
++        { role: 'togglefullscreen' }
++      ]
++    },
++    // Window menu
++    {
++      label: 'Window',
++      submenu: [
++        { role: 'minimize' },
++        { role: 'zoom' },
++        ...(isMac
++          ? [{ type: 'separator' as const }, { role: 'front' as const }, { type: 'separator' as const }, { role: 'window' as const }]
++          : [{ role: 'close' as const }])
++      ]
++    }
++  ]
++
++  const menu = Menu.buildFromTemplate(template)
++  Menu.setApplicationMenu(menu)
++}
++
+ // This method will be called when Electron has finished
+ // initialization and is ready to create browser windows.
+ // Some APIs can only be used after this event occurs.
+@@ -80,6 +169,13 @@ app.whenReady().then(async () => {
+   // IPC test
+   ipcMain.on('ping', () => console.log('pong'))
+ 
++  // Register file editor IPC handlers
++  registerFileEditorIpcHandles()
++  registerFileEditorWindowHandlers()
++
++  // Create application menu
++  createApplicationMenu()
++
+   createWindow()
+ 
+   registerIpcHandles(ipcMain, mainWindow)
+diff --git a/src/preload/fileEditor.d.ts b/src/preload/fileEditor.d.ts
+new file mode 100644
+index 0000000..a80f948
+--- /dev/null
++++ b/src/preload/fileEditor.d.ts
+@@ -0,0 +1,21 @@
++import { ElectronAPI } from '@electron-toolkit/preload'
++import { FileInfo } from 'src/types'
++
++declare global {
++  interface Window {
++    electron: ElectronAPI
++    fileEditorApi: {
++      getPathForFile: (file: File) => string
++      openFileDialog: () => Promise<FileInfo | null>
++      readFile: (filePath: string) => Promise<FileInfo>
++      writeFile: (filePath: string, content: string) => Promise<void>
++      saveDialog: (defaultFileName?: string) => Promise<string | null>
++      confirmClose: (fileName: string) => Promise<'save' | 'discard' | 'cancel'>
++      confirmCloseComplete: () => void
++      cancelClose: () => void
++      updateTitle: (title: string) => void
++      onRequestClose: (callback: () => void) => () => void
++      onOpenFilePath: (callback: (filePath: string) => void) => () => void
++    }
++  }
++}
+diff --git a/src/preload/fileEditor.ts b/src/preload/fileEditor.ts
+new file mode 100644
+index 0000000..94419c6
+--- /dev/null
++++ b/src/preload/fileEditor.ts
+@@ -0,0 +1,88 @@
++import { contextBridge, ipcRenderer, webUtils } from 'electron'
++import { electronAPI } from '@electron-toolkit/preload'
++import { FileInfo } from '../types'
++
++// Custom APIs for file editor renderer
++const fileEditorApi = {
++  // Get file path from dropped file (for drag & drop)
++  getPathForFile: (file: File): string => {
++    return webUtils.getPathForFile(file)
++  },
++  // Open file dialog and return file info
++  openFileDialog: (): Promise<FileInfo | null> => {
++    return ipcRenderer.invoke('file-editor:open-dialog')
++  },
++
++  // Read file from path
++  readFile: (filePath: string): Promise<FileInfo> => {
++    return ipcRenderer.invoke('file-editor:read-file', filePath)
++  },
++
++  // Write file to path
++  writeFile: (filePath: string, content: string): Promise<void> => {
++    return ipcRenderer.invoke('file-editor:write-file', filePath, content)
++  },
++
++  // Show save dialog (Save As)
++  saveDialog: (defaultFileName?: string): Promise<string | null> => {
++    return ipcRenderer.invoke('file-editor:save-dialog', defaultFileName)
++  },
++
++  // Confirm unsaved changes dialog
++  confirmClose: (fileName: string): Promise<'save' | 'discard' | 'cancel'> => {
++    return ipcRenderer.invoke('file-editor:confirm-close', fileName)
++  },
++
++  // Notify main process that close is confirmed
++  confirmCloseComplete: (): void => {
++    ipcRenderer.send('file-editor:confirm-close-complete')
++  },
++
++  // Notify main process that close is cancelled
++  cancelClose: (): void => {
++    ipcRenderer.send('file-editor:cancel-close')
++  },
++
++  // Update window title
++  updateTitle: (title: string): void => {
++    ipcRenderer.send('file-editor:update-title', title)
++  },
++
++  // Listen for request to close window (to check unsaved changes)
++  onRequestClose: (callback: () => void): (() => void) => {
++    const listener = (): void => {
++      callback()
++    }
++    ipcRenderer.on('file-editor:request-close', listener)
++    return () => {
++      ipcRenderer.removeListener('file-editor:request-close', listener)
++    }
++  },
++
++  // Listen for file path to open (from menu)
++  onOpenFilePath: (callback: (filePath: string) => void): (() => void) => {
++    const listener = (_event: Electron.IpcRendererEvent, filePath: string): void => {
++      callback(filePath)
++    }
++    ipcRenderer.on('file-editor:open-file-path', listener)
++    return () => {
++      ipcRenderer.removeListener('file-editor:open-file-path', listener)
++    }
++  }
++}
++
++// Use `contextBridge` APIs to expose Electron APIs to
++// renderer only if context isolation is enabled
++if (process.contextIsolated) {
++  try {
++    contextBridge.exposeInMainWorld('electron', electronAPI)
++    contextBridge.exposeInMainWorld('fileEditorApi', fileEditorApi)
++  } catch (error) {
++    console.error(error)
++  }
++} else {
++  // @ts-ignore (define in dts)
++  window.electron = electronAPI
++  // @ts-ignore (define in dts)
++  window.fileEditorApi = fileEditorApi
++}
+diff --git a/src/preload/index.d.ts b/src/preload/index.d.ts
+index cc994fe..47aaaa2 100644
+--- a/src/preload/index.d.ts
++++ b/src/preload/index.d.ts
+@@ -5,6 +5,8 @@ declare global {
+   interface Window {
+     electron: ElectronAPI
+     api: {
++      getPathForFile: (file: File) => string
++      openFileInEditor: (filePath: string) => void
+       getNotes: () => Promise<Note[]>
+       getNote: (noteId: string) => Promise<Note | undefined>
+       createNote: () => Promise<Note>
+diff --git a/src/preload/index.ts b/src/preload/index.ts
+index ea7c820..7ff7fb4 100644
+--- a/src/preload/index.ts
++++ b/src/preload/index.ts
+@@ -1,9 +1,17 @@
+-import { contextBridge, ipcRenderer } from 'electron'
++import { contextBridge, ipcRenderer, webUtils } from 'electron'
+ import { electronAPI } from '@electron-toolkit/preload'
+ import { AppState, Note, NoteEditorSettings } from '../types'
+ 
+ // Custom APIs for renderer
+ const api = {
++  // Get file path from dropped file (for drag & drop)
++  getPathForFile: (file: File): string => {
++    return webUtils.getPathForFile(file)
++  },
++  // Open file in file editor window
++  openFileInEditor: (filePath: string): void => {
++    ipcRenderer.send('open-file-in-editor', filePath)
++  },
+   getNotes: (): Promise<Note[]> => {
+     return ipcRenderer.invoke('get-notes')
+   },
+diff --git a/src/renderer/file-editor/index.html b/src/renderer/file-editor/index.html
+new file mode 100644
+index 0000000..58f07a6
+--- /dev/null
++++ b/src/renderer/file-editor/index.html
+@@ -0,0 +1,17 @@
++<!doctype html>
++<html>
++  <head>
++    <meta charset="UTF-8" />
++    <title>File Editor - Leavepad</title>
++    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
++    <meta
++      http-equiv="Content-Security-Policy"
++      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
++    />
++  </head>
++
++  <body>
++    <div id="root"></div>
++    <script type="module" src="./src/main.tsx"></script>
++  </body>
++</html>
+diff --git a/src/renderer/file-editor/src/App.tsx b/src/renderer/file-editor/src/App.tsx
+new file mode 100644
+index 0000000..28cf01c
+--- /dev/null
++++ b/src/renderer/file-editor/src/App.tsx
+@@ -0,0 +1,454 @@
++import { useAtom } from 'jotai'
++import { useCallback, useEffect, useRef, useState } from 'react'
++import { uuidv7 } from 'uuidv7'
++import { editor } from 'monaco-editor'
++import { FileTab } from '../../../types'
++import { fileTabsAtom, activeTabIdAtom, activeTabAtom, unsavedTabsAtom } from './lib/atoms/files'
++import { detectLanguageFromFileName } from './lib/languageDetection'
++import FileTabs from './components/file-tabs'
++import FileEditor, { initializeFileEditor } from './components/file-editor'
++
++// Simple basename function for browser environment
++function basename(filePath: string): string {
++  const parts = filePath.split(/[/\\]/)
++  return parts[parts.length - 1] || filePath
++}
++
++// Initialize Monaco editor workers
++initializeFileEditor()
++
++function App(): JSX.Element {
++  const [fileTabs, setFileTabs] = useAtom(fileTabsAtom)
++  const [activeTabId, setActiveTabId] = useAtom(activeTabIdAtom)
++  const [activeTab] = useAtom(activeTabAtom)
++  const [unsavedTabs] = useAtom(unsavedTabsAtom)
++  const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>()
++  const [isDragOver, setIsDragOver] = useState(false)
++  const dragCounterRef = useRef(0)
++
++  const language = activeTab ? detectLanguageFromFileName(activeTab.fileName) : 'plaintext'
++
++  // Update window title based on active tab
++  useEffect(() => {
++    if (activeTab) {
++      const modifiedMark = activeTab.isModified ? ' *' : ''
++      const title = `${activeTab.fileName}${modifiedMark} - File Editor - Leavepad`
++      window.fileEditorApi.updateTitle(title)
++    } else {
++      window.fileEditorApi.updateTitle('File Editor - Leavepad')
++    }
++  }, [activeTab?.fileName, activeTab?.isModified])
++
++  // Open file dialog and add new tab
++  const handleOpenFile = useCallback(async (): Promise<void> => {
++    const fileInfo = await window.fileEditorApi.openFileDialog()
++    if (!fileInfo) return
++
++    // Check if file is already open
++    const existingTab = fileTabs.find((tab) => tab.filePath === fileInfo.filePath)
++    if (existingTab) {
++      setActiveTabId(existingTab.id)
++      return
++    }
++
++    // Create new tab
++    const newTab: FileTab = {
++      id: uuidv7(),
++      filePath: fileInfo.filePath,
++      fileName: fileInfo.fileName,
++      content: fileInfo.content,
++      originalContent: fileInfo.content,
++      isModified: false
++    }
++
++    setFileTabs((prev) => [...prev, newTab])
++    setActiveTabId(newTab.id)
++  }, [fileTabs, setFileTabs, setActiveTabId])
++
++  // Create new file
++  const handleNewFile = useCallback((): void => {
++    // Generate a unique untitled file name
++    const existingUntitledFiles = fileTabs.filter((tab) => tab.fileName.startsWith('Untitled-'))
++    const maxNumber = existingUntitledFiles.reduce((max, tab) => {
++      const match = tab.fileName.match(/^Untitled-(\d+)$/)
++      if (match) {
++        return Math.max(max, parseInt(match[1], 10))
++      }
++      return max
++    }, 0)
++    const newFileName = `Untitled-${maxNumber + 1}`
++
++    // Create new tab
++    const newTab: FileTab = {
++      id: uuidv7(),
++      filePath: '', // No file path yet (unsaved)
++      fileName: newFileName,
++      content: '',
++      originalContent: '',
++      isModified: false
++    }
++
++    setFileTabs((prev) => [...prev, newTab])
++    setActiveTabId(newTab.id)
++  }, [fileTabs, setFileTabs, setActiveTabId])
++
++  // Open file from path (called from main process via menu or drag & drop)
++  const handleOpenFilePath = useCallback(
++    async (filePath: string): Promise<void> => {
++      // Check if file is already open
++      const existingTab = fileTabs.find((tab) => tab.filePath === filePath)
++      if (existingTab) {
++        setActiveTabId(existingTab.id)
++        return
++      }
++
++      try {
++        const fileInfo = await window.fileEditorApi.readFile(filePath)
++
++        const newTab: FileTab = {
++          id: uuidv7(),
++          filePath: fileInfo.filePath,
++          fileName: fileInfo.fileName,
++          content: fileInfo.content,
++          originalContent: fileInfo.content,
++          isModified: false
++        }
++
++        setFileTabs((prev) => [...prev, newTab])
++        setActiveTabId(newTab.id)
++      } catch (error) {
++        console.error('Failed to open file:', filePath, error)
++      }
++    },
++    [fileTabs, setFileTabs, setActiveTabId]
++  )
++
++  // Drag & Drop handlers
++  const handleDragEnter = useCallback((e: React.DragEvent): void => {
++    e.preventDefault()
++    e.stopPropagation()
++    dragCounterRef.current++
++    if (e.dataTransfer.types.includes('Files')) {
++      setIsDragOver(true)
++    }
++  }, [])
++
++  const handleDragLeave = useCallback((e: React.DragEvent): void => {
++    e.preventDefault()
++    e.stopPropagation()
++    dragCounterRef.current--
++    if (dragCounterRef.current === 0) {
++      setIsDragOver(false)
++    }
++  }, [])
++
++  const handleDragOver = useCallback((e: React.DragEvent): void => {
++    e.preventDefault()
++    e.stopPropagation()
++  }, [])
++
++  const handleDrop = useCallback(
++    async (e: React.DragEvent): Promise<void> => {
++      e.preventDefault()
++      e.stopPropagation()
++      dragCounterRef.current = 0
++      setIsDragOver(false)
++
++      const files = e.dataTransfer.files
++      if (files.length === 0) return
++
++      // Open each dropped file
++      for (let i = 0; i < files.length; i++) {
++        const file = files[i]
++        // Use Electron's webUtils to get the file path
++        const filePath = window.fileEditorApi.getPathForFile(file)
++        if (filePath) {
++          await handleOpenFilePath(filePath)
++        }
++      }
++    },
++    [handleOpenFilePath]
++  )
++
++  // Save current file
++  const handleSaveFile = useCallback(async (): Promise<boolean> => {
++    if (!activeTab) return false
++
++    let filePath = activeTab.filePath
++
++    // If no file path (new file), show save dialog
++    if (!filePath) {
++      const savedPath = await window.fileEditorApi.saveDialog(activeTab.fileName)
++      if (!savedPath) return false
++      filePath = savedPath
++    }
++
++    // Write file
++    await window.fileEditorApi.writeFile(filePath, activeTab.content)
++
++    // Update tab state
++    setFileTabs((prev) =>
++      prev.map((tab) =>
++        tab.id === activeTab.id
++          ? {
++              ...tab,
++              filePath,
++              fileName: basename(filePath!),
++              originalContent: tab.content,
++              isModified: false
++            }
++          : tab
++      )
++    )
++
++    return true
++  }, [activeTab, setFileTabs])
++
++  // Save As
++  const handleSaveAs = useCallback(async (): Promise<void> => {
++    if (!activeTab) return
++
++    const savedPath = await window.fileEditorApi.saveDialog(activeTab.fileName)
++    if (!savedPath) return
++
++    await window.fileEditorApi.writeFile(savedPath, activeTab.content)
++
++    setFileTabs((prev) =>
++      prev.map((tab) =>
++        tab.id === activeTab.id
++          ? {
++              ...tab,
++              filePath: savedPath,
++              fileName: basename(savedPath),
++              originalContent: tab.content,
++              isModified: false
++            }
++          : tab
++      )
++    )
++  }, [activeTab, setFileTabs])
++
++  // Close tab with confirmation if modified
++  const handleCloseTab = useCallback(
++    async (tabId: string): Promise<boolean> => {
++      const tab = fileTabs.find((t) => t.id === tabId)
++      if (!tab) return true
++
++      if (tab.isModified) {
++        const result = await window.fileEditorApi.confirmClose(tab.fileName)
++        if (result === 'cancel') return false
++        if (result === 'save') {
++          // Save the file first
++          let filePath = tab.filePath
++          if (!filePath) {
++            const savedPath = await window.fileEditorApi.saveDialog(tab.fileName)
++            if (!savedPath) return false
++            filePath = savedPath
++          }
++          await window.fileEditorApi.writeFile(filePath, tab.content)
++        }
++      }
++
++      // Remove tab
++      setFileTabs((prev) => prev.filter((t) => t.id !== tabId))
++
++      // If closing active tab, switch to another tab
++      if (tabId === activeTabId) {
++        const remainingTabs = fileTabs.filter((t) => t.id !== tabId)
++        if (remainingTabs.length > 0) {
++          setActiveTabId(remainingTabs[remainingTabs.length - 1].id)
++        } else {
++          setActiveTabId(null)
++        }
++      }
++
++      return true
++    },
++    [fileTabs, activeTabId, setFileTabs, setActiveTabId]
++  )
++
++  // Handle window close request
++  const handleWindowCloseRequest = useCallback(async (): Promise<void> => {
++    // Check all unsaved tabs
++    for (const tab of unsavedTabs) {
++      const result = await window.fileEditorApi.confirmClose(tab.fileName)
++      if (result === 'cancel') {
++        window.fileEditorApi.cancelClose()
++        return
++      }
++      if (result === 'save') {
++        let filePath = tab.filePath
++        if (!filePath) {
++          const savedPath = await window.fileEditorApi.saveDialog(tab.fileName)
++          if (!savedPath) {
++            window.fileEditorApi.cancelClose()
++            return
++          }
++          filePath = savedPath
++        }
++        await window.fileEditorApi.writeFile(filePath, tab.content)
++      }
++    }
++
++    // All confirmed, close the window
++    window.fileEditorApi.confirmCloseComplete()
++  }, [unsavedTabs])
++
++  // Editor change handler
++  const handleEditorChange = useCallback(
++    (tabId: string, value: string): void => {
++      setFileTabs((prev) =>
++        prev.map((tab) => {
++          if (tab.id === tabId) {
++            return {
++              ...tab,
++              content: value,
++              isModified: value !== tab.originalContent
++            }
++          }
++          return tab
++        })
++      )
++    },
++    [setFileTabs]
++  )
++
++  const handleCursorPositionChange = useCallback(
++    (_event: editor.ICursorPositionChangedEvent): void => {
++      // Cursor position tracking could be added here if needed
++    },
++    []
++  )
++
++  // Setup IPC listeners
++  useEffect(() => {
++    const unsubscribeClose = window.fileEditorApi.onRequestClose(handleWindowCloseRequest)
++    const unsubscribeOpenFile = window.fileEditorApi.onOpenFilePath(handleOpenFilePath)
++
++    return () => {
++      unsubscribeClose()
++      unsubscribeOpenFile()
++    }
++  }, [handleWindowCloseRequest, handleOpenFilePath])
++
++  // Keyboard shortcuts
++  useEffect(() => {
++    const handleKeyDown = (e: KeyboardEvent): void => {
++      const isMod = e.ctrlKey || e.metaKey
++
++      if (isMod && e.key === 'n') {
++        e.preventDefault()
++        handleNewFile()
++      } else if (isMod && e.key === 'o' && !e.shiftKey) {
++        e.preventDefault()
++        handleOpenFile()
++      } else if (isMod && e.key === 's' && !e.shiftKey) {
++        e.preventDefault()
++        handleSaveFile()
++      } else if (isMod && e.key === 's' && e.shiftKey) {
++        e.preventDefault()
++        handleSaveAs()
++      } else if (isMod && e.key === 'w') {
++        e.preventDefault()
++        if (activeTabId) {
++          handleCloseTab(activeTabId)
++        }
++      }
++    }
++
++    window.addEventListener('keydown', handleKeyDown)
++    return () => window.removeEventListener('keydown', handleKeyDown)
++  }, [handleNewFile, handleOpenFile, handleSaveFile, handleSaveAs, handleCloseTab, activeTabId])
++
++  return (
++    <div
++      className="flex flex-col h-screen relative"
++      onDragEnter={handleDragEnter}
++      onDragLeave={handleDragLeave}
++      onDragOver={handleDragOver}
++      onDrop={handleDrop}
++    >
++      {/* Drag & Drop Overlay */}
++      {isDragOver && (
++        <div className="absolute inset-0 z-50 flex items-center justify-center bg-primary/10 border-2 border-dashed border-primary pointer-events-none">
++          <div className="text-center">
++            <div className="codicon codicon-file-add text-4xl text-primary mb-2"></div>
++            <p className="text-lg font-medium text-primary">Drop files here to open</p>
++          </div>
++        </div>
++      )}
++
++      {/* Toolbar */}
++      <div className="flex items-center gap-1 px-2 py-1 border-b bg-muted/30">
++        <button
++          onClick={handleNewFile}
++          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted"
++          title="New File (Ctrl+N)"
++        >
++          <span className="codicon codicon-file-add"></span>
++          <span>New</span>
++        </button>
++        <button
++          onClick={handleOpenFile}
++          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted"
++          title="Open File (Ctrl+O)"
++        >
++          <span className="codicon codicon-folder-opened"></span>
++          <span>Open</span>
++        </button>
++        <button
++          onClick={handleSaveFile}
++          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted disabled:opacity-50"
++          disabled={!activeTab}
++          title="Save (Ctrl+S)"
++        >
++          <span className="codicon codicon-save"></span>
++          <span>Save</span>
++        </button>
++        <button
++          onClick={handleSaveAs}
++          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted disabled:opacity-50"
++          disabled={!activeTab}
++          title="Save As (Ctrl+Shift+S)"
++        >
++          <span className="codicon codicon-save-as"></span>
++          <span>Save As</span>
++        </button>
++      </div>
++
++      {/* Tabs */}
++      <FileTabs
++        fileTabs={fileTabs}
++        activeTabId={activeTabId}
++        onTabClick={setActiveTabId}
++        onTabCloseClick={handleCloseTab}
++      />
++
++      {/* Editor */}
++      <div className="flex-1 overflow-hidden">
++        <FileEditor
++          ref={editorRef}
++          currentTab={activeTab}
++          language={language}
++          onDidChangeCursorPosition={handleCursorPositionChange}
++          onEditorChange={handleEditorChange}
++        />
++      </div>
++
++      {/* Status Bar */}
++      <div className="flex items-center justify-between px-3 py-1 text-xs border-t bg-muted/30 text-muted-foreground">
++        <div className="flex items-center gap-3">
++          {activeTab && (
++            <>
++              <span>{activeTab.filePath || 'Untitled'}</span>
++              {activeTab.isModified && <span className="text-yellow-600">Modified</span>}
++            </>
++          )}
++        </div>
++        <div className="flex items-center gap-3">{activeTab && <span>{language}</span>}</div>
++      </div>
++    </div>
++  )
++}
++
++export default App
+diff --git a/src/renderer/file-editor/src/assets/index.css b/src/renderer/file-editor/src/assets/index.css
+new file mode 100644
+index 0000000..65c946a
+--- /dev/null
++++ b/src/renderer/file-editor/src/assets/index.css
+@@ -0,0 +1,83 @@
++@import '../../../src/assets/fonts/geist.css';
++@import '../../../src/assets/fonts/geist-mono.css';
++@import '../../../src/assets/fonts/noto-sans.css';
++@import '../../../src/assets/fonts/noto-color-emoji.css';
++@import '../../../src/assets/fonts/hackgen.css';
++@import '../../../src/assets/fonts/notonoto.css';
++@import '../../../../../node_modules/@vscode/codicons/dist/codicon.css';
++
++@tailwind base;
++@tailwind components;
++@tailwind utilities;
++
++@layer base {
++  :root {
++    --background: 0 0% 100%;
++    --foreground: 0 0% 3.9%;
++    --card: 0 0% 100%;
++    --card-foreground: 0 0% 3.9%;
++    --popover: 0 0% 100%;
++    --popover-foreground: 0 0% 3.9%;
++    --primary: 0 0% 9%;
++    --primary-foreground: 0 0% 98%;
++    --secondary: 0 0% 96.1%;
++    --secondary-foreground: 0 0% 9%;
++    --muted: 0 0% 96.1%;
++    --muted-foreground: 0 0% 45.1%;
++    --accent: 0 0% 96.1%;
++    --accent-foreground: 0 0% 9%;
++    --destructive: 0 84.2% 60.2%;
++    --destructive-foreground: 0 0% 98%;
++    --border: 0 0% 89.8%;
++    --input: 0 0% 89.8%;
++    --ring: 0 0% 3.9%;
++    --radius: 0.5rem;
++    --chart-1: 12 76% 61%;
++    --chart-2: 173 58% 39%;
++    --chart-3: 197 37% 24%;
++    --chart-4: 43 74% 66%;
++    --chart-5: 27 87% 67%;
++
++    --font-sans: 'Geist Sans', 'Noto Sans JP', 'Noto Color Emoji';
++    --font-mono: 'Geist Mono', 'Noto Sans JP', 'Noto Color Emoji';
++  }
++
++  .dark {
++    --background: 0 0% 3.9%;
++    --foreground: 0 0% 98%;
++    --card: 0 0% 3.9%;
++    --card-foreground: 0 0% 98%;
++    --popover: 0 0% 3.9%;
++    --popover-foreground: 0 0% 98%;
++    --primary: 0 0% 98%;
++    --primary-foreground: 0 0% 9%;
++    --secondary: 0 0% 14.9%;
++    --secondary-foreground: 0 0% 98%;
++    --muted: 0 0% 14.9%;
++    --muted-foreground: 0 0% 63.9%;
++    --accent: 0 0% 14.9%;
++    --accent-foreground: 0 0% 98%;
++    --destructive: 0 62.8% 30.6%;
++    --destructive-foreground: 0 0% 98%;
++    --border: 0 0% 14.9%;
++    --input: 0 0% 14.9%;
++    --ring: 0 0% 83.1%;
++    --chart-1: 220 70% 50%;
++    --chart-2: 160 60% 45%;
++    --chart-3: 30 80% 55%;
++    --chart-4: 280 65% 60%;
++    --chart-5: 340 75% 55%;
++  }
++}
++
++@layer base {
++  * {
++    @apply border-border;
++  }
++  body {
++    @apply bg-background text-foreground;
++    font-feature-settings:
++      'rlig' 1,
++      'calt' 1;
++  }
++}
+diff --git a/src/renderer/file-editor/src/components/file-editor.tsx b/src/renderer/file-editor/src/components/file-editor.tsx
+new file mode 100644
+index 0000000..59e43c5
+--- /dev/null
++++ b/src/renderer/file-editor/src/components/file-editor.tsx
+@@ -0,0 +1,108 @@
++import { Editor, loader } from '@monaco-editor/react'
++import { editor } from 'monaco-editor'
++import * as monaco from 'monaco-editor'
++import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
++import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
++import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
++import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
++import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
++import { ForwardedRef, forwardRef } from 'react'
++import { FileTab } from '../../../../types'
++
++export function initializeFileEditor(): void {
++  self.MonacoEnvironment = {
++    getWorker(_, label) {
++      if (label === 'json') {
++        return new jsonWorker()
++      }
++      if (label === 'css' || label === 'scss' || label === 'less') {
++        return new cssWorker()
++      }
++      if (label === 'html' || label === 'handlebars' || label === 'razor') {
++        return new htmlWorker()
++      }
++      if (label === 'typescript' || label === 'javascript') {
++        return new tsWorker()
++      }
++      return new editorWorker()
++    }
++  }
++
++  loader.config({ monaco })
++}
++
++type FileEditorProps = {
++  currentTab: FileTab | null
++  language: string
++  onDidChangeCursorPosition: (event: editor.ICursorPositionChangedEvent) => void
++  onEditorChange: (tabId: string, value: string) => void
++}
++
++function FileEditor(
++  { currentTab, language, onDidChangeCursorPosition, onEditorChange }: FileEditorProps,
++  ref: ForwardedRef<editor.IStandaloneCodeEditor | undefined>
++): JSX.Element {
++  const handleEditorDidMount = (
++    monacoEditor: editor.IStandaloneCodeEditor,
++    _monaco: typeof monaco
++  ): void => {
++    if (ref == null) {
++      return
++    }
++    if (typeof ref === 'function') {
++      return
++    }
++    ref.current = monacoEditor
++
++    if (ref.current != null) {
++      ref.current.onDidChangeCursorPosition(onDidChangeCursorPosition)
++
++      monaco.editor.remeasureFonts()
++      document.fonts.addEventListener('loadingdone', () => {
++        monaco.editor.remeasureFonts()
++      })
++    }
++  }
++
++  const handleEditorChange = (value: string | undefined, _event: editor.IModelContentChangedEvent): void => {
++    if (currentTab != null && value !== undefined) {
++      onEditorChange(currentTab.id, value)
++    }
++  }
++
++  if (currentTab == null) {
++    return (
++      <div className="flex items-center justify-center h-full text-muted-foreground">
++        <div className="text-center">
++          <div className="codicon codicon-file text-4xl mb-2"></div>
++          <p>Open a file to start editing</p>
++          <p className="text-sm mt-1">Ctrl+O or File &gt; Open File...</p>
++        </div>
++      </div>
++    )
++  }
++
++  return (
++    <Editor
++      value={currentTab.content}
++      language={language}
++      theme="vs"
++      options={{
++        automaticLayout: true,
++        minimap: { enabled: false },
++        padding: { top: 5, bottom: 5 },
++        fontSize: 14,
++        fontFamily:
++          "NOTONOTO, HackGen, Consolas, Menlo, Monaco, 'Courier New', 'Droid Sans Mono', 'monospace', monospace, 'Noto Sans JP', 'Noto Color Emoji'",
++        wordWrap: 'off',
++        renderWhitespace: 'selection',
++        scrollBeyondLastLine: false
++      }}
++      onMount={handleEditorDidMount}
++      onChange={handleEditorChange}
++      path={currentTab.id}
++    />
++  )
++}
++
++export default forwardRef(FileEditor)
+diff --git a/src/renderer/file-editor/src/components/file-tabs.tsx b/src/renderer/file-editor/src/components/file-tabs.tsx
+new file mode 100644
+index 0000000..de9471d
+--- /dev/null
++++ b/src/renderer/file-editor/src/components/file-tabs.tsx
+@@ -0,0 +1,170 @@
++import { FileTab } from '../../../../types'
++import { ScrollArea, ScrollBar } from '../../../src/components/ui/scroll-area'
++import { Tabs, TabsList, TabsTrigger } from '../../../src/components/ui/tabs'
++import { Button } from '../../../src/components/ui/button'
++import { useState } from 'react'
++
++type FileTabsProps = {
++  fileTabs: FileTab[]
++  activeTabId: string | null
++  onTabClick: (tabId: string) => void
++  onTabCloseClick: (tabId: string) => void
++  onTabReorder: (newTabs: FileTab[]) => void
++}
++
++function FileTabs({
++  fileTabs,
++  activeTabId,
++  onTabClick,
++  onTabCloseClick,
++  onTabReorder
++}: FileTabsProps): JSX.Element {
++  const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
++  const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
++
++  if (fileTabs.length === 0) {
++    return <></>
++  }
++
++  const onTabChange = (value: string): void => {
++    onTabClick(value)
++  }
++
++  const handleDragStart = (e: React.DragEvent, tabId: string) => {
++    setDraggedTabId(tabId)
++    e.dataTransfer.effectAllowed = 'move'
++
++    // Create a custom drag image (ghost)
++    const target = e.currentTarget as HTMLElement
++    const clone = target.cloneNode(true) as HTMLElement
++
++    // Style the clone for the drag preview
++    clone.style.position = 'absolute'
++    clone.style.top = '-9999px'
++    clone.style.left = '-9999px'
++    clone.style.opacity = '0.8'
++    clone.style.background = 'var(--background)'
++    clone.style.border = '1px solid var(--border)'
++    clone.style.borderRadius = '4px'
++    clone.style.padding = '4px 8px'
++    clone.style.pointerEvents = 'none'
++    clone.style.width = `${target.offsetWidth}px`
++    clone.style.height = `${target.offsetHeight}px`
++
++    document.body.appendChild(clone)
++
++    // Calculate offset from the click position within the element
++    const rect = target.getBoundingClientRect()
++    const offsetX = e.clientX - rect.left
++    const offsetY = e.clientY - rect.top
++
++    e.dataTransfer.setDragImage(clone, offsetX, offsetY)
++
++    // Remove the clone after drag starts
++    setTimeout(() => {
++      document.body.removeChild(clone)
++    }, 0)
++  }
++
++  const handleDragOver = (e: React.DragEvent, tabId: string) => {
++    e.preventDefault()
++    e.dataTransfer.dropEffect = 'move'
++
++    if (draggedTabId && draggedTabId !== tabId) {
++      setDragOverTabId(tabId)
++    }
++  }
++
++  const handleDragLeave = () => {
++    setDragOverTabId(null)
++  }
++
++  const handleDrop = (e: React.DragEvent, targetTabId: string) => {
++    e.preventDefault()
++
++    if (!draggedTabId || draggedTabId === targetTabId) {
++      setDraggedTabId(null)
++      setDragOverTabId(null)
++      return
++    }
++
++    const draggedIndex = fileTabs.findIndex((tab) => tab.id === draggedTabId)
++    const targetIndex = fileTabs.findIndex((tab) => tab.id === targetTabId)
++
++    if (draggedIndex === -1 || targetIndex === -1) {
++      setDraggedTabId(null)
++      setDragOverTabId(null)
++      return
++    }
++
++    // Create new array with reordered tabs
++    const newTabs = [...fileTabs]
++    const [removed] = newTabs.splice(draggedIndex, 1)
++    newTabs.splice(targetIndex, 0, removed)
++
++    onTabReorder(newTabs)
++    setDraggedTabId(null)
++    setDragOverTabId(null)
++  }
++
++  const handleDragEnd = () => {
++    setDraggedTabId(null)
++    setDragOverTabId(null)
++  }
++
++  return (
++    <ScrollArea type="always" className="w-full h-9 border-b">
++      <Tabs value={activeTabId || ''} className="h-full" onValueChange={onTabChange}>
++        <TabsList className="w-full gap-1 rounded-none justify-start px-1 pb-0 pt-1 h-full">
++          {fileTabs.map((tab) => {
++            const isDragging = draggedTabId === tab.id
++            const isDragOver = dragOverTabId === tab.id
++
++            return (
++              <TabsTrigger
++                key={tab.id}
++                value={tab.id}
++                data-tab-id={tab.id}
++                draggable
++                onDragStart={(e) => handleDragStart(e, tab.id)}
++                onDragOver={(e) => handleDragOver(e, tab.id)}
++                onDragLeave={handleDragLeave}
++                onDrop={(e) => handleDrop(e, tab.id)}
++                onDragEnd={handleDragEnd}
++                className={`flex items-center gap-2 h-full rounded-none rounded-t-sm border border-b-0 px-3 transition-all ${
++                  isDragging ? 'opacity-40 bg-muted' : ''
++                } ${isDragOver ? 'border-l-4 border-l-blue-500 shadow-lg' : ''}`}
++                style={{
++                  cursor: isDragging ? 'grabbing' : 'grab'
++                }}
++                asChild
++              >
++                <div>
++                  <button className="grow text-sm">
++                    {tab.isModified ? `${tab.fileName} *` : tab.fileName}
++                  </button>
++                  <div className="flex h-full items-center">
++                    <Button
++                      variant="ghost"
++                      className="flex items-center w-4 h-4 rounded-none hover:bg-muted"
++                      size="icon"
++                      onClick={(e) => {
++                        e.stopPropagation()
++                        onTabCloseClick(tab.id)
++                      }}
++                    >
++                      <div className="codicon codicon-close text-xs"></div>
++                    </Button>
++                  </div>
++                </div>
++              </TabsTrigger>
++            )
++          })}
++        </TabsList>
++      </Tabs>
++      <ScrollBar orientation="horizontal" />
++    </ScrollArea>
++  )
++}
++
++export default FileTabs
+diff --git a/src/renderer/file-editor/src/env.d.ts b/src/renderer/file-editor/src/env.d.ts
+new file mode 100644
+index 0000000..11f02fe
+--- /dev/null
++++ b/src/renderer/file-editor/src/env.d.ts
+@@ -0,0 +1 @@
++/// <reference types="vite/client" />
+diff --git a/src/renderer/file-editor/src/lib/atoms/files.ts b/src/renderer/file-editor/src/lib/atoms/files.ts
+new file mode 100644
+index 0000000..9b863ff
+--- /dev/null
++++ b/src/renderer/file-editor/src/lib/atoms/files.ts
+@@ -0,0 +1,28 @@
++import { atom } from 'jotai'
++import { FileTab } from '../../../../../types'
++
++// All open file tabs
++export const fileTabsAtom = atom<FileTab[]>([])
++
++// Currently active tab ID
++export const activeTabIdAtom = atom<string | null>(null)
++
++// Derived atom: current active tab
++export const activeTabAtom = atom((get) => {
++  const tabs = get(fileTabsAtom)
++  const activeId = get(activeTabIdAtom)
++  if (!activeId) return null
++  return tabs.find((tab) => tab.id === activeId) || null
++})
++
++// Check if any tab has unsaved changes
++export const hasUnsavedChangesAtom = atom((get) => {
++  const tabs = get(fileTabsAtom)
++  return tabs.some((tab) => tab.isModified)
++})
++
++// Get all unsaved tabs
++export const unsavedTabsAtom = atom((get) => {
++  const tabs = get(fileTabsAtom)
++  return tabs.filter((tab) => tab.isModified)
++})
+diff --git a/src/renderer/file-editor/src/lib/languageDetection.ts b/src/renderer/file-editor/src/lib/languageDetection.ts
+new file mode 100644
+index 0000000..9d5184f
+--- /dev/null
++++ b/src/renderer/file-editor/src/lib/languageDetection.ts
+@@ -0,0 +1,111 @@
++// Map file extensions to Monaco Editor language IDs
++const extensionToLanguage: Record<string, string> = {
++  // JavaScript / TypeScript
++  '.js': 'javascript',
++  '.jsx': 'javascript',
++  '.mjs': 'javascript',
++  '.cjs': 'javascript',
++  '.ts': 'typescript',
++  '.tsx': 'typescript',
++  '.mts': 'typescript',
++  '.cts': 'typescript',
++
++  // Web
++  '.html': 'html',
++  '.htm': 'html',
++  '.css': 'css',
++  '.scss': 'scss',
++  '.sass': 'scss',
++  '.less': 'less',
++
++  // Data formats
++  '.json': 'json',
++  '.jsonc': 'json',
++  '.xml': 'xml',
++  '.yaml': 'yaml',
++  '.yml': 'yaml',
++  '.toml': 'ini',
++
++  // Markdown
++  '.md': 'markdown',
++  '.markdown': 'markdown',
++
++  // Programming languages
++  '.py': 'python',
++  '.go': 'go',
++  '.rs': 'rust',
++  '.java': 'java',
++  '.c': 'c',
++  '.cpp': 'cpp',
++  '.cc': 'cpp',
++  '.cxx': 'cpp',
++  '.h': 'c',
++  '.hpp': 'cpp',
++  '.hh': 'cpp',
++  '.cs': 'csharp',
++  '.rb': 'ruby',
++  '.php': 'php',
++  '.swift': 'swift',
++  '.kt': 'kotlin',
++  '.kts': 'kotlin',
++  '.scala': 'scala',
++  '.lua': 'lua',
++  '.r': 'r',
++  '.R': 'r',
++  '.pl': 'perl',
++  '.pm': 'perl',
++
++  // Shell
++  '.sh': 'shell',
++  '.bash': 'shell',
++  '.zsh': 'shell',
++  '.fish': 'shell',
++  '.ps1': 'powershell',
++  '.psm1': 'powershell',
++  '.bat': 'bat',
++  '.cmd': 'bat',
++
++  // Config
++  '.ini': 'ini',
++  '.conf': 'ini',
++  '.cfg': 'ini',
++  '.env': 'ini',
++
++  // SQL
++  '.sql': 'sql',
++
++  // Docker
++  dockerfile: 'dockerfile',
++
++  // GraphQL
++  '.graphql': 'graphql',
++  '.gql': 'graphql',
++
++  // Plain text
++  '.txt': 'plaintext',
++  '.text': 'plaintext',
++  '.log': 'plaintext'
++}
++
++export function detectLanguageFromFileName(fileName: string): string {
++  // Handle special filenames first
++  const lowerFileName = fileName.toLowerCase()
++  if (lowerFileName === 'dockerfile') {
++    return 'dockerfile'
++  }
++  if (lowerFileName === 'makefile' || lowerFileName === 'gnumakefile') {
++    return 'makefile'
++  }
++  if (lowerFileName.endsWith('.gitignore') || lowerFileName.endsWith('.dockerignore')) {
++    return 'ignore'
++  }
++
++  // Get extension
++  const lastDotIndex = fileName.lastIndexOf('.')
++  if (lastDotIndex === -1) {
++    return 'plaintext'
++  }
++
++  const extension = fileName.slice(lastDotIndex).toLowerCase()
++  return extensionToLanguage[extension] || 'plaintext'
++}
+diff --git a/src/renderer/file-editor/src/main.tsx b/src/renderer/file-editor/src/main.tsx
+new file mode 100644
+index 0000000..ec0b853
+--- /dev/null
++++ b/src/renderer/file-editor/src/main.tsx
+@@ -0,0 +1,16 @@
++import './assets/index.css'
++
++import React from 'react'
++import ReactDOM from 'react-dom/client'
++import App from './App'
++import { createStore, Provider } from 'jotai'
++
++export const fileEditorStore: ReturnType<typeof createStore> = createStore()
++
++ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
++  <Provider store={fileEditorStore}>
++    <React.StrictMode>
++      <App />
++    </React.StrictMode>
++  </Provider>
++)
+diff --git a/src/renderer/src/App.tsx b/src/renderer/src/App.tsx
+index 4341e95..ec4ed89 100644
+--- a/src/renderer/src/App.tsx
++++ b/src/renderer/src/App.tsx
+@@ -1,4 +1,4 @@
+-import { useEffect, useRef, useState } from 'react'
++import { useCallback, useEffect, useRef, useState } from 'react'
+ import { editor } from 'monaco-editor'
+ import { useForm } from 'react-hook-form'
+ 
+@@ -71,6 +71,51 @@ function App(): JSX.Element {
+   const [isSidebarOpen, setSidebarOpen] = useState(true)
+   const [isDrawerOpen, setDrawerOpen] = useState(false)
+   const [appState, setAppState] = useState<AppState | undefined>(undefined)
++  const [isDragOver, setIsDragOver] = useState(false)
++  const dragCounterRef = useRef(0)
++
++  // Drag & Drop handlers for opening files in file editor
++  const handleDragEnter = useCallback((e: React.DragEvent): void => {
++    e.preventDefault()
++    e.stopPropagation()
++    dragCounterRef.current++
++    if (e.dataTransfer.types.includes('Files')) {
++      setIsDragOver(true)
++    }
++  }, [])
++
++  const handleDragLeave = useCallback((e: React.DragEvent): void => {
++    e.preventDefault()
++    e.stopPropagation()
++    dragCounterRef.current--
++    if (dragCounterRef.current === 0) {
++      setIsDragOver(false)
++    }
++  }, [])
++
++  const handleDragOver = useCallback((e: React.DragEvent): void => {
++    e.preventDefault()
++    e.stopPropagation()
++  }, [])
++
++  const handleDrop = useCallback((e: React.DragEvent): void => {
++    e.preventDefault()
++    e.stopPropagation()
++    dragCounterRef.current = 0
++    setIsDragOver(false)
++
++    const files = e.dataTransfer.files
++    if (files.length === 0) return
++
++    // Open each dropped file in file editor
++    for (let i = 0; i < files.length; i++) {
++      const file = files[i]
++      const filePath = window.api.getPathForFile(file)
++      if (filePath) {
++        window.api.openFileInEditor(filePath)
++      }
++    }
++  }, [])
+ 
+   const sortNotes = (unsortedNotes: Note[]) => {
+     const sortBy = currentNoteEditorSettings.sortBy
+@@ -145,8 +190,25 @@ function App(): JSX.Element {
+     await window.api.deleteNote(willDeleteNote.id)
+     const notes = await window.api.getNotes()
+     setNotes(sortNotes(notes))
++
++    // Remove the deleted note's tab
+     const newTabs = noteTabs.filter((tab) => willDeleteNote.id !== tab.id)
+     setNoteTabs(newTabs)
++
++    // If the deleted note was the current note, switch to another tab
++    if (currentNote?.id === willDeleteNote.id) {
++      if (newTabs.length > 0) {
++        // Switch to the last tab
++        const newActiveTab = newTabs[newTabs.length - 1]
++        const newActiveNote = notes.find((note) => note.id === newActiveTab.id)
++        if (newActiveNote) {
++          setCurrentNote(newActiveNote)
++        }
++      } else {
++        // No tabs left, clear current note
++        setCurrentNote(null)
++      }
++    }
+   }
+ 
+   const onTabClick = (tabId: string) => {
+@@ -156,6 +218,10 @@ function App(): JSX.Element {
+     }
+   }
+ 
++  const onTabReorder = (newTabs: typeof noteTabs) => {
++    setNoteTabs(newTabs)
++  }
++
+   const onDidChangeCursorPosition = (event: editor.ICursorPositionChangedEvent) => {
+     setCursorPositon({
+       line: event.position.lineNumber,
+@@ -268,10 +334,23 @@ function App(): JSX.Element {
+     <>
+       <div
+         className={cn(
+-          'bg-background text-foreground flex w-full h-full items-stretch',
++          'bg-background text-foreground flex w-full h-full items-stretch relative',
+           currentNoteEditorSettings.themeName === 'dark' && 'dark'
+         )}
++        onDragEnter={handleDragEnter}
++        onDragLeave={handleDragLeave}
++        onDragOver={handleDragOver}
++        onDrop={handleDrop}
+       >
++        {/* Drag & Drop Overlay */}
++        {isDragOver && (
++          <div className="absolute inset-0 z-50 flex items-center justify-center bg-primary/10 border-2 border-dashed border-primary pointer-events-none">
++            <div className="text-center">
++              <div className="codicon codicon-file-add text-4xl text-primary mb-2"></div>
++              <p className="text-lg font-medium text-primary">Drop files to open in File Editor</p>
++            </div>
++          </div>
++        )}
+         <div
+           className={cn(
+             'flex flex-col h-screen space-y-2 relative',
+@@ -516,6 +595,7 @@ function App(): JSX.Element {
+                       activeTabId={currentNote?.id}
+                       onTabClick={onTabClick}
+                       onTabCloseClick={onTabCloseClick}
++                      onTabReorder={onTabReorder}
+                     />
+                   </ContextMenuTrigger>
+                   <ContextMenuContent className="w-64">
+diff --git a/src/renderer/src/components/note-tabs.tsx b/src/renderer/src/components/note-tabs.tsx
+index 894948d..df1182d 100644
+--- a/src/renderer/src/components/note-tabs.tsx
++++ b/src/renderer/src/components/note-tabs.tsx
+@@ -2,10 +2,19 @@ import useHorizontalScroll from '@renderer/lib/useHorizontalScroll'
+ import { ScrollArea, ScrollBar } from './ui/scroll-area'
+ import { Tabs, TabsList, TabsTrigger } from './ui/tabs'
+ import { Button } from './ui/button'
++import { useState } from 'react'
+ 
+-function NoteTabs({ noteTabs, activeTabId, onTabClick, onTabCloseClick }): JSX.Element {
++function NoteTabs({
++  noteTabs,
++  activeTabId,
++  onTabClick,
++  onTabCloseClick,
++  onTabReorder
++}): JSX.Element {
+   const tabs = noteTabs.map((tab) => tab.id)
+   const { ref } = useHorizontalScroll()
++  const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
++  const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
+ 
+   if (noteTabs == null) {
+     return <></>
+@@ -15,17 +24,113 @@ function NoteTabs({ noteTabs, activeTabId, onTabClick, onTabCloseClick }): JSX.E
+     onTabClick(value)
+   }
+ 
++  const handleDragStart = (e: React.DragEvent, tabId: string) => {
++    setDraggedTabId(tabId)
++    e.dataTransfer.effectAllowed = 'move'
++
++    // Create a custom drag image (ghost)
++    const target = e.currentTarget as HTMLElement
++    const clone = target.cloneNode(true) as HTMLElement
++
++    // Style the clone for the drag preview
++    clone.style.position = 'absolute'
++    clone.style.top = '-9999px'
++    clone.style.left = '-9999px'
++    clone.style.opacity = '0.8'
++    clone.style.background = 'var(--background)'
++    clone.style.border = '1px solid var(--border)'
++    clone.style.borderRadius = '4px'
++    clone.style.padding = '4px 8px'
++    clone.style.pointerEvents = 'none'
++    clone.style.width = `${target.offsetWidth}px`
++    clone.style.height = `${target.offsetHeight}px`
++
++    document.body.appendChild(clone)
++
++    // Calculate offset from the click position within the element
++    const rect = target.getBoundingClientRect()
++    const offsetX = e.clientX - rect.left
++    const offsetY = e.clientY - rect.top
++
++    e.dataTransfer.setDragImage(clone, offsetX, offsetY)
++
++    // Remove the clone after drag starts
++    setTimeout(() => {
++      document.body.removeChild(clone)
++    }, 0)
++  }
++
++  const handleDragOver = (e: React.DragEvent, tabId: string) => {
++    e.preventDefault()
++    e.dataTransfer.dropEffect = 'move'
++
++    if (draggedTabId && draggedTabId !== tabId) {
++      setDragOverTabId(tabId)
++    }
++  }
++
++  const handleDragLeave = () => {
++    setDragOverTabId(null)
++  }
++
++  const handleDrop = (e: React.DragEvent, targetTabId: string) => {
++    e.preventDefault()
++
++    if (!draggedTabId || draggedTabId === targetTabId) {
++      setDraggedTabId(null)
++      setDragOverTabId(null)
++      return
++    }
++
++    const draggedIndex = noteTabs.findIndex((tab) => tab.id === draggedTabId)
++    const targetIndex = noteTabs.findIndex((tab) => tab.id === targetTabId)
++
++    if (draggedIndex === -1 || targetIndex === -1) {
++      setDraggedTabId(null)
++      setDragOverTabId(null)
++      return
++    }
++
++    // Create new array with reordered tabs
++    const newTabs = [...noteTabs]
++    const [removed] = newTabs.splice(draggedIndex, 1)
++    newTabs.splice(targetIndex, 0, removed)
++
++    onTabReorder(newTabs)
++    setDraggedTabId(null)
++    setDragOverTabId(null)
++  }
++
++  const handleDragEnd = () => {
++    setDraggedTabId(null)
++    setDragOverTabId(null)
++  }
++
+   return (
+     <ScrollArea ref={ref} type="always" className="w-full h-full">
+       <Tabs value={activeTabId} className="h-full" onValueChange={onTabChange}>
+         <TabsList className="w-full gap-1 rounded-none justify-start px-1 pb-0 pt-1">
+           {tabs.map((tab) => {
++            const isDragging = draggedTabId === tab
++            const isDragOver = dragOverTabId === tab
++
+             return (
+               <TabsTrigger
+                 key={tab}
+                 value={tab}
+                 data-tab-id={tab}
+-                className="flex items-center gap-3 h-full rounded-none rounded-t-sm border border-b-0"
++                draggable
++                onDragStart={(e) => handleDragStart(e, tab)}
++                onDragOver={(e) => handleDragOver(e, tab)}
++                onDragLeave={handleDragLeave}
++                onDrop={(e) => handleDrop(e, tab)}
++                onDragEnd={handleDragEnd}
++                className={`flex items-center gap-3 h-full rounded-none rounded-t-sm border border-b-0 transition-all ${
++                  isDragging ? 'opacity-40 bg-muted' : ''
++                } ${isDragOver ? 'border-l-4 border-l-blue-500 shadow-lg' : ''}`}
++                style={{
++                  cursor: isDragging ? 'grabbing' : 'grab'
++                }}
+                 asChild
+               >
+                 <div>
+diff --git a/src/renderer/src/lib/useHorizontalScroll.ts b/src/renderer/src/lib/useHorizontalScroll.ts
+index 402a272..bf143fc 100644
+--- a/src/renderer/src/lib/useHorizontalScroll.ts
++++ b/src/renderer/src/lib/useHorizontalScroll.ts
+@@ -9,15 +9,36 @@ const useHorizontalScroll = (_props?: Props) => {
+   const ref = useRef<HTMLDivElement>(null)
+ 
+   useEffect(() => {
+-    if (ref.current) {
+-      const element = <HTMLElement>ref.current.querySelector('[data-radix-scroll-area-viewport]')
+-      element?.addEventListener('wheel', (event: WheelEvent) => {
+-        event.preventDefault()
++    if (!ref.current) {
++      return
++    }
++
++    const element = <HTMLElement>ref.current.querySelector('[data-radix-scroll-area-viewport]')
++
++    if (!element) {
++      return
++    }
+ 
+-        if (element) {
++    const handleWheel = (event: WheelEvent) => {
++      // Only handle scroll if there's horizontal scrolling available
++      if (element.scrollWidth > element.clientWidth) {
++        // Check if there's horizontal scroll delta (Mac trackpad)
++        if (Math.abs(event.deltaX) > 0) {
++          event.preventDefault()
++          element.scrollLeft += event.deltaX
++        }
++        // Or vertical scroll delta (Windows mouse wheel)
++        else if (Math.abs(event.deltaY) > 0) {
++          event.preventDefault()
+           element.scrollLeft += event.deltaY
+         }
+-      })
++      }
++    }
++
++    element.addEventListener('wheel', handleWheel)
++
++    return () => {
++      element.removeEventListener('wheel', handleWheel)
+     }
+   }, [ref])
+ 
+diff --git a/src/types/index.ts b/src/types/index.ts
+index f72d105..49491c7 100644
+--- a/src/types/index.ts
++++ b/src/types/index.ts
+@@ -86,3 +86,19 @@ export const defaultAppState: AppState = {
+   windowX: undefined,
+   windowY: undefined
+ }
++
++// File Editor types
++export type FileTab = {
++  id: string // UUIDv7
++  filePath: string | null // null = new file
++  fileName: string // display name
++  content: string // file content
++  originalContent: string // for change detection
++  isModified: boolean // has unsaved changes
++}
++
++export type FileInfo = {
++  filePath: string
++  fileName: string
++  content: string
++}
+diff --git a/tsconfig.web.json b/tsconfig.web.json
+index ae6e6d2..1ba7509 100644
+--- a/tsconfig.web.json
++++ b/tsconfig.web.json
+@@ -4,6 +4,9 @@
+     "src/renderer/src/env.d.ts",
+     "src/renderer/src/**/*",
+     "src/renderer/src/**/*.tsx",
++    "src/renderer/file-editor/src/env.d.ts",
++    "src/renderer/file-editor/src/**/*",
++    "src/renderer/file-editor/src/**/*.tsx",
+     "src/preload/*.d.ts",
+     "src/types/*"
+   ],

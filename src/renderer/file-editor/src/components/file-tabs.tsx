@@ -1,26 +1,32 @@
-import useHorizontalScroll from '@renderer/lib/useHorizontalScroll'
-import { ScrollArea, ScrollBar } from './ui/scroll-area'
-import { Tabs, TabsList, TabsTrigger } from './ui/tabs'
-import { Button } from './ui/button'
+import { FileTab } from '../../../../types'
+import { ScrollArea, ScrollBar } from '../../../src/components/ui/scroll-area'
+import { Tabs, TabsList, TabsTrigger } from '../../../src/components/ui/tabs'
+import { Button } from '../../../src/components/ui/button'
 import { useState } from 'react'
 
-function NoteTabs({
-  noteTabs,
+type FileTabsProps = {
+  fileTabs: FileTab[]
+  activeTabId: string | null
+  onTabClick: (tabId: string) => void
+  onTabCloseClick: (tabId: string) => void
+  onTabReorder: (newTabs: FileTab[]) => void
+}
+
+function FileTabs({
+  fileTabs,
   activeTabId,
   onTabClick,
   onTabCloseClick,
   onTabReorder
-}): JSX.Element {
-  const tabs = noteTabs.map((tab) => tab.id)
-  const { ref } = useHorizontalScroll()
+}: FileTabsProps): JSX.Element {
   const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
   const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
 
-  if (noteTabs == null) {
+  if (fileTabs.length === 0) {
     return <></>
   }
 
-  const onTabChange = (value) => {
+  const onTabChange = (value: string): void => {
     onTabClick(value)
   }
 
@@ -82,8 +88,8 @@ function NoteTabs({
       return
     }
 
-    const draggedIndex = noteTabs.findIndex((tab) => tab.id === draggedTabId)
-    const targetIndex = noteTabs.findIndex((tab) => tab.id === targetTabId)
+    const draggedIndex = fileTabs.findIndex((tab) => tab.id === draggedTabId)
+    const targetIndex = fileTabs.findIndex((tab) => tab.id === targetTabId)
 
     if (draggedIndex === -1 || targetIndex === -1) {
       setDraggedTabId(null)
@@ -92,7 +98,7 @@ function NoteTabs({
     }
 
     // Create new array with reordered tabs
-    const newTabs = [...noteTabs]
+    const newTabs = [...fileTabs]
     const [removed] = newTabs.splice(draggedIndex, 1)
     newTabs.splice(targetIndex, 0, removed)
 
@@ -107,25 +113,25 @@ function NoteTabs({
   }
 
   return (
-    <ScrollArea ref={ref} type="always" className="w-full h-full">
-      <Tabs value={activeTabId} className="h-full" onValueChange={onTabChange}>
-        <TabsList className="w-full gap-1 rounded-none justify-start px-1 pb-0 pt-1">
-          {tabs.map((tab) => {
-            const isDragging = draggedTabId === tab
-            const isDragOver = dragOverTabId === tab
+    <ScrollArea type="always" className="w-full h-9 border-b">
+      <Tabs value={activeTabId || ''} className="h-full" onValueChange={onTabChange}>
+        <TabsList className="w-full gap-1 rounded-none justify-start px-1 pb-0 pt-1 h-full">
+          {fileTabs.map((tab) => {
+            const isDragging = draggedTabId === tab.id
+            const isDragOver = dragOverTabId === tab.id
 
             return (
               <TabsTrigger
-                key={tab}
-                value={tab}
-                data-tab-id={tab}
+                key={tab.id}
+                value={tab.id}
+                data-tab-id={tab.id}
                 draggable
-                onDragStart={(e) => handleDragStart(e, tab)}
-                onDragOver={(e) => handleDragOver(e, tab)}
+                onDragStart={(e) => handleDragStart(e, tab.id)}
+                onDragOver={(e) => handleDragOver(e, tab.id)}
                 onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, tab)}
+                onDrop={(e) => handleDrop(e, tab.id)}
                 onDragEnd={handleDragEnd}
-                className={`flex items-center gap-3 h-full rounded-none rounded-t-sm border border-b-0 transition-all ${
+                className={`flex items-center gap-2 h-full rounded-none rounded-t-sm border border-b-0 px-3 transition-all ${
                   isDragging ? 'opacity-40 bg-muted' : ''
                 } ${isDragOver ? 'border-l-4 border-l-blue-500 shadow-lg' : ''}`}
                 style={{
@@ -134,20 +140,20 @@ function NoteTabs({
                 asChild
               >
                 <div>
-                  <button className="grow">
-                    {noteTabs.find((noteTabs) => noteTabs.id === tab).name}
+                  <button className="grow text-sm">
+                    {tab.isModified ? `${tab.fileName} *` : tab.fileName}
                   </button>
                   <div className="flex h-full items-center">
                     <Button
                       variant="ghost"
-                      className="flex items-center w-4 h-4 rounded-none"
+                      className="flex items-center w-4 h-4 rounded-none hover:bg-muted"
                       size="icon"
                       onClick={(e) => {
                         e.stopPropagation()
-                        onTabCloseClick(tab)
+                        onTabCloseClick(tab.id)
                       }}
                     >
-                      <div className="codicon codicon-close"></div>
+                      <div className="codicon codicon-close text-xs"></div>
                     </Button>
                   </div>
                 </div>
@@ -161,4 +167,4 @@ function NoteTabs({
   )
 }
 
-export default NoteTabs
+export default FileTabs

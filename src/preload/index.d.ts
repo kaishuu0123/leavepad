@@ -5,6 +5,8 @@ declare global {
   interface Window {
     electron: ElectronAPI
     api: {
+      getPathForFile: (file: File) => string
+      openFileInEditor: (filePath: string) => void
       getNotes: () => Promise<Note[]>
       getNote: (noteId: string) => Promise<Note | undefined>
       createNote: () => Promise<Note>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { editor } from 'monaco-editor'
 import { useForm } from 'react-hook-form'
 
@@ -71,6 +71,51 @@ function App(): JSX.Element {
   const [isSidebarOpen, setSidebarOpen] = useState(true)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [appState, setAppState] = useState<AppState | undefined>(undefined)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const dragCounterRef = useRef(0)
+
+  // Drag & Drop handlers for opening files in file editor
+  const handleDragEnter = useCallback((e: React.DragEvent): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounterRef.current++
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDragOver(true)
+    }
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounterRef.current--
+    if (dragCounterRef.current === 0) {
+      setIsDragOver(false)
+    }
+  }, [])
+
+  const handleDragOver = useCallback((e: React.DragEvent): void => {
+    e.preventDefault()
+    e.stopPropagation()
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    dragCounterRef.current = 0
+    setIsDragOver(false)
+
+    const files = e.dataTransfer.files
+    if (files.length === 0) return
+
+    // Open each dropped file in file editor
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const filePath = window.api.getPathForFile(file)
+      if (filePath) {
+        window.api.openFileInEditor(filePath)
+      }
+    }
+  }, [])
 
   const sortNotes = (unsortedNotes: Note[]) => {
     const sortBy = currentNoteEditorSettings.sortBy
@@ -145,8 +190,25 @@ function App(): JSX.Element {
     await window.api.deleteNote(willDeleteNote.id)
     const notes = await window.api.getNotes()
     setNotes(sortNotes(notes))
+
+    // Remove the deleted note's tab
     const newTabs = noteTabs.filter((tab) => willDeleteNote.id !== tab.id)
     setNoteTabs(newTabs)
+
+    // If the deleted note was the current note, switch to another tab
+    if (currentNote?.id === willDeleteNote.id) {
+      if (newTabs.length > 0) {
+        // Switch to the last tab
+        const newActiveTab = newTabs[newTabs.length - 1]
+        const newActiveNote = notes.find((note) => note.id === newActiveTab.id)
+        if (newActiveNote) {
+          setCurrentNote(newActiveNote)
+        }
+      } else {
+        // No tabs left, clear current note
+        setCurrentNote(null)
+      }
+    }
   }
 
   const onTabClick = (tabId: string) => {
@@ -154,6 +216,10 @@ function App(): JSX.Element {
     if (note != null) {
       setCurrentNote(note)
     }
+  }
+
+  const onTabReorder = (newTabs: typeof noteTabs) => {
+    setNoteTabs(newTabs)
   }
 
   const onDidChangeCursorPosition = (event: editor.ICursorPositionChangedEvent) => {
@@ -268,10 +334,23 @@ function App(): JSX.Element {
     <>
       <div
         className={cn(
-          'bg-background text-foreground flex w-full h-full items-stretch',
+          'bg-background text-foreground flex w-full h-full items-stretch relative',
           currentNoteEditorSettings.themeName === 'dark' && 'dark'
         )}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
+        {/* Drag & Drop Overlay */}
+        {isDragOver && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-primary/10 border-2 border-dashed border-primary pointer-events-none">
+            <div className="text-center">
+              <div className="codicon codicon-file-add text-4xl text-primary mb-2"></div>
+              <p className="text-lg font-medium text-primary">Drop files to open in File Editor</p>
+            </div>
+          </div>
+        )}
         <div
           className={cn(
             'flex flex-col h-screen space-y-2 relative',
@@ -516,6 +595,7 @@ function App(): JSX.Element {
                       activeTabId={currentNote?.id}
                       onTabClick={onTabClick}
                       onTabCloseClick={onTabCloseClick}
+                      onTabReorder={onTabReorder}
                     />
                   </ContextMenuTrigger>
                   <ContextMenuContent className="w-64">
