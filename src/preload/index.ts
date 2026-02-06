@@ -1,9 +1,17 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { AppState, Note, NoteEditorSettings } from '../types'
 
 // Custom APIs for renderer
 const api = {
+  // Get file path from dropped file (for drag & drop)
+  getPathForFile: (file: File): string => {
+    return webUtils.getPathForFile(file)
+  },
+  // Open file in file editor window
+  openFileInEditor: (filePath: string): void => {
+    ipcRenderer.send('open-file-in-editor', filePath)
+  },
   getNotes: (): Promise<Note[]> => {
     return ipcRenderer.invoke('get-notes')
   },

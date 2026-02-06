@@ -86,3 +86,19 @@ export const defaultAppState: AppState = {
   windowX: undefined,
   windowY: undefined
 }
+
+// File Editor types
+export type FileTab = {
+  id: string // UUIDv7
+  filePath: string | null // null = new file
+  fileName: string // display name
+  content: string // file content
+  originalContent: string // for change detection
+  isModified: boolean // has unsaved changes
+}
+
+export type FileInfo = {
+  filePath: string
+  fileName: string
+  content: string
+}

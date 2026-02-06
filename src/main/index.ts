@@ -4,6 +4,8 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 import { registerIpcHandles } from './ipcHandles'
+import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
+import { registerFileEditorWindowHandlers } from './fileEditorWindow'
 import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
@@ -79,6 +81,10 @@ app.whenReady().then(async () => {
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
+
+  // Register file editor IPC handlers
+  registerFileEditorIpcHandles()
+  registerFileEditorWindowHandlers()
 
   createWindow()
 

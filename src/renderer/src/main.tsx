@@ -32,6 +32,16 @@ if (window.api === undefined) {
   appStateDb.read()
 
   window.api = {
+    getPathForFile: (file: File): string => {
+      // In browser mode, we can't get the real file path
+      // Return the file name as a fallback
+      return file.name
+    },
+    openFileInEditor: (filePath: string): void => {
+      // In browser mode, we can't open file editor
+      console.log('openFileInEditor called with:', filePath)
+      console.warn('File editor is not available in browser mode')
+    },
     getNotes: async (): Promise<Note[]> => {
       return notesDb.data
     },
