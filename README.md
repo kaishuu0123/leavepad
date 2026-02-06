@@ -91,7 +91,7 @@ Therefore, I decided to create a memo application by Electron for my own use.
 
 ### Editor
 
-| Note Editor                                                                                          | File Editor Settings                                                                                  |
+| Note Editor                                                                                          | File Editor                                                                                           |
 | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | ![Note Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![File Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/file_editor.png) |
 
