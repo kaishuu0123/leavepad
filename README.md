@@ -17,8 +17,8 @@ Leavepad is a multi-platform notepad focused on writing memos with an integrated
 - [Download](#download)
 - [Support platform](#support-platform)
 - [Screenshots](#screenshots)
-  - [Basic View](#basic-view)
-  - [File Editor](#file-editor)
+  - [Welcome](#welcome)
+  - [Editor](#editor)
   - [Language](#language)
   - [Theme](#theme)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
@@ -85,27 +85,90 @@ Therefore, I decided to create a memo application by Electron for my own use.
 
 ### Welcome
 
-| Welcome Screen                                                                                |
-| --------------------------------------------------------------------------------------------- |
-| ![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/welcome.png) |
+<table>
+<tr>
+<td width="100%">
+
+![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/welcome.png)
+
+</td>
+</tr>
+</table>
 
 ### Editor
 
-| Note Editor                                                                                          | File Editor                                                                                           |
-| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| ![Note Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![File Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/file_editor.png) |
+<table>
+<thead>
+<tr>
+<th width="50%">Note Editor</th>
+<th width="50%">File Editor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+![Note Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png)
+
+</td>
+<td>
+
+![File Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/file_editor.png)
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ### Language
 
-| English                                                                                          | 日本語 (Japanese)                                                                               |
-| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
-| ![English](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![Japanese](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/japanese.png) |
+<table>
+<thead>
+<tr>
+<th width="50%">English</th>
+<th width="50%">日本語 (Japanese)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+![English](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png)
+
+</td>
+<td>
+
+![Japanese](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/japanese.png)
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ### Theme
 
-| Light                                                                                                | Dark                                                                                          |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| ![Light Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![Dark Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/dark.png) |
+<table>
+<thead>
+<tr>
+<th width="50%">Light</th>
+<th width="50%">Dark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+
+![Light Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png)
+
+</td>
+<td>
+
+![Dark Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/dark.png)
+
+</td>
+</tr>
+</tbody>
+</table>
 
 ## Keyboard Shortcuts
 
