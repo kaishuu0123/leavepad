@@ -83,29 +83,35 @@ Therefore, I decided to create a memo application by Electron for my own use.
 
 ## Screenshots
 
+### Welcome
+
+| Welcome Screen                                                                                |
+| --------------------------------------------------------------------------------------------- |
+| ![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/welcome.png) |
+
 ### Basic View
 
 | Note Editor                                                                                         | Global Settings                                                                                               |
 | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| ![Basic View](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/basic_view.png) | ![Global Settings](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/global_settings.png) |
+| ![Basic View](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![Global Settings](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/global_settings.png) |
 
 ### File Editor
 
-| Welcome Screen                             | File Editor Window                          |
-| ------------------------------------------ | ------------------------------------------- |
-| ![Welcome](screenshots/welcome_screen.png) | ![File Editor](screenshots/file_editor.png) |
+| File Editor Window                                                                                |
+| ------------------------------------------------------------------------------------------------- |
+| ![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/file_editor.png) |
 
 ### Language
 
-| English                                                                                                | 日本語 (Japanese)                                                                                        |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| ![English](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_english.png) | ![Japanese](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_japanese.png) |
+| English                                                                                          | 日本語 (Japanese)                                                                               |
+| ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| ![English](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![Japanese](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/japanese.png) |
 
 ### Theme
 
-| Light                                                                                                 | Dark                                                                                                |
-| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| ![Light Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_light.png) | ![Dark Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_dark.png) |
+| Light                                                                                                | Dark                                                                                          |
+| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| ![Light Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![Dark Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/dark.png) |
 
 ## Keyboard Shortcuts
 
