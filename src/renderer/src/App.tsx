@@ -47,6 +47,7 @@ import { getTime } from 'date-fns'
 import { Trans, useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
 import { Drawer, DrawerContent, DrawerTrigger } from './components/ui/drawer'
+import appWelcomeIcon from './assets/leavepad_logo_welcome.svg'
 
 initializeNoteEditor()
 
@@ -130,6 +131,39 @@ function App(): JSX.Element {
     })
   }
 
+  const AddNote = async () => {
+    const note = await window.api.createNote()
+    const notes = await window.api.getNotes()
+    setNotes(sortNotes(notes))
+    setCurrentNote(note)
+    setNoteTabs([...noteTabs, { id: note.id, name: note.name }])
+  }
+
+  const DeleteNote = async (willDeleteNote: Note) => {
+    await window.api.deleteNote(willDeleteNote.id)
+    const notes = await window.api.getNotes()
+    setNotes(sortNotes(notes))
+
+    // Remove the deleted note's tab
+    const newTabs = noteTabs.filter((tab) => willDeleteNote.id !== tab.id)
+    setNoteTabs(newTabs)
+
+    // If the deleted note was the current note, switch to another tab
+    if (currentNote?.id === willDeleteNote.id) {
+      if (newTabs.length > 0) {
+        // Switch to the last tab
+        const newActiveTab = newTabs[newTabs.length - 1]
+        const newActiveNote = notes.find((note) => note.id === newActiveTab.id)
+        if (newActiveNote) {
+          setCurrentNote(newActiveNote)
+        }
+      } else {
+        // No tabs left, clear current note
+        setCurrentNote(null)
+      }
+    }
+  }
+
   useEffect(() => {
     const fetchNotes = async () => {
       const notes = await window.api.getNotes()
@@ -178,38 +212,21 @@ function App(): JSX.Element {
     i18n.changeLanguage(currentNoteEditorSettings.language)
   }, [currentNoteEditorSettings])
 
-  const AddNote = async () => {
-    const note = await window.api.createNote()
-    const notes = await window.api.getNotes()
-    setNotes(sortNotes(notes))
-    setCurrentNote(note)
-    setNoteTabs([...noteTabs, { id: note.id, name: note.name }])
-  }
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent): void => {
+      const isMod = e.ctrlKey || e.metaKey
 
-  const DeleteNote = async (willDeleteNote: Note) => {
-    await window.api.deleteNote(willDeleteNote.id)
-    const notes = await window.api.getNotes()
-    setNotes(sortNotes(notes))
-
-    // Remove the deleted note's tab
-    const newTabs = noteTabs.filter((tab) => willDeleteNote.id !== tab.id)
-    setNoteTabs(newTabs)
-
-    // If the deleted note was the current note, switch to another tab
-    if (currentNote?.id === willDeleteNote.id) {
-      if (newTabs.length > 0) {
-        // Switch to the last tab
-        const newActiveTab = newTabs[newTabs.length - 1]
-        const newActiveNote = notes.find((note) => note.id === newActiveTab.id)
-        if (newActiveNote) {
-          setCurrentNote(newActiveNote)
-        }
-      } else {
-        // No tabs left, clear current note
-        setCurrentNote(null)
+      // Ctrl+N: New note
+      if (isMod && e.key === 'n' && !e.shiftKey) {
+        e.preventDefault()
+        AddNote()
       }
     }
-  }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [AddNote])
 
   const onTabClick = (tabId: string) => {
     const note = notes.find((note) => note.id === tabId)
@@ -571,10 +588,61 @@ function App(): JSX.Element {
           className={cn('flex h-screen', isSidebarOpen === true ? 'w-9/12 xl:w-10/12' : 'w-full')}
         >
           {noteTabs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center w-full h-screen">
-              <h1 className="text-2xl text-muted-foreground">
-                <Trans i18nKey="blankWindowDescription" />
-              </h1>
+            <div className="flex flex-col items-center justify-center w-full h-screen bg-muted/30">
+              <div className="text-center max-w-md px-8">
+                {/* Icon */}
+                <div className="flex justify-center mb-6">
+                  <img src={appWelcomeIcon} alt="Leavepad" className="w-24 h-24" />
+                </div>
+
+                {/* Title */}
+                <h1 className="text-2xl font-semibold mb-4 text-foreground">{t('welcomeTitle')}</h1>
+
+                {/* Description */}
+                <p className="text-muted-foreground mb-8">{t('welcomeDescription')}</p>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4 justify-center mb-6">
+                  <Button size="lg" onClick={AddNote} className="flex items-center gap-2">
+                    <span className="codicon codicon-new-file"></span>
+                    <span>{t('createNote')}</span>
+                  </Button>
+
+                  {/* File Editor Button - Electron only */}
+                  {typeof window.api?.openFileInEditor === 'function' && (
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={() => window.api.openFileInEditor('')}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="codicon codicon-file-code"></span>
+                      <span>{t('fileEditor')}</span>
+                    </Button>
+                  )}
+                </div>
+
+                {/* Hint Text */}
+                <p className="text-sm text-muted-foreground">{t('welcomeHint')}</p>
+
+                {/* Keyboard Shortcuts */}
+                <div className="text-xs text-muted-foreground mt-4 space-x-4">
+                  <span>
+                    <kbd className="px-2 py-1 bg-muted rounded text-xs border">
+                      {navigator.platform.indexOf('Mac') !== -1 ? '⌘N' : 'Ctrl+N'}
+                    </kbd>{' '}
+                    {t('createNote')}
+                  </span>
+                  {typeof window.api?.openFileInEditor === 'function' && (
+                    <span>
+                      <kbd className="px-2 py-1 bg-muted rounded text-xs border">
+                        {navigator.platform.indexOf('Mac') !== -1 ? '⌘⇧O' : 'Ctrl+⇧+O'}
+                      </kbd>{' '}
+                      {t('fileEditor')}
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           ) : (
             <div className="flex flex-col w-full h-screen">

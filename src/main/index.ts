@@ -1,17 +1,19 @@
-import { app, shell, BrowserWindow, ipcMain, Menu, MenuItemConstructorOptions } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 import { registerIpcHandles } from './ipcHandles'
 import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
-import {
-  createFileEditorWindow,
-  registerFileEditorWindowHandlers
-} from './fileEditorWindow'
+import { registerFileEditorWindowHandlers } from './fileEditorWindow'
 import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
+
+if (process.platform !== 'darwin') {
+  // Disable Application Menu when boot except darwin
+  Menu.setApplicationMenu(null)
+}
 
 function createWindow(): void {
   const appStateData = dbInstance.dbs.appStateDb.data
@@ -63,95 +65,6 @@ function createWindow(): void {
   }
 }
 
-function createApplicationMenu(): void {
-  const isMac = process.platform === 'darwin'
-
-  const template: MenuItemConstructorOptions[] = [
-    // App menu (macOS only)
-    ...(isMac
-      ? [
-          {
-            label: app.name,
-            submenu: [
-              { role: 'about' as const },
-              { type: 'separator' as const },
-              { role: 'services' as const },
-              { type: 'separator' as const },
-              { role: 'hide' as const },
-              { role: 'hideOthers' as const },
-              { role: 'unhide' as const },
-              { type: 'separator' as const },
-              { role: 'quit' as const }
-            ]
-          }
-        ]
-      : []),
-    // File menu
-    {
-      label: 'File',
-      submenu: [
-        {
-          label: 'Open File...',
-          accelerator: 'CmdOrCtrl+Shift+O',
-          click: (): void => {
-            createFileEditorWindow()
-          }
-        },
-        { type: 'separator' },
-        isMac ? { role: 'close' } : { role: 'quit' }
-      ]
-    },
-    // Edit menu
-    {
-      label: 'Edit',
-      submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        ...(isMac
-          ? [
-              { role: 'pasteAndMatchStyle' as const },
-              { role: 'delete' as const },
-              { role: 'selectAll' as const }
-            ]
-          : [{ role: 'delete' as const }, { type: 'separator' as const }, { role: 'selectAll' as const }])
-      ]
-    },
-    // View menu
-    {
-      label: 'View',
-      submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
-    },
-    // Window menu
-    {
-      label: 'Window',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        ...(isMac
-          ? [{ type: 'separator' as const }, { role: 'front' as const }, { type: 'separator' as const }, { role: 'window' as const }]
-          : [{ role: 'close' as const }])
-      ]
-    }
-  ]
-
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
-}
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -172,9 +85,6 @@ app.whenReady().then(async () => {
   // Register file editor IPC handlers
   registerFileEditorIpcHandles()
   registerFileEditorWindowHandlers()
-
-  // Create application menu
-  createApplicationMenu()
 
   createWindow()
 
