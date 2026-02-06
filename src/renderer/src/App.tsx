@@ -44,7 +44,7 @@ import {
   onTabCloseClick
 } from './lib/atoms/tabs'
 import { getTime } from 'date-fns'
-import { Trans, useTranslation } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
 import { Drawer, DrawerContent, DrawerTrigger } from './components/ui/drawer'
 import appWelcomeIcon from './assets/leavepad_logo_welcome.svg'

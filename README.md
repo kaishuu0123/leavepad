@@ -10,15 +10,18 @@
 
 </a>
 
-Leavepad is a multi-platform notepad. focuses on writing memos. File editing is not supported.
+Leavepad is a multi-platform notepad focused on writing memos with an integrated file editor powered by Monaco Editor.
 
 - [Motivation](#motivation)
+- [Features](#features)
 - [Download](#download)
 - [Support platform](#support-platform)
 - [Screenshots](#screenshots)
-  - [Features](#features)
+  - [Basic View](#basic-view)
+  - [File Editor](#file-editor)
   - [Language](#language)
   - [Theme](#theme)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Saved data location (Path)](#saved-data-location-path)
 - [Development](#development)
   - [Recommended IDE Setup](#recommended-ide-setup)
@@ -37,7 +40,36 @@ Leavepad is a multi-platform notepad. focuses on writing memos. File editing is 
 
 Therefore, I decided to create a memo application by Electron for my own use.
 
-Note that file (local file) editing is not supported. (I don't need it).
+**Update (v1.5.0+):** File editing is now supported with an integrated Monaco Editor-based file editor window!
+
+## Features
+
+### 📝 Note Taking
+
+- Quick note creation with `Ctrl+N`
+- Full-featured Monaco Editor with syntax highlighting
+- Search notes by name or content
+- Tab-based interface with drag & drop reordering
+- Auto-save (close without saving)
+- Multiple font options (HackGen, NOTONOTO, Geist)
+
+### 📁 File Editor
+
+- Open and edit external text files
+- Syntax highlighting for 50+ programming languages
+- Multiple file tabs with drag & drop support
+- Drag & drop files from file explorer
+- Auto-detect file encoding
+- Unsaved changes detection
+- Keyboard shortcuts: `Ctrl+O` (Open), `Ctrl+S` (Save), `Ctrl+Shift+S` (Save As)
+
+### 🎨 Customization
+
+- Dark/Light theme
+- Language support: English, 日本語
+- Font selection
+- Sort options (created/updated date)
+- Collapsible sidebar
 
 ## Download
 
@@ -51,41 +83,62 @@ Note that file (local file) editing is not supported. (I don't need it).
 
 ## Screenshots
 
-### Features
+### Basic View
 
-| Basic View                                                                                           | Global Settings                                                                                           |
-| ---------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/basic_view.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/global_settings.png) |
+| Note Editor                                                                                         | Global Settings                                                                                               |
+| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| ![Basic View](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/basic_view.png) | ![Global Settings](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/global_settings.png) |
+
+### File Editor
+
+| Welcome Screen                             | File Editor Window                          |
+| ------------------------------------------ | ------------------------------------------- |
+| ![Welcome](screenshots/welcome_screen.png) | ![File Editor](screenshots/file_editor.png) |
 
 ### Language
 
-| English                                                                                                    | 日本語 (Japanese)                                                                                           |
-| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_english.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_japanese.png) |
+| English                                                                                                | 日本語 (Japanese)                                                                                        |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| ![English](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_english.png) | ![Japanese](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/language_japanese.png) |
 
 ### Theme
 
-| light                                                                                                 | dark                                                                                                 |
-| ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_light.png) | ![Screenshots](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_dark.png) |
+| Light                                                                                                 | Dark                                                                                                |
+| ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| ![Light Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_light.png) | ![Dark Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20241123/theme_dark.png) |
+
+## Keyboard Shortcuts
+
+### Main Window (Notes)
+
+- `Ctrl+N` - Create new note
+- `Ctrl+W` - Close current tab
+
+### File Editor Window
+
+- `Ctrl+N` - New file
+- `Ctrl+O` - Open file
+- `Ctrl+S` - Save file
+- `Ctrl+Shift+S` - Save As
+- `Ctrl+W` - Close current tab
 
 ## Saved data location (Path)
 
 Notes are stored in electron's `app.getPath("userData")`
 
-- windows
+- **Windows**
   - `C:\Users\<username>\AppData\Roaming\leavepad`
   - shortcut: `%APPDATA%\leavepad`
-- macOS
+- **macOS**
   - `~/Library/Application Support/leavepad`
-- Linux
+- **Linux**
   - `~/.config/leavepad/`
 
-Files
+**Files:**
 
-- `notes.json`
-- `settings.json`
-- `app-state.json`
+- `notes.json` - Note data
+- `settings.json` - User settings
+- `app-state.json` - Application state
 
 ## Development
 
@@ -120,6 +173,16 @@ $ yarn build:mac
 $ yarn build:linux
 ```
 
+## Technology Stack
+
+- **Framework:** Electron
+- **UI:** React + TypeScript
+- **Editor:** Monaco Editor
+- **State Management:** Jotai
+- **Styling:** Tailwind CSS + shadcn/ui
+- **Database:** lowdb
+- **Build:** electron-vite
+
 # LICENSE
 
 MIT
@@ -127,27 +190,31 @@ MIT
 ## FONT LICENSE
 
 ```
-"Geist Mono" is lisenced under the SIL Open Font License 1.1
+"Geist Mono" is licensed under the SIL Open Font License 1.1
 Copyright (c) 2023 Vercel, in collaboration with basement.studio
 by https://github.com/vercel/geist-font
 
-"Geist Sans" is lisenced under the SIL Open Font License 1.1
+"Geist Sans" is licensed under the SIL Open Font License 1.1
 Copyright (c) 2023 Vercel, in collaboration with basement.studio
 by https://github.com/vercel/geist-font
 
-"白源", "HackGen" is lisenced under the SIL Open Font License 1.1
+"白源", "HackGen" is licensed under the SIL Open Font License 1.1
 Copyright (c) 2019, Yuko OTAWARA. with Reserved Font Name "白源", "HackGen"
 by https://github.com/yuru7/HackGen/
 
-"NOTONOTO" is lisenced under the SIL Open Font License 1.1
+"NOTONOTO" is licensed under the SIL Open Font License 1.1
 Copyright (c) 2024 Yuko Otawara, with Reserved Font Name "NOTONOTO"
 by https://github.com/yuru7/NOTONOTO/
 
-"Noto Color Emoji" is lisenced under the SIL Open Font License 1.1
+"Noto Color Emoji" is licensed under the SIL Open Font License 1.1
 Copyright 2021 Google Inc. All Rights Reserved.
 by https://fonts.google.com/noto/specimen/Noto+Color+Emoji/
 
-"Noto Sans Japanese" is lisenced under the SIL Open Font License 1.1
+"Noto Sans Japanese" is licensed under the SIL Open Font License 1.1
 Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'
 by https://fonts.google.com/noto/specimen/Noto+Sans+JP
 ```
+
+---
+
+Made by [kaishuu0123](https://github.com/kaishuu0123) ✨
