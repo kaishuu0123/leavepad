@@ -89,17 +89,11 @@ Therefore, I decided to create a memo application by Electron for my own use.
 | --------------------------------------------------------------------------------------------- |
 | ![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/welcome.png) |
 
-### Basic View
+### Editor
 
-| Note Editor                                                                                         | Global Settings                                                                                               |
-| --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| ![Basic View](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![Global Settings](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/global_settings.png) |
-
-### File Editor
-
-| File Editor Window                                                                                |
-| ------------------------------------------------------------------------------------------------- |
-| ![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/file_editor.png) |
+| Note Editor                                                                                          | File Editor Settings                                                                                  |
+| ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| ![Note Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png) | ![File Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/file_editor.png) |
 
 ### Language
 
