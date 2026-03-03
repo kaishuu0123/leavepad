@@ -45,6 +45,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
+    "electron-updater": "^6.8.3",
     "i18next": "^23.16.4",
     "jotai": "^2.10.1",
     "lowdb": "^7.0.1",

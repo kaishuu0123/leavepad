@@ -39,6 +39,12 @@ const api = {
   },
   updateAppState: (appState: AppState): Promise<void> => {
     return ipcRenderer.invoke('update-app-state', appState)
+  },
+  installUpdate: (): void => {
+    ipcRenderer.send('install-update')
+  },
+  getAppVersion: (): string => {
+    return ipcRenderer.sendSync('get-app-version')
   }
 }
 

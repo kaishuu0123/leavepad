@@ -20,6 +20,9 @@
   "ok": "OK",
   "cancel": "Cancel",
   "close": "Close",
+  "updateDownloaded": "Update downloaded",
+  "updateVersion": "v{{version}} is available",
+  "restartAndUpdate": "Restart and update",
   "contextMenu": {
     "close": "Close",
     "closeOthers": "Close Others",

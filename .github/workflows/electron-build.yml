@@ -58,5 +58,9 @@ jobs:
             dist/*.exe
             dist/*.snap
             dist/*.AppImage
+            dist/latest.yml
+            dist/latest-mac.yml
+            dist/latest-linux.yml
+            dist/*.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

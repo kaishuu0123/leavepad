@@ -1,3 +1,5 @@
+import pkg from 'electron-updater'
+const { autoUpdater } = pkg
 import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
@@ -13,6 +15,29 @@ let mainWindow: BrowserWindow
 if (process.platform !== 'darwin') {
   // Disable Application Menu when boot except darwin
   Menu.setApplicationMenu(null)
+}
+
+export function initAutoUpdater(mainWindow: BrowserWindow) {
+  // 開発環境では動かさない
+  if (!app.isPackaged) return
+
+  autoUpdater.autoDownload = true // バックグラウンドで自動DL
+  autoUpdater.autoInstallOnAppQuit = true // 終了時に自動インストール
+
+  autoUpdater.on('update-available', (info) => {
+    mainWindow.webContents.send('update-available', info)
+  })
+
+  autoUpdater.on('update-downloaded', (info) => {
+    mainWindow.webContents.send('update-downloaded', info)
+  })
+
+  autoUpdater.on('error', (err) => {
+    console.error('AutoUpdater error:', err)
+  })
+
+  // 起動時にチェック
+  autoUpdater.checkForUpdates()
 }
 
 function createWindow(): void {
@@ -89,6 +114,8 @@ app.whenReady().then(async () => {
   createWindow()
 
   registerIpcHandles(ipcMain, mainWindow)
+
+  initAutoUpdater(mainWindow)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

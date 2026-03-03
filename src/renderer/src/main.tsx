@@ -115,7 +115,9 @@ if (window.api === undefined) {
     updateAppState: async (appState: AppState) => {
       appStateDb.data = appState
       await appStateDb.write()
-    }
+    },
+    installUpdate: () => {},
+    getAppVersion: () => '0.0.0'
   }
 }
 

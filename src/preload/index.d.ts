@@ -16,6 +16,8 @@ declare global {
       getSettings: () => Promise<NoteEditorSettings>
       getAppState: () => Promise<AppState>
       updateAppState: (appState: AppState) => void
+      installUpdate: () => void
+      getAppVersion: () => string
     }
   }
 }

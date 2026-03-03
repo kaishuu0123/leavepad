@@ -1,3 +1,6 @@
+import pkg from 'electron-updater'
+const { autoUpdater } = pkg
+import { app } from 'electron'
 import { getTime } from 'date-fns'
 import { uuidv7 } from 'uuidv7'
 
@@ -114,4 +117,12 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
       await appStateDb.write()
     }
   )
+
+  ipcMain.on('install-update', () => {
+    autoUpdater.quitAndInstall()
+  })
+
+  ipcMain.on('get-app-version', (event) => {
+    event.returnValue = app.getVersion()
+  })
 }

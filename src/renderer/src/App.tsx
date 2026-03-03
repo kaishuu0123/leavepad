@@ -73,6 +73,7 @@ function App(): JSX.Element {
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [appState, setAppState] = useState<AppState | undefined>(undefined)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [updateInfo, setUpdateInfo] = useState<{ version: string } | null>(null)
   const dragCounterRef = useRef(0)
 
   // Drag & Drop handlers for opening files in file editor
@@ -185,6 +186,13 @@ function App(): JSX.Element {
 
     document.fonts.load('14px HackGen')
     document.fonts.load('14px NOTONOTO')
+  }, [])
+
+  useEffect(() => {
+    window.electron.ipcRenderer.on('update-downloaded', (_event, info) => {
+      // トースト等でユーザーに通知
+      setUpdateInfo(info)
+    })
   }, [])
 
   useEffect(() => {
@@ -351,6 +359,18 @@ function App(): JSX.Element {
 
   return (
     <>
+      {updateInfo && (
+        <div className="fixed bottom-4 right-4 z-50 bg-background border border-border text-foreground p-3 rounded-lg shadow-md flex gap-3 items-center">
+          <span className="text-sm">{t('updateVersion', { version: updateInfo.version })}</span>
+          <Button size="sm" variant="default" onClick={() => window.api.installUpdate()}>
+            {t('restartAndUpdate')}
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setUpdateInfo(null)}>
+            {t('cancel')}
+          </Button>
+        </div>
+      )}
+
       <div
         className={cn(
           'bg-background text-foreground flex w-full h-full items-stretch relative',
@@ -644,6 +664,11 @@ function App(): JSX.Element {
                     </span>
                   )}
                 </div>
+
+                {/* Version */}
+                <p className="text-xs text-muted-foreground/50 mt-6">
+                  v{window.api.getAppVersion()}
+                </p>
               </div>
             </div>
           ) : (
