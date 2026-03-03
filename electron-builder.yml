@@ -31,6 +31,10 @@ mac:
       arch:
         - x64
         - universal
+    - target: zip
+      arch:
+        - x64
+        - universal
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
