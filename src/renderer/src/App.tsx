@@ -338,6 +338,8 @@ function App(): JSX.Element {
     const nextState = !isSidebarOpen
     setSidebarOpen(nextState)
 
+    setTimeout(() => editorRef.current?.layout(), 0)
+
     await window.api.updateAppState({
       isSidebarOpen: nextState,
       windowWidth: window.outerWidth,
@@ -588,7 +590,7 @@ function App(): JSX.Element {
           className={cn('flex h-screen', isSidebarOpen === true ? 'w-9/12 xl:w-10/12' : 'w-full')}
         >
           {noteTabs.length === 0 ? (
-            <div className="flex flex-col items-center justify-center w-full h-screen bg-muted/30">
+            <div className="flex flex-col items-center justify-center w-full h-full min-h-0 overflow-y-auto bg-muted/30">
               <div className="text-center max-w-md px-8">
                 {/* Icon */}
                 <div className="flex justify-center mb-6">
@@ -683,7 +685,7 @@ function App(): JSX.Element {
                 </ContextMenu>
               </div>
 
-              <div className="grow overflow-y-auto">
+              <div className="grow min-h-0">
                 <NoteEditor
                   currentNote={currentNote}
                   onDidChangeCursorPosition={onDidChangeCursorPosition}

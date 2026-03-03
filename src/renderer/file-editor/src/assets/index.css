@@ -6,6 +6,11 @@
 @import '../../../src/assets/fonts/notonoto.css';
 @import '../../../../../node_modules/@vscode/codicons/dist/codicon.css';
 
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

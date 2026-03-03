@@ -93,6 +93,7 @@ function NoteEditor(
 
   return (
     <Editor
+      height="100%"
       value={currentNote.body}
       language={settings.editorOptions.language}
       theme={getEditorThemeName(settings.themeName)}
