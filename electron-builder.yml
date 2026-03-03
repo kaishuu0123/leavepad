@@ -29,12 +29,11 @@ mac:
   target:
     - target: dmg
       arch:
-        - x64
         - universal
     - target: zip
       arch:
         - x64
-        - universal
+        - arm64
 dmg:
   artifactName: ${name}-${version}.${ext}
 linux:
