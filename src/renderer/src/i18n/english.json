@@ -5,6 +5,7 @@
   "delete": "Delete",
   "save": "Save",
   "fileEditor": "File Editor",
+  "jsonTool": "JSON Formatter",
   "globalSettings": "Global Settings",
   "createdAt": "CreatedAt",
   "updatedAt": "UpdatedAt",
@@ -32,7 +33,6 @@
   "searchLanguage": "Search language...",
   "noLanguageFound": "No language found",
   "defaultLanguage": "Default",
-  "format": "Format",
   "globalSettingsGroup": {
     "save": "Save",
     "cancel": "Cancel",

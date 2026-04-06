@@ -12,7 +12,8 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/preload/index.ts'),
-          fileEditor: resolve(__dirname, 'src/preload/fileEditor.ts')
+          fileEditor: resolve(__dirname, 'src/preload/fileEditor.ts'),
+          jsonFormatter: resolve(__dirname, 'src/preload/jsonFormatter.ts')
         }
       }
     }
@@ -21,7 +22,8 @@ export default defineConfig({
     resolve: {
       alias: {
         '@renderer': resolve('src/renderer/src'),
-        '@file-editor': resolve('src/renderer/file-editor/src')
+        '@file-editor': resolve('src/renderer/file-editor/src'),
+        '@json-formatter': resolve('src/renderer/json-formatter/src')
       }
     },
     plugins: [react()],
@@ -32,7 +34,8 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/renderer/index.html'),
-          'file-editor': resolve(__dirname, 'src/renderer/file-editor/index.html')
+          'file-editor': resolve(__dirname, 'src/renderer/file-editor/index.html'),
+          'json-formatter': resolve(__dirname, 'src/renderer/json-formatter/index.html')
         }
       }
     }

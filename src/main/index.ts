@@ -8,6 +8,7 @@ import icon from '../../resources/icon.png?asset'
 import { registerIpcHandles } from './ipcHandles'
 import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
 import { registerFileEditorWindowHandlers } from './fileEditorWindow'
+import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
 import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
@@ -110,6 +111,7 @@ app.whenReady().then(async () => {
   // Register file editor IPC handlers
   registerFileEditorIpcHandles()
   registerFileEditorWindowHandlers()
+  registerJsonFormatterWindowHandlers()
 
   createWindow()
 

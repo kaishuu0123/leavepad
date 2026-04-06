@@ -42,6 +42,9 @@ if (window.api === undefined) {
       console.log('openFileInEditor called with:', filePath)
       console.warn('File editor is not available in browser mode')
     },
+    openJsonFormatter: (): void => {
+      console.warn('JSON Formatter is not available in browser mode')
+    },
     getNotes: async (): Promise<Note[]> => {
       return notesDb.data
     },
