@@ -70,26 +70,6 @@ function FileEditor(
         () => monacoEditor.getAction('editor.action.quickCommand')?.run()
       )
 
-      monacoEditor.addAction({
-        id: 'format-json',
-        label: 'Format JSON',
-        run: (ed) => {
-          const model = ed.getModel()
-          if (model?.getLanguageId() === 'json') {
-            ed.getAction('editor.action.formatDocument')?.run()
-          } else {
-            try {
-              const content = ed.getValue()
-              const parsed = JSON.parse(content)
-              const formatted = JSON.stringify(parsed, null, 2)
-              ed.setValue(formatted)
-            } catch (e) {
-              // silently fail for invalid JSON
-            }
-          }
-        }
-      })
-
       monaco.editor.remeasureFonts()
       document.fonts.addEventListener('loadingdone', () => {
         monaco.editor.remeasureFonts()

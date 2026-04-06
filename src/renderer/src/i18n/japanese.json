@@ -33,7 +33,6 @@
   "searchLanguage": "言語を検索...",
   "noLanguageFound": "言語が見つかりません",
   "defaultLanguage": "デフォルト",
-  "format": "整形",
   "globalSettingsGroup": {
     "save": "保存",
     "cancel": "キャンセル",

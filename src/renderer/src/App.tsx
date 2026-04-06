@@ -843,20 +843,6 @@ function App(): JSX.Element {
                             </Command>
                           </PopoverContent>
                         </Popover>
-                        {currentLanguage === 'json' && (
-                          <>
-                            <Separator orientation="vertical" className="h-4" />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => editorRef.current?.getAction('format-json')?.run()}
-                              className="h-6 px-2 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                              title="Format JSON (F1 → Format JSON)"
-                            >
-                              {t('format')}
-                            </Button>
-                          </>
-                        )}
                       </div>
                     )
                   })()}
