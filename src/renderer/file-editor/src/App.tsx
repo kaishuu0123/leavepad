@@ -446,7 +446,21 @@ function App(): JSX.Element {
             </>
           )}
         </div>
-        <div className="flex items-center gap-3">{activeTab && <span>{language}</span>}</div>
+        <div className="flex items-center gap-3">
+          {activeTab && <span>{language}</span>}
+          {activeTab && language === 'json' && (
+            <>
+              <span className="text-muted-foreground">|</span>
+              <button
+                onClick={() => editorRef.current?.getAction('format-json')?.run()}
+                className="px-2 py-0.5 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                title="Format JSON (F1 → Format JSON)"
+              >
+                Format
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )

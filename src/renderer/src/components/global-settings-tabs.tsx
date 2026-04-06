@@ -23,6 +23,10 @@ import { ScrollArea } from './ui/scroll-area'
 
 const LanguageComboboxForm = ({ form, field }) => {
   const languages = monaco.languages.getLanguages()
+  const { t } = useTranslation()
+
+  const getDisplayName = (id: string) =>
+    languages.find((l) => l.id === id)?.aliases?.[0] || id
 
   return (
     <Popover>
@@ -33,37 +37,38 @@ const LanguageComboboxForm = ({ form, field }) => {
             role="combobox"
             className={cn('w-[200px] justify-between', !field.value && 'text-muted-foreground')}
           >
-            {field.value
-              ? languages.find((language) => language.id === field.value)?.id
-              : 'Select language'}
+            {field.value ? getDisplayName(field.value) : 'Select language'}
           </Button>
         </FormControl>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder={t('searchLanguage')} className="h-9" />
           <CommandList>
-            <CommandEmpty>No language found.</CommandEmpty>
+            <CommandEmpty>{t('noLanguageFound')}</CommandEmpty>
             <CommandGroup>
-              {languages.map((language) => (
-                <CommandItem
-                  value={language.id}
-                  key={language.id}
-                  onSelect={() => {
-                    form.setValue('editorOptions.language', language.id)
-                  }}
-                >
-                  {language.id}
-                  <div
-                    className={cn(
-                      'ml-auto h-4 w-4',
-                      language.id === field.value ? 'opacity-100' : 'opacity-0'
-                    )}
+              {languages.map((language) => {
+                const displayName = language.aliases?.[0] || language.id
+                return (
+                  <CommandItem
+                    value={`${displayName} ${language.id}`}
+                    key={language.id}
+                    onSelect={() => {
+                      form.setValue('editorOptions.language', language.id)
+                    }}
                   >
-                    <div className="codicon codicon-check" />
-                  </div>
-                </CommandItem>
-              ))}
+                    {displayName}
+                    <div
+                      className={cn(
+                        'ml-auto h-4 w-4',
+                        language.id === field.value ? 'opacity-100' : 'opacity-0'
+                      )}
+                    >
+                      <div className="codicon codicon-check" />
+                    </div>
+                  </CommandItem>
+                )
+              })}
             </CommandGroup>
           </CommandList>
         </Command>

@@ -68,6 +68,31 @@ function NoteEditor(
     if (ref.current != null) {
       ref.current.onDidChangeCursorPosition(onDidChangeCursorPosition)
 
+      monacoEditor.addCommand(
+        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP,
+        () => monacoEditor.getAction('editor.action.quickCommand')?.run()
+      )
+
+      monacoEditor.addAction({
+        id: 'format-json',
+        label: 'Format JSON',
+        run: (ed) => {
+          const model = ed.getModel()
+          if (model?.getLanguageId() === 'json') {
+            ed.getAction('editor.action.formatDocument')?.run()
+          } else {
+            try {
+              const content = ed.getValue()
+              const parsed = JSON.parse(content)
+              const formatted = JSON.stringify(parsed, null, 2)
+              ed.setValue(formatted)
+            } catch (e) {
+              // silently fail for invalid JSON
+            }
+          }
+        }
+      })
+
       monaco.editor.remeasureFonts()
       // Exec remeasureFonts func for custom fonts
       document.fonts.addEventListener('loadingdone', () => {
@@ -91,11 +116,13 @@ function NoteEditor(
     return <></>
   }
 
+  const editorLanguage = currentNote.language || settings.editorOptions.language
+
   return (
     <Editor
       height="100%"
       value={currentNote.body}
-      language={settings.editorOptions.language}
+      language={editorLanguage}
       theme={getEditorThemeName(settings.themeName)}
       options={settings.editorOptions}
       onMount={handleEditorDidMount}

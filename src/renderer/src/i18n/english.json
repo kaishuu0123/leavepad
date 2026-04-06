@@ -29,6 +29,10 @@
     "closeToTheRight": "Close to the Right",
     "closeAll": "Close All"
   },
+  "searchLanguage": "Search language...",
+  "noLanguageFound": "No language found",
+  "defaultLanguage": "Default",
+  "format": "Format",
   "globalSettingsGroup": {
     "save": "Save",
     "cancel": "Cancel",
