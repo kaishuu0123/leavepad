@@ -13,6 +13,7 @@ declare global {
       confirmClose: (fileName: string) => Promise<'save' | 'discard' | 'cancel'>
       confirmCloseComplete: () => void
       cancelClose: () => void
+      getSettings: () => Promise<{ language?: string }>
       updateTitle: (title: string) => void
       onRequestClose: (callback: () => void) => () => void
       onOpenFilePath: (callback: (filePath: string) => void) => () => void

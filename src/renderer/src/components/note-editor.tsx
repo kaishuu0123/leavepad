@@ -11,6 +11,14 @@ import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { ForwardedRef, forwardRef } from 'react'
 
+export async function applyMonacoLocale(language: string): Promise<void> {
+  if (language === 'japanese') {
+    await import('monaco-editor/esm/nls.messages.ja.js')
+  } else {
+    await import('monaco-editor/esm/nls.messages.js')
+  }
+}
+
 export function initializeNoteEditor() {
   self.MonacoEnvironment = {
     getWorker(_, label) {

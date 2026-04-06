@@ -43,6 +43,11 @@ const fileEditorApi = {
     ipcRenderer.send('file-editor:cancel-close')
   },
 
+  // Get app settings (for locale etc.)
+  getSettings: (): Promise<{ language?: string }> => {
+    return ipcRenderer.invoke('get-settings')
+  },
+
   // Update window title
   updateTitle: (title: string): void => {
     ipcRenderer.send('file-editor:update-title', title)

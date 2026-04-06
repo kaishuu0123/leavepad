@@ -18,7 +18,7 @@ import {
 } from './components/ui/command'
 import NoteCard from './components/note-card'
 import NoteTabs from './components/note-tabs'
-import NoteEditor, { initializeNoteEditor } from './components/note-editor'
+import NoteEditor, { initializeNoteEditor, applyMonacoLocale } from './components/note-editor'
 import {
   ContextMenu,
   ContextMenuTrigger,
@@ -84,6 +84,7 @@ function App(): JSX.Element {
   const [appState, setAppState] = useState<AppState | undefined>(undefined)
   const [isDragOver, setIsDragOver] = useState(false)
   const [updateInfo, setUpdateInfo] = useState<{ version: string } | null>(null)
+  const [localeReady, setLocaleReady] = useState(false)
   const dragCounterRef = useRef(0)
 
   // Drag & Drop handlers for opening files in file editor
@@ -182,7 +183,10 @@ function App(): JSX.Element {
     }
     const fetchSettings = async () => {
       const settings = await window.api.getSettings()
-      setCurrentNoteEditorSettings({ ...defaultNoteEditorSettings, ...settings })
+      const merged = { ...defaultNoteEditorSettings, ...settings }
+      await applyMonacoLocale(merged.language)
+      setCurrentNoteEditorSettings(merged)
+      setLocaleReady(true)
     }
     const fetchAppState = async () => {
       const appState = await window.api.getAppState()
@@ -323,6 +327,7 @@ function App(): JSX.Element {
   }
 
   const onGlobalSettingsSubmit = async (value: NoteEditorSettings) => {
+    await applyMonacoLocale(value.language)
     setCurrentNoteEditorSettings(value)
     i18n.changeLanguage(value.language)
     await window.api.updateSettings(value)
@@ -721,12 +726,14 @@ function App(): JSX.Element {
               </div>
 
               <div className="grow min-h-0">
-                <NoteEditor
-                  currentNote={currentNote}
-                  onDidChangeCursorPosition={onDidChangeCursorPosition}
-                  onEditorChange={onEditorChange}
-                  ref={editorRef}
-                />
+                {localeReady && (
+                  <NoteEditor
+                    currentNote={currentNote}
+                    onDidChangeCursorPosition={onDidChangeCursorPosition}
+                    onEditorChange={onEditorChange}
+                    ref={editorRef}
+                  />
+                )}
               </div>
 
               <div className="flex-shrink border-t py-1">
