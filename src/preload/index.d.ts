@@ -7,6 +7,7 @@ declare global {
     api: {
       getPathForFile: (file: File) => string
       openFileInEditor: (filePath: string) => void
+      openJsonFormatter: () => void
       getNotes: () => Promise<Note[]>
       getNote: (noteId: string) => Promise<Note | undefined>
       createNote: () => Promise<Note>

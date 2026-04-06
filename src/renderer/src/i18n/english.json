@@ -5,6 +5,7 @@
   "delete": "Delete",
   "save": "Save",
   "fileEditor": "File Editor",
+  "jsonTool": "JSON Formatter",
   "globalSettings": "Global Settings",
   "createdAt": "CreatedAt",
   "updatedAt": "UpdatedAt",

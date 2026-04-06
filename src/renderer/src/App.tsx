@@ -209,6 +209,18 @@ function App(): JSX.Element {
     })
   }, [])
 
+  // Refresh notes when a note is created from JSON Tool
+  useEffect(() => {
+    const handleNoteListUpdated = async (): Promise<void> => {
+      const notes = await window.api.getNotes()
+      setNotes(sortNotes(notes))
+    }
+    window.electron.ipcRenderer.on('note-list-updated', handleNoteListUpdated)
+    return () => {
+      window.electron.ipcRenderer.removeListener('note-list-updated', handleNoteListUpdated)
+    }
+  }, [currentNoteEditorSettings])
+
   useEffect(() => {
     const updateWindowState = () => {
       editorRef.current?.layout()
@@ -243,6 +255,12 @@ function App(): JSX.Element {
       if (isMod && e.key === 'n' && !e.shiftKey) {
         e.preventDefault()
         AddNote()
+      }
+
+      // Ctrl+Shift+J: Open JSON Tool
+      if (isMod && e.shiftKey && e.key === 'J') {
+        e.preventDefault()
+        window.api.openJsonFormatter()
       }
     }
 
@@ -638,8 +656,8 @@ function App(): JSX.Element {
                 {/* Description */}
                 <p className="text-muted-foreground mb-8">{t('welcomeDescription')}</p>
 
-                {/* Action Buttons */}
-                <div className="flex gap-4 justify-center mb-6">
+                {/* Action Buttons - Row 1 */}
+                <div className="flex gap-4 justify-center mb-3">
                   <Button size="lg" onClick={AddNote} className="flex items-center gap-2">
                     <span className="codicon codicon-new-file"></span>
                     <span>{t('createNote')}</span>
@@ -659,25 +677,42 @@ function App(): JSX.Element {
                   )}
                 </div>
 
+                {/* Action Buttons - Row 2: Tools */}
+                {typeof window.api?.openJsonFormatter === 'function' && (
+                  <div className="flex gap-4 justify-center mb-6">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      onClick={() => window.api.openJsonFormatter()}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="codicon codicon-json"></span>
+                      <span>{t('jsonTool')}</span>
+                    </Button>
+                  </div>
+                )}
+
                 {/* Hint Text */}
                 <p className="text-sm text-muted-foreground">{t('welcomeHint')}</p>
 
                 {/* Keyboard Shortcuts */}
-                <div className="text-xs text-muted-foreground mt-4 space-x-4">
-                  <span>
-                    <kbd className="px-2 py-1 bg-muted rounded text-xs border">
-                      {navigator.platform.indexOf('Mac') !== -1 ? '⌘N' : 'Ctrl+N'}
-                    </kbd>{' '}
-                    {t('createNote')}
-                  </span>
-                  {typeof window.api?.openFileInEditor === 'function' && (
-                    <span>
-                      <kbd className="px-2 py-1 bg-muted rounded text-xs border">
-                        {navigator.platform.indexOf('Mac') !== -1 ? '⌘⇧O' : 'Ctrl+⇧+O'}
-                      </kbd>{' '}
-                      {t('fileEditor')}
-                    </span>
-                  )}
+                <div className="text-xs text-muted-foreground mt-4 inline-grid grid-cols-[auto_auto] gap-x-2 gap-y-1 items-center text-left">
+                  <kbd className="px-2 py-0.5 bg-muted rounded border text-xs justify-self-end">
+                    {navigator.platform.indexOf('Mac') !== -1 ? '⌘N' : 'Ctrl+N'}
+                  </kbd>
+                  <span>{t('createNote')}</span>
+                  {typeof window.api?.openFileInEditor === 'function' && (<>
+                    <kbd className="px-2 py-0.5 bg-muted rounded border text-xs justify-self-end">
+                      {navigator.platform.indexOf('Mac') !== -1 ? '⌘⇧O' : 'Ctrl+⇧+O'}
+                    </kbd>
+                    <span>{t('fileEditor')}</span>
+                  </>)}
+                  {typeof window.api?.openJsonFormatter === 'function' && (<>
+                    <kbd className="px-2 py-0.5 bg-muted rounded border text-xs justify-self-end">
+                      {navigator.platform.indexOf('Mac') !== -1 ? '⌘⇧J' : 'Ctrl+⇧+J'}
+                    </kbd>
+                    <span>{t('jsonTool')}</span>
+                  </>)}
                 </div>
 
                 {/* Version */}

@@ -12,6 +12,10 @@ const api = {
   openFileInEditor: (filePath: string): void => {
     ipcRenderer.send('open-file-in-editor', filePath)
   },
+  // Open JSON Formatter window
+  openJsonFormatter: (): void => {
+    ipcRenderer.send('open-json-formatter')
+  },
   getNotes: (): Promise<Note[]> => {
     return ipcRenderer.invoke('get-notes')
   },

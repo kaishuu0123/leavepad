@@ -118,6 +118,28 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
     }
   )
 
+  ipcMain.handle(
+    'json-formatter:save-as-note',
+    async (_event: Electron.IpcMainInvokeEvent, content: string) => {
+      const note: Note = {
+        id: uuidv7(),
+        name: `JSON ${new Date().toLocaleString()}`,
+        body: content,
+        createdAt: getTime(new Date()),
+        updatedAt: getTime(new Date())
+      }
+      notesDb.data.push(note)
+      await notesDb.write()
+
+      // Notify main window to refresh notes list
+      if (!mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('note-list-updated')
+      }
+
+      return note
+    }
+  )
+
   ipcMain.on('install-update', () => {
     autoUpdater.quitAndInstall()
   })
