@@ -48,6 +48,8 @@ Therefore, I decided to create a memo application by Electron for my own use.
 
 - Quick note creation with `Ctrl+N`
 - Full-featured Monaco Editor with syntax highlighting
+- **Per-note language mode settings** (changeable via status bar)
+- **JSON formatting** (F1 → "Format JSON" or click "Format" button in status bar)
 - Search notes by name or content
 - Tab-based interface with drag & drop reordering
 - Auto-save (close without saving)
@@ -169,6 +171,24 @@ Therefore, I decided to create a memo application by Electron for my own use.
 </tr>
 </tbody>
 </table>
+
+## Tips
+
+### Command Palette
+
+Press `F1` or `Ctrl+Shift+P` / `Cmd+Shift+P` in the editor to open the command palette and access Monaco Editor's built-in commands:
+
+- **Format JSON** — Format JSON documents (custom command)
+- **Format Document** — Format any supported language
+- **Change Language Mode** — Switch syntax highlighting
+- **Toggle Line Comment** — Comment/uncomment code
+- **Find & Replace** — Search and replace text
+- **Go to Line** — Jump to a specific line number
+- And many more...
+
+### Language Mode
+
+Click the language indicator in the status bar (bottom-right of the note editor) to change the syntax highlighting mode for the current note. Each note can have its own language setting independent of the global default.
 
 ## Keyboard Shortcuts
 

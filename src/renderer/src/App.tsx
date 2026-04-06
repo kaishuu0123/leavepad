@@ -2,13 +2,23 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { editor } from 'monaco-editor'
 import { useForm } from 'react-hook-form'
 
+import * as monaco from 'monaco-editor'
 import { Button } from './components/ui/button'
 import { ScrollArea } from './components/ui/scroll-area'
 import { Input } from './components/ui/input'
 import { Separator } from './components/ui/separator'
+import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from './components/ui/command'
 import NoteCard from './components/note-card'
 import NoteTabs from './components/note-tabs'
-import NoteEditor, { initializeNoteEditor } from './components/note-editor'
+import NoteEditor, { initializeNoteEditor, applyMonacoLocale } from './components/note-editor'
 import {
   ContextMenu,
   ContextMenuTrigger,
@@ -74,6 +84,7 @@ function App(): JSX.Element {
   const [appState, setAppState] = useState<AppState | undefined>(undefined)
   const [isDragOver, setIsDragOver] = useState(false)
   const [updateInfo, setUpdateInfo] = useState<{ version: string } | null>(null)
+  const [localeReady, setLocaleReady] = useState(false)
   const dragCounterRef = useRef(0)
 
   // Drag & Drop handlers for opening files in file editor
@@ -172,7 +183,10 @@ function App(): JSX.Element {
     }
     const fetchSettings = async () => {
       const settings = await window.api.getSettings()
-      setCurrentNoteEditorSettings({ ...defaultNoteEditorSettings, ...settings })
+      const merged = { ...defaultNoteEditorSettings, ...settings }
+      await applyMonacoLocale(merged.language)
+      setCurrentNoteEditorSettings(merged)
+      setLocaleReady(true)
     }
     const fetchAppState = async () => {
       const appState = await window.api.getAppState()
@@ -313,6 +327,7 @@ function App(): JSX.Element {
   }
 
   const onGlobalSettingsSubmit = async (value: NoteEditorSettings) => {
+    await applyMonacoLocale(value.language)
     setCurrentNoteEditorSettings(value)
     i18n.changeLanguage(value.language)
     await window.api.updateSettings(value)
@@ -711,26 +726,105 @@ function App(): JSX.Element {
               </div>
 
               <div className="grow min-h-0">
-                <NoteEditor
-                  currentNote={currentNote}
-                  onDidChangeCursorPosition={onDidChangeCursorPosition}
-                  onEditorChange={onEditorChange}
-                  ref={editorRef}
-                />
+                {localeReady && (
+                  <NoteEditor
+                    currentNote={currentNote}
+                    onDidChangeCursorPosition={onDidChangeCursorPosition}
+                    onEditorChange={onEditorChange}
+                    ref={editorRef}
+                  />
+                )}
               </div>
 
               <div className="flex-shrink border-t py-1">
-                <div className="flex w-full gap-2 justify-start ps-3 text-sm">
-                  <div>
+                <div className="flex w-full gap-3 justify-between px-3 text-sm items-center">
+                  <div className="flex gap-3">
                     <div>
                       {t('line')}: {cursorPosition?.line}
                     </div>
-                  </div>
-                  <div>
                     <div>
                       {t('col')}: {cursorPosition?.col}
                     </div>
                   </div>
+                  {currentNote && (() => {
+                    const currentLanguage = currentNote.language || currentNoteEditorSettings.editorOptions.language
+                    const currentLanguageDisplayName = monaco.languages.getLanguages().find((l) => l.id === currentLanguage)?.aliases?.[0] || currentLanguage
+                    return (
+                      <div className="flex gap-2 items-center">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 text-xs hover:bg-muted"
+                            >
+                              {currentLanguageDisplayName}
+                              <span className="codicon codicon-chevron-down ml-1 text-[10px]"></span>
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[200px] p-0" align="end">
+                            <Command>
+                              <CommandInput placeholder={t('searchLanguage')} className="h-9" />
+                              <CommandList>
+                                <CommandEmpty>{t('noLanguageFound')}</CommandEmpty>
+                                <CommandGroup>
+                                    <CommandItem
+                                      value="default"
+                                      onSelect={async () => {
+                                        const updatedNote = { ...currentNote, language: undefined }
+                                        await window.api.updateNote(updatedNote)
+                                        setCurrentNote(updatedNote)
+                                        setNotes(notes.map((n) => (n.id === currentNote.id ? updatedNote : n)))
+                                      }}
+                                    >
+                                      {t('defaultLanguage')} ({monaco.languages.getLanguages().find((l) => l.id === currentNoteEditorSettings.editorOptions.language)?.aliases?.[0] || currentNoteEditorSettings.editorOptions.language})
+                                      {!currentNote.language && (
+                                        <span className="ml-auto codicon codicon-check"></span>
+                                      )}
+                                    </CommandItem>
+                                    <Separator className="my-1" />
+                                    {monaco.languages.getLanguages().map((lang) => {
+                                      const displayName = lang.aliases?.[0] || lang.id
+                                      return (
+                                        <CommandItem
+                                          key={lang.id}
+                                          value={`${displayName} ${lang.id}`}
+                                          onSelect={async () => {
+                                            const updatedNote = { ...currentNote, language: lang.id }
+                                            await window.api.updateNote(updatedNote)
+                                            setCurrentNote(updatedNote)
+                                            setNotes(notes.map((n) => (n.id === currentNote.id ? updatedNote : n)))
+                                          }}
+                                        >
+                                          {displayName}
+                                          {currentNote.language === lang.id && (
+                                            <span className="ml-auto codicon codicon-check"></span>
+                                          )}
+                                        </CommandItem>
+                                      )
+                                    })}
+                                </CommandGroup>
+                              </CommandList>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        {currentLanguage === 'json' && (
+                          <>
+                            <Separator orientation="vertical" className="h-4" />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => editorRef.current?.getAction('format-json')?.run()}
+                              className="h-6 px-2 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                              title="Format JSON (F1 → Format JSON)"
+                            >
+                              {t('format')}
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    )
+                  })()}
                 </div>
               </div>
             </div>

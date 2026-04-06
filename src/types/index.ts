@@ -6,6 +6,7 @@ export type Note = {
   body: string
   createdAt: number
   updatedAt: number
+  language?: string // per-note language mode (undefined = use global setting)
 }
 
 export type NoteTab = {

@@ -9,6 +9,14 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { ForwardedRef, forwardRef } from 'react'
 import { FileTab } from '../../../../types'
 
+export async function applyMonacoLocale(language: string): Promise<void> {
+  if (language === 'japanese') {
+    await import('monaco-editor/esm/nls.messages.ja.js')
+  } else {
+    await import('monaco-editor/esm/nls.messages.js')
+  }
+}
+
 export function initializeFileEditor(): void {
   self.MonacoEnvironment = {
     getWorker(_, label) {
@@ -56,6 +64,31 @@ function FileEditor(
 
     if (ref.current != null) {
       ref.current.onDidChangeCursorPosition(onDidChangeCursorPosition)
+
+      monacoEditor.addCommand(
+        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP,
+        () => monacoEditor.getAction('editor.action.quickCommand')?.run()
+      )
+
+      monacoEditor.addAction({
+        id: 'format-json',
+        label: 'Format JSON',
+        run: (ed) => {
+          const model = ed.getModel()
+          if (model?.getLanguageId() === 'json') {
+            ed.getAction('editor.action.formatDocument')?.run()
+          } else {
+            try {
+              const content = ed.getValue()
+              const parsed = JSON.parse(content)
+              const formatted = JSON.stringify(parsed, null, 2)
+              ed.setValue(formatted)
+            } catch (e) {
+              // silently fail for invalid JSON
+            }
+          }
+        }
+      })
 
       monaco.editor.remeasureFonts()
       document.fonts.addEventListener('loadingdone', () => {

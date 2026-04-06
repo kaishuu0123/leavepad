@@ -6,7 +6,7 @@ import { FileTab } from '../../../types'
 import { fileTabsAtom, activeTabIdAtom, activeTabAtom, unsavedTabsAtom } from './lib/atoms/files'
 import { detectLanguageFromFileName } from './lib/languageDetection'
 import FileTabs from './components/file-tabs'
-import FileEditor, { initializeFileEditor } from './components/file-editor'
+import FileEditor, { initializeFileEditor, applyMonacoLocale } from './components/file-editor'
 
 // Simple basename function for browser environment
 function basename(filePath: string): string {
@@ -24,6 +24,7 @@ function App(): JSX.Element {
   const [unsavedTabs] = useAtom(unsavedTabsAtom)
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>()
   const [isDragOver, setIsDragOver] = useState(false)
+  const [localeReady, setLocaleReady] = useState(false)
   const dragCounterRef = useRef(0)
 
   const language = activeTab ? detectLanguageFromFileName(activeTab.fileName) : 'plaintext'
@@ -320,6 +321,13 @@ function App(): JSX.Element {
     []
   )
 
+  // Apply Monaco locale based on app language setting
+  useEffect(() => {
+    window.fileEditorApi.getSettings().then((settings) => {
+      applyMonacoLocale(settings.language ?? 'english').then(() => setLocaleReady(true))
+    })
+  }, [])
+
   // Setup IPC listeners
   useEffect(() => {
     const unsubscribeClose = window.fileEditorApi.onRequestClose(handleWindowCloseRequest)
@@ -427,13 +435,15 @@ function App(): JSX.Element {
 
       {/* Editor */}
       <div className="flex-1 overflow-hidden">
-        <FileEditor
-          ref={editorRef}
-          currentTab={activeTab}
-          language={language}
-          onDidChangeCursorPosition={handleCursorPositionChange}
-          onEditorChange={handleEditorChange}
-        />
+        {localeReady && (
+          <FileEditor
+            ref={editorRef}
+            currentTab={activeTab}
+            language={language}
+            onDidChangeCursorPosition={handleCursorPositionChange}
+            onEditorChange={handleEditorChange}
+          />
+        )}
       </div>
 
       {/* Status Bar */}
@@ -446,7 +456,21 @@ function App(): JSX.Element {
             </>
           )}
         </div>
-        <div className="flex items-center gap-3">{activeTab && <span>{language}</span>}</div>
+        <div className="flex items-center gap-3">
+          {activeTab && <span>{language}</span>}
+          {activeTab && language === 'json' && (
+            <>
+              <span className="text-muted-foreground">|</span>
+              <button
+                onClick={() => editorRef.current?.getAction('format-json')?.run()}
+                className="px-2 py-0.5 text-xs text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                title="Format JSON (F1 → Format JSON)"
+              >
+                Format
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
