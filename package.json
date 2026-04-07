@@ -1,6 +1,6 @@
 {
   "name": "leavepad",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Leavepad is a multi-platform notepad. focuses on writing memos.",
   "license": "MIT",
   "type": "module",
@@ -68,7 +68,7 @@
     "autoprefixer": "^10.4.24",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "electron": "^40.1.0",
+    "electron": "^41.1.1",
     "electron-builder": "~26.5.0",
     "electron-vite": "^5.0.0",
     "eslint": "^9.14.0",

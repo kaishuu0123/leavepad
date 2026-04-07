@@ -49,6 +49,9 @@ const api = {
   },
   getAppVersion: (): string => {
     return ipcRenderer.sendSync('get-app-version')
+  },
+  checkForUpdates: (): void => {
+    ipcRenderer.send('check-for-updates-now')
   }
 }
 

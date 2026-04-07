@@ -33,6 +33,16 @@
   "searchLanguage": "言語を検索...",
   "noLanguageFound": "言語が見つかりません",
   "defaultLanguage": "デフォルト",
+  "about": {
+    "title": "About",
+    "checking": "アップデートを確認中...",
+    "upToDate": "✓ 最新版です",
+    "available": "↑ v{{version}} が利用可能です（ダウンロード中...）",
+    "downloaded": "✓ v{{version}} の準備ができました",
+    "devError": "— 開発環境では確認できません",
+    "error": "✗ 確認中にエラーが発生しました",
+    "fontCredits": "Font Credits"
+  },
   "globalSettingsGroup": {
     "save": "保存",
     "cancel": "キャンセル",
