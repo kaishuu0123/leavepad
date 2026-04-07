@@ -120,7 +120,8 @@ if (window.api === undefined) {
       await appStateDb.write()
     },
     installUpdate: () => {},
-    getAppVersion: () => '0.0.0'
+    getAppVersion: () => '0.0.0',
+    checkForUpdates: () => {}
   }
 }
 
