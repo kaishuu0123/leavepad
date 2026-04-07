@@ -19,6 +19,7 @@ declare global {
       updateAppState: (appState: AppState) => void
       installUpdate: () => void
       getAppVersion: () => string
+      checkForUpdates: () => void
     }
   }
 }

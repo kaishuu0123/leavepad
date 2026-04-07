@@ -33,6 +33,16 @@
   "searchLanguage": "Search language...",
   "noLanguageFound": "No language found",
   "defaultLanguage": "Default",
+  "about": {
+    "title": "About",
+    "checking": "Checking for updates...",
+    "upToDate": "✓ Up to date",
+    "available": "↑ v{{version}} available (downloading...)",
+    "downloaded": "✓ v{{version}} ready to install",
+    "devError": "— Not available in development",
+    "error": "✗ Failed to check for updates",
+    "fontCredits": "Font Credits"
+  },
   "globalSettingsGroup": {
     "save": "Save",
     "cancel": "Cancel",

@@ -25,8 +25,16 @@ export function initAutoUpdater(mainWindow: BrowserWindow) {
   autoUpdater.autoDownload = true // バックグラウンドで自動DL
   autoUpdater.autoInstallOnAppQuit = true // 終了時に自動インストール
 
+  autoUpdater.on('checking-for-update', () => {
+    mainWindow.webContents.send('update-checking')
+  })
+
   autoUpdater.on('update-available', (info) => {
     mainWindow.webContents.send('update-available', info)
+  })
+
+  autoUpdater.on('update-not-available', () => {
+    mainWindow.webContents.send('update-not-available')
   })
 
   autoUpdater.on('update-downloaded', (info) => {
@@ -35,6 +43,7 @@ export function initAutoUpdater(mainWindow: BrowserWindow) {
 
   autoUpdater.on('error', (err) => {
     console.error('AutoUpdater error:', err)
+    mainWindow.webContents.send('update-error', err.message)
   })
 
   // 起動時にチェック
