@@ -74,6 +74,7 @@ export type NoteEditorSettings = {
 
 export type AppState = {
   isSidebarOpen: boolean
+  sidebarRatio?: number
   windowWidth: number | undefined
   windowHeight: number | undefined
   windowX: number | undefined
@@ -82,6 +83,7 @@ export type AppState = {
 
 export const defaultAppState: AppState = {
   isSidebarOpen: true,
+  sidebarRatio: undefined,
   windowWidth: undefined,
   windowHeight: undefined,
   windowX: undefined,

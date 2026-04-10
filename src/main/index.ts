@@ -8,14 +8,66 @@ import icon from '../../resources/icon.png?asset'
 import { registerIpcHandles } from './ipcHandles'
 import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
 import { registerFileEditorWindowHandlers } from './fileEditorWindow'
+import { createFileEditorWindow } from './fileEditorWindow'
 import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
 import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
 
-if (process.platform !== 'darwin') {
-  // Disable Application Menu when boot except darwin
-  Menu.setApplicationMenu(null)
+function buildAppMenu(): void {
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Note',
+          accelerator: 'CmdOrCtrl+N',
+          registerAccelerator: false,
+          click: () => mainWindow.webContents.send('menu-new-note')
+        },
+        {
+          label: 'File Editor',
+          click: () => createFileEditorWindow()
+        },
+        {
+          label: 'JSON Formatter',
+          accelerator: 'CmdOrCtrl+Shift+J',
+          registerAccelerator: false,
+          click: () => mainWindow.webContents.send('menu-open-json-formatter')
+        },
+        { type: 'separator' },
+        {
+          label: 'Settings',
+          accelerator: 'CmdOrCtrl+,',
+          registerAccelerator: false,
+          click: () => mainWindow.webContents.send('menu-open-settings')
+        },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' }
+      ]
+    }
+  ]
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template))
 }
 
 export function initAutoUpdater(mainWindow: BrowserWindow) {
@@ -53,6 +105,8 @@ export function initAutoUpdater(mainWindow: BrowserWindow) {
 function createWindow(): void {
   const appStateData = dbInstance.dbs.appStateDb.data
 
+  const isNonMac = process.platform !== 'darwin'
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: appStateData?.windowWidth != null ? appStateData?.windowWidth : 800,
@@ -60,12 +114,30 @@ function createWindow(): void {
     useContentSize: true,
     show: false,
     autoHideMenuBar: true,
+    frame: !isNonMac,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
       sandbox: false
     }
   })
+
+  if (isNonMac) {
+    buildAppMenu()
+
+    mainWindow.on('maximize', () => mainWindow.webContents.send('maximize-changed', true))
+    mainWindow.on('unmaximize', () => mainWindow.webContents.send('maximize-changed', false))
+
+    ipcMain.on('popup-application-menu', () => {
+      Menu.getApplicationMenu()?.popup({ window: mainWindow })
+    })
+    ipcMain.on('minimize-window', () => mainWindow.minimize())
+    ipcMain.on('maximize-window', () => {
+      mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
+    })
+    ipcMain.on('close-window', () => mainWindow.close())
+    ipcMain.handle('is-maximized', () => mainWindow.isMaximized())
+  }
 
   if (appStateData.windowX != null && appStateData.windowY != null) {
     mainWindow.setPosition(appStateData.windowX, appStateData.windowY, false)

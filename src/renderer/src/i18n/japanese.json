@@ -9,6 +9,7 @@
   "globalSettings": "グローバル設定",
   "createdAt": "作成日時",
   "updatedAt": "更新日時",
+  "emptyNote": "（内容なし）",
   "ascending": "昇順",
   "descending": "降順",
   "line": "行",
@@ -29,6 +30,11 @@
     "closeOthers": "他のタブをすべて閉じる",
     "closeToTheRight": "右側のタブを閉じる",
     "closeAll": "すべてのタブを閉じる"
+  },
+  "search": {
+    "navigate": "移動",
+    "select": "選択",
+    "close": "閉じる"
   },
   "searchLanguage": "言語を検索...",
   "noLanguageFound": "言語が見つかりません",
