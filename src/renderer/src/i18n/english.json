@@ -9,6 +9,7 @@
   "globalSettings": "Global Settings",
   "createdAt": "CreatedAt",
   "updatedAt": "UpdatedAt",
+  "emptyNote": "No content",
   "ascending": "Ascending",
   "descending": "Descending",
   "line": "Line",
@@ -29,6 +30,11 @@
     "closeOthers": "Close Others",
     "closeToTheRight": "Close to the Right",
     "closeAll": "Close All"
+  },
+  "search": {
+    "navigate": "navigate",
+    "select": "select",
+    "close": "close"
   },
   "searchLanguage": "Search language...",
   "noLanguageFound": "No language found",

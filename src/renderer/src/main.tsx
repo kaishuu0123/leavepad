@@ -121,7 +121,13 @@ if (window.api === undefined) {
     },
     installUpdate: () => {},
     getAppVersion: () => '0.0.0',
-    checkForUpdates: () => {}
+    checkForUpdates: () => {},
+    popupMenu: () => {},
+    minimizeWindow: () => {},
+    maximizeWindow: () => {},
+    closeWindow: () => {},
+    isMaximized: async () => false,
+    onMaximizeChange: () => {}
   }
 }
 
