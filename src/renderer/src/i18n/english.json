@@ -83,6 +83,17 @@
     "useTabStops": "useTabStops",
     "useTabStopsDescription": "Inserting and deleting whitespace follows tab stops.",
     "wordWrap": "wordWrap",
-    "wordWrapDescription": "Lines will wrap according to the wordWrap setting."
+    "wordWrapDescription": "Lines will wrap according to the wordWrap setting.",
+    "lineNumbers": "Line numbers",
+    "lineNumbersDescription": "Show line numbers in the editor.",
+    "lineHeight": "Line height",
+    "lineHeightDescription": "Line height in pixels. 0 uses the default.",
+    "renderWhitespace": "Show whitespace",
+    "renderWhitespaceDescription": "Controls which whitespace characters (spaces, tabs) are rendered as visible symbols.",
+    "renderWhitespaceNone": "None",
+    "renderWhitespaceBoundary": "Boundary",
+    "renderWhitespaceSelection": "Selection",
+    "renderWhitespaceTrailing": "Trailing",
+    "renderWhitespaceAll": "All"
   }
 }

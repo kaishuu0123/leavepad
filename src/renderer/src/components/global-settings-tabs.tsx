@@ -166,6 +166,18 @@ const EditorTabsContent = ({ settingsForm }) => {
 
           <FormField
             control={settingsForm.control}
+            name="editorOptions.lineHeight"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t('globalSettingsGroup.lineHeight')}</FormLabel>
+                <Input {...field} />
+                <FormDescription>{t('globalSettingsGroup.lineHeightDescription')}</FormDescription>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={settingsForm.control}
             name="editorOptions.fontFamily"
             render={({ field }) => (
               <FormItem className="flex flex-col">
@@ -282,6 +294,46 @@ const EditorTabsContent = ({ settingsForm }) => {
                   />
                 </FormControl>
                 <FormDescription>{t('globalSettingsGroup.wordWrapDescription')}</FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={settingsForm.control}
+            name="editorOptions.lineNumbers"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t('globalSettingsGroup.lineNumbers')}</FormLabel>
+                <FormControl>
+                  <Switch
+                    checked={field.value === 'on'}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked ? 'on' : 'off')
+                    }}
+                  />
+                </FormControl>
+                <FormDescription>{t('globalSettingsGroup.lineNumbersDescription')}</FormDescription>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={settingsForm.control}
+            name="editorOptions.renderWhitespace"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t('globalSettingsGroup.renderWhitespace')}</FormLabel>
+                <FormControl>
+                  <select
+                    className={cn(buttonVariants({ variant: 'outline' }), 'w-full font-normal')}
+                    {...field}
+                  >
+                    <option value="none">{t('globalSettingsGroup.renderWhitespaceNone')}</option>
+                    <option value="boundary">{t('globalSettingsGroup.renderWhitespaceBoundary')}</option>
+                    <option value="selection">{t('globalSettingsGroup.renderWhitespaceSelection')}</option>
+                    <option value="trailing">{t('globalSettingsGroup.renderWhitespaceTrailing')}</option>
+                    <option value="all">{t('globalSettingsGroup.renderWhitespaceAll')}</option>
+                  </select>
+                </FormControl>
+                <FormDescription>{t('globalSettingsGroup.renderWhitespaceDescription')}</FormDescription>
               </FormItem>
             )}
           />
