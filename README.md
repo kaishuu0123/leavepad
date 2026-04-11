@@ -12,25 +12,6 @@
 
 Leavepad is a multi-platform notepad focused on writing memos with an integrated file editor powered by Monaco Editor.
 
-- [Motivation](#motivation)
-- [Features](#features)
-- [Download](#download)
-- [Support platform](#support-platform)
-- [Screenshots](#screenshots)
-  - [Welcome](#welcome)
-  - [Editor](#editor)
-  - [Language](#language)
-  - [Theme](#theme)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Saved data location (Path)](#saved-data-location-path)
-- [Development](#development)
-  - [Recommended IDE Setup](#recommended-ide-setup)
-  - [Project Setup](#project-setup)
-    - [Install](#install)
-    - [Development](#development-1)
-    - [Build](#build)
-- [LICENSE](#license)
-  - [FONT LICENSE](#font-license)
 
 ## Motivation
 
@@ -39,8 +20,6 @@ Leavepad is a multi-platform notepad focused on writing memos with an integrated
 1. I wanted a memo application that could be unified to the same usability on multiple platforms.
 
 Therefore, I decided to create a memo application by Electron for my own use.
-
-**Update (v1.5.0+):** File editing is now supported with an integrated Monaco Editor-based file editor window!
 
 ## Features
 
@@ -53,7 +32,8 @@ Therefore, I decided to create a memo application by Electron for my own use.
 - Search notes by name or content
 - Tab-based interface with drag & drop reordering
 - Auto-save (close without saving)
-- Multiple font options (HackGen, NOTONOTO, Geist)
+- Export / Import notes as JSON
+- Delete all notes
 
 ### 📁 File Editor
 
@@ -69,7 +49,7 @@ Therefore, I decided to create a memo application by Electron for my own use.
 
 - Dark/Light theme
 - Language support: English, 日本語
-- Font selection
+- Font selection (NOTONOTO, HackGen, Geist Mono, Moralerspace HWJPDOC Neon, M PLUS 1 Code)
 - Sort options (created/updated date)
 - Collapsible sidebar
 
@@ -192,7 +172,7 @@ Therefore, I decided to create a memo application by Electron for my own use.
 
 ### Command Palette
 
-Press `F1` or `Ctrl+Shift+P` / `Cmd+Shift+P` in the editor to open the command palette and access Monaco Editor's built-in commands:
+Press `F1` in the editor to open the command palette and access Monaco Editor's built-in commands:
 
 - **Format JSON** — Format JSON documents (custom command)
 - **Format Document** — Format any supported language
@@ -289,29 +269,33 @@ MIT
 ## FONT LICENSE
 
 ```
-"Geist Mono" is licensed under the SIL Open Font License 1.1
-Copyright (c) 2023 Vercel, in collaboration with basement.studio
-by https://github.com/vercel/geist-font
-
-"Geist Sans" is licensed under the SIL Open Font License 1.1
-Copyright (c) 2023 Vercel, in collaboration with basement.studio
+"Geist Mono" / "Geist Sans" is licensed under the SIL Open Font License 1.1
+Copyright (c) 2023 vercel
 by https://github.com/vercel/geist-font
 
 "白源", "HackGen" is licensed under the SIL Open Font License 1.1
-Copyright (c) 2019, Yuko OTAWARA. with Reserved Font Name "白源", "HackGen"
-by https://github.com/yuru7/HackGen/
+Copyright (c) 2019 yuru7, with Reserved Font Name "白源", "HackGen"
+by https://github.com/yuru7/HackGen
 
 "NOTONOTO" is licensed under the SIL Open Font License 1.1
-Copyright (c) 2024 Yuko Otawara, with Reserved Font Name "NOTONOTO"
-by https://github.com/yuru7/NOTONOTO/
+Copyright (c) 2024 yuru7, with Reserved Font Name "NOTONOTO"
+by https://github.com/yuru7/NOTONOTO
+
+"Moralerspace HWJPDOC Neon" is licensed under the SIL Open Font License 1.1
+Copyright (c) 2023 yuru7
+by https://github.com/yuru7/moralerspace
+
+"M PLUS 1 Code" is licensed under the SIL Open Font License 1.1
+Copyright 2021 coz-m
+by https://github.com/coz-m/MPLUS_FONTS
 
 "Noto Color Emoji" is licensed under the SIL Open Font License 1.1
-Copyright 2021 Google Inc. All Rights Reserved.
-by https://fonts.google.com/noto/specimen/Noto+Color+Emoji/
+Copyright 2021 googlefonts
+by https://github.com/googlefonts/noto-emoji
 
-"Noto Sans Japanese" is licensed under the SIL Open Font License 1.1
-Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'
-by https://fonts.google.com/noto/specimen/Noto+Sans+JP
+"Noto Sans JP" is licensed under the SIL Open Font License 1.1
+Copyright 2014-2021 googlefonts
+by https://github.com/googlefonts/noto-cjk
 ```
 
 ---
