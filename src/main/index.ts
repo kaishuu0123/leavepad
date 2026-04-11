@@ -14,30 +14,68 @@ import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
 
-function buildAppMenu(): void {
+const menuTranslations: Record<string, Record<string, string>> = {
+  english: {
+    file: 'File',
+    newNote: 'New Note',
+    fileEditor: 'File Editor',
+    jsonFormatter: 'JSON Formatter',
+    settings: 'Settings',
+    edit: 'Edit',
+    findInNotes: 'Find in Notes',
+    findInEditor: 'Find in Editor',
+    view: 'View',
+    reload: 'Reload',
+    forceReload: 'Force Reload',
+    toggleDevTools: 'Toggle Developer Tools',
+    help: 'Help',
+    checkForUpdates: 'Check for Updates',
+    about: 'About'
+  },
+  japanese: {
+    file: 'ファイル',
+    newNote: 'ノートを追加',
+    fileEditor: 'ファイルエディタ',
+    jsonFormatter: 'JSON Formatter',
+    settings: 'グローバル設定',
+    edit: '編集',
+    findInNotes: 'ノートを検索',
+    findInEditor: 'エディタ内を検索',
+    view: '表示',
+    reload: '再読み込み',
+    forceReload: '強制再読み込み',
+    toggleDevTools: '開発者ツール',
+    help: 'ヘルプ',
+    checkForUpdates: 'アップデートを確認',
+    about: 'このアプリについて'
+  }
+}
+
+function buildAppMenu(language: string = 'english'): void {
+  const t = menuTranslations[language] ?? menuTranslations.english
   const template: Electron.MenuItemConstructorOptions[] = [
     {
-      label: 'File',
+      label: t.file,
       submenu: [
         {
-          label: 'New Note',
+          label: t.newNote,
           accelerator: 'CmdOrCtrl+N',
           registerAccelerator: false,
           click: () => mainWindow.webContents.send('menu-new-note')
         },
         {
-          label: 'File Editor',
+          label: t.fileEditor,
           click: () => createFileEditorWindow()
         },
         {
-          label: 'JSON Formatter',
+          label: t.jsonFormatter,
           accelerator: 'CmdOrCtrl+Shift+J',
           registerAccelerator: false,
           click: () => mainWindow.webContents.send('menu-open-json-formatter')
         },
         { type: 'separator' },
         {
-          label: 'Settings',
+          label: t.settings,
           accelerator: 'CmdOrCtrl+,',
           registerAccelerator: false,
           click: () => mainWindow.webContents.send('menu-open-settings')
@@ -47,23 +85,42 @@ function buildAppMenu(): void {
       ]
     },
     {
-      label: 'Edit',
+      label: t.edit,
       submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectAll' }
+        {
+          label: t.findInNotes,
+          accelerator: 'CmdOrCtrl+Shift+F',
+          registerAccelerator: false,
+          click: () => mainWindow.webContents.send('menu-find-in-notes')
+        },
+        {
+          label: t.findInEditor,
+          accelerator: 'CmdOrCtrl+F',
+          registerAccelerator: false,
+          click: () => mainWindow.webContents.send('menu-find-in-editor')
+        }
       ]
     },
     {
-      label: 'View',
+      label: t.view,
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' }
+        { role: 'reload', label: t.reload },
+        { role: 'forceReload', label: t.forceReload },
+        { role: 'toggleDevTools', label: t.toggleDevTools }
+      ]
+    },
+    {
+      label: t.help,
+      submenu: [
+        {
+          label: t.checkForUpdates,
+          click: () => mainWindow.webContents.send('menu-check-for-updates')
+        },
+        { type: 'separator' },
+        {
+          label: t.about,
+          click: () => mainWindow.webContents.send('menu-about')
+        }
       ]
     }
   ]
@@ -137,6 +194,7 @@ function createWindow(): void {
     })
     ipcMain.on('close-window', () => mainWindow.close())
     ipcMain.handle('is-maximized', () => mainWindow.isMaximized())
+    ipcMain.on('update-menu-language', (_, language: string) => buildAppMenu(language))
   }
 
   if (appStateData.windowX != null && appStateData.windowY != null) {

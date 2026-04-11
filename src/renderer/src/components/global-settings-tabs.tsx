@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor'
-import { useEffect, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { cn } from '@renderer/lib/utils'
 import { Button, buttonVariants } from './ui/button'
@@ -17,157 +17,20 @@ import {
   CommandItem,
   CommandList
 } from './ui/command'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from './ui/alert-dialog'
 import { useAtom } from 'jotai'
 import { notesAtom } from '@renderer/lib/atoms/notes'
 import { useTranslation } from 'react-i18next'
 import { ScrollArea } from './ui/scroll-area'
-import { Separator } from './ui/separator'
-import appIcon from '../../../../resources/icon.png'
-
-type UpdateStatus = 'checking' | 'up-to-date' | 'available' | 'downloaded' | 'error'
-
-const fontCredits = [
-  {
-    name: 'Geist Sans / Geist Mono',
-    copyright: 'Copyright (c) 2023 Vercel, in collaboration with basement.studio',
-    url: 'https://github.com/vercel/geist-font'
-  },
-  {
-    name: '白源 (HackGen)',
-    copyright: 'Copyright (c) 2019 Yuko OTAWARA',
-    url: 'https://github.com/yuru7/HackGen'
-  },
-  {
-    name: 'Noto Sans JP',
-    copyright: 'Copyright 2014-2021 Adobe',
-    url: 'https://fonts.google.com/noto/specimen/Noto+Sans+JP'
-  },
-  {
-    name: 'NOTONOTO',
-    copyright: 'Copyright (c) 2024 Yuko Otawara',
-    url: 'https://github.com/yuru7/NOTONOTO'
-  },
-  {
-    name: 'Noto Color Emoji',
-    copyright: 'Copyright 2021 Google Inc.',
-    url: 'https://fonts.google.com/noto/specimen/Noto+Color+Emoji'
-  }
-]
-
-const AboutTabContent = () => {
-  const { t } = useTranslation()
-  const [version] = useState(() => window.api.getAppVersion())
-  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('checking')
-  const [latestVersion, setLatestVersion] = useState('')
-  const [isDevError, setIsDevError] = useState(false)
-
-  useEffect(() => {
-    window.api.checkForUpdates()
-
-    const onChecking = () => setUpdateStatus('checking')
-    const onNotAvailable = () => setUpdateStatus('up-to-date')
-    const onAvailable = (_e, info: { version: string }) => {
-      setUpdateStatus('available')
-      setLatestVersion(info.version)
-    }
-    const onDownloaded = (_e, info: { version: string }) => {
-      setUpdateStatus('downloaded')
-      setLatestVersion(info.version)
-    }
-    const onError = (_e, msg: string) => {
-      setIsDevError(msg === 'dev')
-      setUpdateStatus('error')
-    }
-
-    window.electron.ipcRenderer.on('update-checking', onChecking)
-    window.electron.ipcRenderer.on('update-not-available', onNotAvailable)
-    window.electron.ipcRenderer.on('update-available', onAvailable)
-    window.electron.ipcRenderer.on('update-downloaded', onDownloaded)
-    window.electron.ipcRenderer.on('update-error', onError)
-
-    return () => {
-      window.electron.ipcRenderer.removeListener('update-checking', onChecking)
-      window.electron.ipcRenderer.removeListener('update-not-available', onNotAvailable)
-      window.electron.ipcRenderer.removeListener('update-available', onAvailable)
-      window.electron.ipcRenderer.removeListener('update-downloaded', onDownloaded)
-      window.electron.ipcRenderer.removeListener('update-error', onError)
-    }
-  }, [])
-
-  const renderUpdateStatus = () => {
-    switch (updateStatus) {
-      case 'checking':
-        return (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-            <span>{t('about.checking')}</span>
-          </div>
-        )
-      case 'up-to-date':
-        return <p className="text-sm text-green-600">{t('about.upToDate')}</p>
-      case 'available':
-        return (
-          <p className="text-sm text-blue-500">{t('about.available', { version: latestVersion })}</p>
-        )
-      case 'downloaded':
-        return (
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm text-green-600">{t('about.downloaded', { version: latestVersion })}</p>
-            <Button size="sm" onClick={() => window.api.installUpdate()}>
-              {t('restartAndUpdate')}
-            </Button>
-          </div>
-        )
-      case 'error':
-        return (
-          <p className="text-sm text-muted-foreground">
-            {isDevError ? t('about.devError') : t('about.error')}
-          </p>
-        )
-    }
-  }
-
-  return (
-    <TabsContent value="about" className="p-1">
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col items-center gap-3 pt-2">
-          <img src={appIcon} className="w-20 h-20 rounded-2xl" alt="Leavepad" />
-          <div className="text-center">
-            <h2 className="text-xl font-semibold">Leavepad</h2>
-            <p className="text-sm text-muted-foreground mt-1">Version {version}</p>
-          </div>
-          <div>{renderUpdateStatus()}</div>
-        </div>
-
-        <Separator />
-
-        <div className="flex flex-col gap-2">
-          <p className="text-sm font-medium">{t('about.fontCredits')}</p>
-          <div className="flex flex-col items-center gap-5">
-            {fontCredits.map((font) => (
-              <div key={font.name} className="text-center space-y-0.5">
-                <p className="text-sm font-semibold font-mono">{font.name}</p>
-                <p className="text-xs text-muted-foreground">{font.copyright}</p>
-                <p className="text-xs text-muted-foreground">SIL Open Font License 1.1</p>
-                <a
-                  href={font.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs text-blue-500 hover:underline"
-                >
-                  {font.url}
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </TabsContent>
-  )
-}
 
 const LanguageComboboxForm = ({ form, field }) => {
   const languages = monaco.languages.getLanguages()
@@ -385,9 +248,21 @@ const NotesTabsContent = ({ settingsForm }) => {
     </TabsContent>
   )
 }
-const GeneralTabsContent = ({ settingsForm }) => {
-  const [notes, _] = useAtom(notesAtom)
+type ImportResult = { success: true; count: number } | { success: false }
+
+const GeneralTabsContent = ({
+  settingsForm,
+  onClose
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+settingsForm: any
+  onClose: () => void
+}) => {
+  const [notes, setNotes] = useAtom(notesAtom)
   const { t } = useTranslation()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [deleteAllOpen, setDeleteAllOpen] = useState(false)
+  const [importResult, setImportResult] = useState<ImportResult | null>(null)
 
   const exportNotes = () => {
     const fileName = 'notes.json'
@@ -399,6 +274,36 @@ const GeneralTabsContent = ({ settingsForm }) => {
     link.setAttribute('download', fileName)
     link.click()
     document.body.removeChild(link)
+  }
+
+  const handleDeleteAll = async () => {
+    await window.api.deleteAllNotes()
+    setNotes([])
+  }
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const parsed = JSON.parse(text)
+      if (!Array.isArray(parsed)) {
+        setImportResult({ success: false })
+        return
+      }
+      const updatedNotes = await window.api.importNotes(parsed)
+      setNotes(updatedNotes)
+      setImportResult({ success: true, count: parsed.length })
+    } catch {
+      setImportResult({ success: false })
+    } finally {
+      e.target.value = ''
+    }
+  }
+
+  const handleImportResultClose = () => {
+    setImportResult(null)
+    onClose()
   }
 
   return (
@@ -445,19 +350,75 @@ const GeneralTabsContent = ({ settingsForm }) => {
             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {t('globalSettingsGroup.backup')}
             </label>
-            <div className="flex">
+            <div className="flex gap-2">
               <Button size="sm" onClick={exportNotes}>
                 {t('globalSettingsGroup.exportNotes')}
               </Button>
+              <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                {t('globalSettingsGroup.importNotes')}
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleImport}
+              />
             </div>
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {t('globalSettingsGroup.dangerZone')}
+            </label>
+            <div className="flex">
+              <Button size="sm" variant="destructive" onClick={() => setDeleteAllOpen(true)}>
+                {t('globalSettingsGroup.deleteAllNotes')}
+              </Button>
+            </div>
+          </div>
+          <AlertDialog open={deleteAllOpen} onOpenChange={setDeleteAllOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>{t('globalSettingsGroup.deleteAllNotesTitle')}</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {t('globalSettingsGroup.deleteAllNotesDescription')}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteAll}>{t('ok')}</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog open={importResult !== null} onOpenChange={(open) => !open && handleImportResultClose()}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {importResult?.success
+                    ? t('globalSettingsGroup.importSuccess')
+                    : t('globalSettingsGroup.importFailed')}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {importResult?.success
+                    ? t('globalSettingsGroup.importSuccessDescription', {
+                        count: importResult.count
+                      })
+                    : t('globalSettingsGroup.importFailedDescription')}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction onClick={handleImportResultClose}>{t('ok')}</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </Form>
       </div>
     </TabsContent>
   )
 }
 
-const GlobalSettingsTabs = ({ settingsForm }) => {
+const GlobalSettingsTabs = ({ settingsForm, onClose }: { // eslint-disable-next-line @typescript-eslint/no-explicit-any
+settingsForm: any; onClose: () => void }) => {
   const { t } = useTranslation()
 
   return (
@@ -473,17 +434,13 @@ const GlobalSettingsTabs = ({ settingsForm }) => {
           <TabsTrigger value="editor" className="grow">
             {t('globalSettingsGroup.editor')}
           </TabsTrigger>
-          <TabsTrigger value="about" className="grow">
-            {t('about.title')}
-          </TabsTrigger>
         </TabsList>
       </div>
       <div className="grow h-full overflow-y-auto">
         <ScrollArea type="always" className="h-full">
-          <GeneralTabsContent settingsForm={settingsForm} />
+          <GeneralTabsContent settingsForm={settingsForm} onClose={onClose} />
           <NotesTabsContent settingsForm={settingsForm} />
           <EditorTabsContent settingsForm={settingsForm} />
-          <AboutTabContent />
         </ScrollArea>
       </div>
     </Tabs>

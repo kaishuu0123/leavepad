@@ -127,7 +127,25 @@ if (window.api === undefined) {
     maximizeWindow: () => {},
     closeWindow: () => {},
     isMaximized: async () => false,
-    onMaximizeChange: () => {}
+    onMaximizeChange: () => {},
+    updateMenuLanguage: () => {},
+    importNotes: async (notes: Note[]): Promise<Note[]> => {
+      const newNotes: Note[] = notes.map((note) => ({
+        id: uuidv7(),
+        name: note.name || 'Imported Note',
+        body: note.body || '',
+        createdAt: note.createdAt || getTime(new Date()),
+        updatedAt: note.updatedAt || getTime(new Date()),
+        ...(note.language ? { language: note.language } : {})
+      }))
+      notesDb.data.push(...newNotes)
+      notesDb.write()
+      return notesDb.data
+    },
+    deleteAllNotes: async (): Promise<void> => {
+      notesDb.data = []
+      notesDb.write()
+    }
   }
 }
 
