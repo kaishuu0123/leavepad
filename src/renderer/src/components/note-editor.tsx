@@ -5,34 +5,31 @@ import { useAtom } from 'jotai'
 import { editor } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { ForwardedRef, forwardRef } from 'react'
 
-export async function applyMonacoLocale(language: string): Promise<void> {
-  if (language === 'japanese') {
-    await import('monaco-editor/esm/nls.messages.ja.js')
-  } else {
-    await import('monaco-editor/esm/nls.messages.js')
-  }
-}
-
 export function initializeNoteEditor() {
+  if ((self as unknown as { MonacoEnvironment?: unknown }).MonacoEnvironment) return
   self.MonacoEnvironment = {
     getWorker(_, label) {
       if (label === 'json') {
-        return new jsonWorker()
+        return import('monaco-editor/esm/vs/language/json/json.worker?worker').then(
+          ({ default: JsonWorker }) => new JsonWorker()
+        ) as unknown as Worker
       }
       if (label === 'css' || label === 'scss' || label === 'less') {
-        return new cssWorker()
+        return import('monaco-editor/esm/vs/language/css/css.worker?worker').then(
+          ({ default: CssWorker }) => new CssWorker()
+        ) as unknown as Worker
       }
       if (label === 'html' || label === 'handlebars' || label === 'razor') {
-        return new htmlWorker()
+        return import('monaco-editor/esm/vs/language/html/html.worker?worker').then(
+          ({ default: HtmlWorker }) => new HtmlWorker()
+        ) as unknown as Worker
       }
       if (label === 'typescript' || label === 'javascript') {
-        return new tsWorker()
+        return import('monaco-editor/esm/vs/language/typescript/ts.worker?worker').then(
+          ({ default: TsWorker }) => new TsWorker()
+        ) as unknown as Worker
       }
       return new editorWorker()
     }
@@ -121,3 +118,6 @@ function NoteEditor(
 }
 
 export default forwardRef(NoteEditor)
+
+// Auto-initialize when this module is loaded
+initializeNoteEditor()

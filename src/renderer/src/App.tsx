@@ -1,27 +1,20 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { FileText } from 'lucide-react'
-import { editor } from 'monaco-editor'
+import type { editor } from 'monaco-editor'
 import { useForm } from 'react-hook-form'
 
-import * as monaco from 'monaco-editor'
 import { Button } from './components/ui/button'
 import { ScrollArea } from './components/ui/scroll-area'
 import { Input } from './components/ui/input'
 import { Separator } from './components/ui/separator'
-import { Popover, PopoverContent, PopoverTrigger } from './components/ui/popover'
 import { TooltipProvider } from './components/ui/tooltip'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from './components/ui/command'
 import NoteCard from './components/note-card'
 import NoteTabs from './components/note-tabs'
 import TitleBar from './components/title-bar'
-import NoteEditor, { initializeNoteEditor, applyMonacoLocale } from './components/note-editor'
+const NoteEditor = lazy(() => import('./components/note-editor'))
+const LanguagePicker = lazy(() =>
+  import('./components/language-picker').then((m) => ({ default: m.LanguagePicker }))
+)
 import {
   ContextMenu,
   ContextMenuTrigger,
@@ -35,8 +28,12 @@ import {
   DialogTitle,
   DialogTrigger
 } from './components/ui/dialog'
-import { GlobalSettingsTabs } from './components/global-settings-tabs'
-import { AboutDialog } from './components/about-dialog'
+const GlobalSettingsTabs = lazy(() =>
+  import('./components/global-settings-tabs').then((m) => ({ default: m.GlobalSettingsTabs }))
+)
+const AboutDialog = lazy(() =>
+  import('./components/about-dialog').then((m) => ({ default: m.AboutDialog }))
+)
 import { cn } from './lib/utils'
 import {
   AppState,
@@ -62,8 +59,7 @@ import { useTranslation } from 'react-i18next'
 import i18n from './i18n/configs'
 import { Drawer, DrawerContent, DrawerTrigger } from './components/ui/drawer'
 import appWelcomeIcon from './assets/leavepad_logo_welcome.svg'
-
-initializeNoteEditor()
+import { applyMonacoLocale } from './lib/monaco-locale'
 
 const DEFAULT_SIDEBAR_RATIO = 0.25
 const MIN_SIDEBAR_RATIO = 0.12
@@ -196,7 +192,14 @@ function App(): JSX.Element {
     }
     const fetchSettings = async () => {
       const settings = await window.api.getSettings()
-      const merged = { ...defaultNoteEditorSettings, ...settings }
+      const merged = {
+        ...defaultNoteEditorSettings,
+        ...settings,
+        editorOptions: {
+          ...defaultNoteEditorSettings.editorOptions,
+          ...settings?.editorOptions
+        }
+      }
       await applyMonacoLocale(merged.language)
       setCurrentNoteEditorSettings(merged)
       setLocaleReady(true)
@@ -801,10 +804,12 @@ function App(): JSX.Element {
                   className="flex-shrink-0 bg-border h-[1px] w-full my-2"
                 ></div>
                 <div className="grow flex w-full min-h-0 pb-3">
-                  <GlobalSettingsTabs
-                    settingsForm={settingsForm}
-                    onClose={() => setGlobalSettingsOpen(false)}
-                  />
+                  <Suspense fallback={null}>
+                    <GlobalSettingsTabs
+                      settingsForm={settingsForm}
+                      onClose={() => setGlobalSettingsOpen(false)}
+                    />
+                  </Suspense>
                 </div>
                 <div
                   data-orientation="horizontal"
@@ -833,11 +838,13 @@ function App(): JSX.Element {
                 </div>
               </DialogContent>
             </Dialog>
-            <AboutDialog
-              open={aboutOpen}
-              onOpenChange={setAboutOpen}
-              theme={currentNoteEditorSettings.themeName}
-            />
+            <Suspense fallback={null}>
+              <AboutDialog
+                open={aboutOpen}
+                onOpenChange={setAboutOpen}
+                theme={currentNoteEditorSettings.themeName}
+              />
+            </Suspense>
           </div>
           {isSidebarOpen && (
             <div
@@ -944,12 +951,14 @@ function App(): JSX.Element {
 
               <div className="grow min-h-0">
                 {localeReady && (
-                  <NoteEditor
-                    currentNote={currentNote}
-                    onDidChangeCursorPosition={onDidChangeCursorPosition}
-                    onEditorChange={onEditorChange}
-                    ref={editorRef}
-                  />
+                  <Suspense fallback={null}>
+                    <NoteEditor
+                      currentNote={currentNote}
+                      onDidChangeCursorPosition={onDidChangeCursorPosition}
+                      onEditorChange={onEditorChange}
+                      ref={editorRef}
+                    />
+                  </Suspense>
                 )}
               </div>
 
@@ -963,95 +972,18 @@ function App(): JSX.Element {
                       {t('col')}: {cursorPosition?.col}
                     </div>
                   </div>
-                  {currentNote &&
-                    (() => {
-                      const currentLanguage =
-                        currentNote.language || currentNoteEditorSettings.editorOptions.language
-                      const currentLanguageDisplayName =
-                        monaco.languages.getLanguages().find((l) => l.id === currentLanguage)
-                          ?.aliases?.[0] || currentLanguage
-                      return (
-                        <div className="flex gap-2 items-center">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-6 px-2 text-xs hover:bg-muted"
-                              >
-                                {currentLanguageDisplayName}
-                                <span className="codicon codicon-chevron-down ml-1 text-[10px]"></span>
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-[200px] p-0" align="end">
-                              <Command>
-                                <CommandInput placeholder={t('searchLanguage')} className="h-9" />
-                                <CommandList>
-                                  <CommandEmpty>{t('noLanguageFound')}</CommandEmpty>
-                                  <CommandGroup>
-                                    <CommandItem
-                                      value="default"
-                                      onSelect={async () => {
-                                        const updatedNote = { ...currentNote, language: undefined }
-                                        await window.api.updateNote(updatedNote)
-                                        setCurrentNote(updatedNote)
-                                        setNotes(
-                                          notes.map((n) =>
-                                            n.id === currentNote.id ? updatedNote : n
-                                          )
-                                        )
-                                      }}
-                                    >
-                                      {t('defaultLanguage')} (
-                                      {monaco.languages
-                                        .getLanguages()
-                                        .find(
-                                          (l) =>
-                                            l.id ===
-                                            currentNoteEditorSettings.editorOptions.language
-                                        )?.aliases?.[0] ||
-                                        currentNoteEditorSettings.editorOptions.language}
-                                      )
-                                      {!currentNote.language && (
-                                        <span className="ml-auto codicon codicon-check"></span>
-                                      )}
-                                    </CommandItem>
-                                    <Separator className="my-1" />
-                                    {monaco.languages.getLanguages().map((lang) => {
-                                      const displayName = lang.aliases?.[0] || lang.id
-                                      return (
-                                        <CommandItem
-                                          key={lang.id}
-                                          value={`${displayName} ${lang.id}`}
-                                          onSelect={async () => {
-                                            const updatedNote = {
-                                              ...currentNote,
-                                              language: lang.id
-                                            }
-                                            await window.api.updateNote(updatedNote)
-                                            setCurrentNote(updatedNote)
-                                            setNotes(
-                                              notes.map((n) =>
-                                                n.id === currentNote.id ? updatedNote : n
-                                              )
-                                            )
-                                          }}
-                                        >
-                                          {displayName}
-                                          {currentNote.language === lang.id && (
-                                            <span className="ml-auto codicon codicon-check"></span>
-                                          )}
-                                        </CommandItem>
-                                      )
-                                    })}
-                                  </CommandGroup>
-                                </CommandList>
-                              </Command>
-                            </PopoverContent>
-                          </Popover>
-                        </div>
-                      )
-                    })()}
+                  {currentNote && (
+                    <Suspense fallback={null}>
+                      <LanguagePicker
+                        currentNote={currentNote}
+                        defaultLanguage={currentNoteEditorSettings.editorOptions.language ?? 'plaintext'}
+                        onNoteChange={(updatedNote) => {
+                          setCurrentNote(updatedNote)
+                          setNotes(notes.map((n) => (n.id === updatedNote.id ? updatedNote : n)))
+                        }}
+                      />
+                    </Suspense>
+                  )}
                 </div>
               </div>
             </div>
