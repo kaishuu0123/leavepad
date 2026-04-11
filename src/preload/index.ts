@@ -70,6 +70,15 @@ const api = {
   },
   onMaximizeChange: (cb: (maximized: boolean) => void): void => {
     ipcRenderer.on('maximize-changed', (_event, value: boolean) => cb(value))
+  },
+  updateMenuLanguage: (language: string): void => {
+    ipcRenderer.send('update-menu-language', language)
+  },
+  importNotes: (notes: Note[]): Promise<Note[]> => {
+    return ipcRenderer.invoke('import-notes', notes)
+  },
+  deleteAllNotes: (): Promise<void> => {
+    return ipcRenderer.invoke('delete-all-notes')
   }
 }
 

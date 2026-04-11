@@ -26,6 +26,9 @@ declare global {
       closeWindow: () => void
       isMaximized: () => Promise<boolean>
       onMaximizeChange: (cb: (maximized: boolean) => void) => void
+      updateMenuLanguage: (language: string) => void
+      importNotes: (notes: Note[]) => Promise<Note[]>
+      deleteAllNotes: () => Promise<void>
     }
   }
 }

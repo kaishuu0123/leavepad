@@ -140,6 +140,30 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
     }
   )
 
+  ipcMain.handle('delete-all-notes', async () => {
+    notesDb.data = []
+    await notesDb.write()
+  })
+
+  ipcMain.handle(
+    'import-notes',
+    async (_event: Electron.IpcMainInvokeEvent, importedNotes: Note[]) => {
+      const newNotes: Note[] = importedNotes.map((note) => ({
+        id: uuidv7(),
+        name: note.name || 'Imported Note',
+        body: note.body || '',
+        createdAt: note.createdAt || getTime(new Date()),
+        updatedAt: note.updatedAt || getTime(new Date()),
+        ...(note.language ? { language: note.language } : {})
+      }))
+
+      notesDb.data.push(...newNotes)
+      await notesDb.write()
+
+      return notesDb.data
+    }
+  )
+
   ipcMain.on('install-update', () => {
     autoUpdater.quitAndInstall()
   })

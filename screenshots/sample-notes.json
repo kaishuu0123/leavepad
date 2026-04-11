@@ -1,0 +1,69 @@
+[
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j1",
+    "name": "Daily Tasks",
+    "body": "[ ] Reply to Alice's email\n[ ] Review PR #42\n[ ] Prep for 3pm standup\n[ ] Update docs for v2.1\n[ ] Pick up dry cleaning\n\nNotes\n- Ask Bob about the API rate limit issue\n- The staging deploy is blocked until #38 merges",
+    "createdAt": 1744250400000,
+    "updatedAt": 1744336800000
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j2",
+    "name": "Lorem Ipsum",
+    "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor\nincididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud\nexercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu\nfugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in\nculpa qui officia deserunt mollit anim id est laborum.\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium\ndoloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore\nveritatis et quasi architecto beatae vitae dicta sunt explicabo.",
+    "createdAt": 1744207200000,
+    "updatedAt": 1744250400000
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j3",
+    "name": "JS: Handy Snippets",
+    "body": "// Group array by key\nconst groupBy = (arr, key) =>\n  arr.reduce((acc, item) => {\n    (acc[item[key]] ??= []).push(item)\n    return acc\n  }, {})\n\n// Debounce\nconst debounce = (fn, delay) => {\n  let timer\n  return (...args) => {\n    clearTimeout(timer)\n    timer = setTimeout(() => fn(...args), delay)\n  }\n}\n\n// Sleep\nconst sleep = (ms) => new Promise(r => setTimeout(r, ms))\n\n// Pick keys from object\nconst pick = (obj, keys) =>\n  Object.fromEntries(keys.map(k => [k, obj[k]]))",
+    "createdAt": 1744164000000,
+    "updatedAt": 1744250400000,
+    "language": "javascript"
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j4",
+    "name": "Go: Handy Snippets",
+    "body": "// Read a file\nfunc readFile(path string) (string, error) {\n\tdata, err := os.ReadFile(path)\n\tif err != nil {\n\t\treturn \"\", fmt.Errorf(\"readFile: %w\", err)\n\t}\n\treturn string(data), nil\n}\n\n// Fan-out with goroutines\nfunc fanOut(items []string, worker func(string) error) error {\n\tvar wg sync.WaitGroup\n\terrCh := make(chan error, len(items))\n\tfor _, item := range items {\n\t\twg.Add(1)\n\t\tgo func(s string) {\n\t\t\tdefer wg.Done()\n\t\t\tif err := worker(s); err != nil {\n\t\t\t\terrCh <- err\n\t\t\t}\n\t\t}(item)\n\t}\n\twg.Wait()\n\tclose(errCh)\n\treturn <-errCh\n}",
+    "createdAt": 1744120800000,
+    "updatedAt": 1744164000000,
+    "language": "go"
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j5",
+    "name": "Rust: Handy Snippets",
+    "body": "// Read lines from a file\nuse std::{fs, io::{self, BufRead}};\n\nfn read_lines(path: &str) -> io::Result<Vec<String>> {\n    let file = fs::File::open(path)?;\n    io::BufReader::new(file).lines().collect()\n}\n\n// Retry with backoff\nfn retry<T, E, F>(mut f: F, attempts: u32) -> Result<T, E>\nwhere\n    F: FnMut() -> Result<T, E>,\n{\n    for i in 0..attempts {\n        match f() {\n            ok @ Ok(_) => return ok,\n            Err(_) if i + 1 < attempts => {\n                std::thread::sleep(\n                    std::time::Duration::from_millis(100 * 2u64.pow(i))\n                );\n            }\n            err => return err,\n        }\n    }\n    unreachable!()\n}",
+    "createdAt": 1744077600000,
+    "updatedAt": 1744120800000,
+    "language": "rust"
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j6",
+    "name": "SQL: Window Functions",
+    "body": "-- Rank employees by salary within each department\nSELECT\n  name,\n  department,\n  salary,\n  RANK() OVER (\n    PARTITION BY department\n    ORDER BY salary DESC\n  ) AS rank\nFROM employees;\n\n-- Running total\nSELECT\n  order_date,\n  amount,\n  SUM(amount) OVER (\n    ORDER BY order_date\n    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n  ) AS running_total\nFROM orders;",
+    "createdAt": 1743991200000,
+    "updatedAt": 1744077600000,
+    "language": "sql"
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j7",
+    "name": "Reading List",
+    "body": "Currently reading\n  The Pragmatic Programmer — Hunt & Thomas\n\nUp next\n  Staff Engineer — Will Larson\n  An Elegant Puzzle — Will Larson\n  A Philosophy of Software Design — Ousterhout\n\nDone\n  Atomic Habits ★★★★★\n  Deep Work ★★★★\n  The Mom Test ★★★★\n  Designing Data-Intensive Applications ★★★★★",
+    "createdAt": 1743904800000,
+    "updatedAt": 1743991200000
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j8",
+    "name": "Ideas",
+    "body": "- Dark mode for the side project\n- Blog post: \"Zod + React Hook Form in practice\"\n- Try Bun for the next CLI tool\n- Look into Tauri for cross-platform desktop\n- Automate the weekly report with a small script\n- Lightweight read-later app (just URLs + notes, no tracking)",
+    "createdAt": 1743818400000,
+    "updatedAt": 1743904800000
+  },
+  {
+    "id": "01hwz1a2b3c4d5e6f7g8h9i0j9",
+    "name": "Grocery Run",
+    "body": "Produce\n  [ ] Avocados x2\n  [ ] Cherry tomatoes\n  [ ] Baby spinach\n  [ ] Lemons\n\nDairy & Eggs\n  [ ] Greek yogurt\n  [ ] Butter\n  [ ] Parmesan\n  [ ] Eggs x12\n\nPantry\n  [ ] Olive oil\n  [ ] Spaghetti\n  [ ] Canned tomatoes x2",
+    "createdAt": 1743732000000,
+    "updatedAt": 1743818400000
+  }
+]

@@ -91,7 +91,7 @@ Therefore, I decided to create a memo application by Electron for my own use.
 <tr>
 <td width="100%">
 
-![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/welcome.png)
+![Welcome](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/welcome.png)
 
 </td>
 </tr>
@@ -110,12 +110,28 @@ Therefore, I decided to create a memo application by Electron for my own use.
 <tr>
 <td>
 
-![Note Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png)
+![Note Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/note-editor.png)
 
 </td>
 <td>
 
-![File Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/file_editor.png)
+![File Editor](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/file-editor.png)
+
+</td>
+</tr>
+<tr>
+<th>JSON Formatter</th>
+<th>Search</th>
+</tr>
+<tr>
+<td>
+
+![JSON Formatter](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/json-formatter.png)
+
+</td>
+<td>
+
+![Search](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/search.png)
 
 </td>
 </tr>
@@ -135,12 +151,12 @@ Therefore, I decided to create a memo application by Electron for my own use.
 <tr>
 <td>
 
-![English](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png)
+![English](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/english.png)
 
 </td>
 <td>
 
-![Japanese](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/japanese.png)
+![Japanese](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/japanese.png)
 
 </td>
 </tr>
@@ -160,12 +176,12 @@ Therefore, I decided to create a memo application by Electron for my own use.
 <tr>
 <td>
 
-![Light Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/basic_view.png)
+![Light Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/english.png)
 
 </td>
 <td>
 
-![Dark Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260206/dark.png)
+![Dark Theme](https://raw.github.com/kaishuu0123/leavepad/main/screenshots/20260411/dark.png)
 
 </td>
 </tr>

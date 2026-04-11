@@ -36,6 +36,7 @@ import {
   DialogTrigger
 } from './components/ui/dialog'
 import { GlobalSettingsTabs } from './components/global-settings-tabs'
+import { AboutDialog } from './components/about-dialog'
 import { cn } from './lib/utils'
 import {
   AppState,
@@ -85,6 +86,7 @@ function App(): JSX.Element {
   })
   const [cursorPosition, setCursorPositon] = useState<CursorPosition>({ line: 1, col: 1 })
   const [globalSettingsOpen, setGlobalSettingsOpen] = useState(false)
+  const [aboutOpen, setAboutOpen] = useState(false)
   const [renamingNoteId, setRenamingNoteId] = useState<string | null>(null)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -231,10 +233,26 @@ function App(): JSX.Element {
       'menu-open-json-formatter',
       () => window.api.openJsonFormatter()
     )
+    const removeFindInNotes = window.electron.ipcRenderer.on('menu-find-in-notes', () => {
+      setIsSearchOpen(true)
+      setSearchQuery('')
+      setSearchFocusIdx(0)
+    })
+    const removeFindInEditor = window.electron.ipcRenderer.on('menu-find-in-editor', () => {
+      editorRef.current?.getAction('actions.find')?.run()
+    })
+    const removeAbout = window.electron.ipcRenderer.on('menu-about', () => setAboutOpen(true))
+    const removeCheckForUpdates = window.electron.ipcRenderer.on('menu-check-for-updates', () =>
+      setAboutOpen(true)
+    )
     return () => {
       removeNewNote()
       removeOpenSettings()
       removeOpenJsonFormatter()
+      removeFindInNotes()
+      removeFindInEditor()
+      removeAbout()
+      removeCheckForUpdates()
     }
   }, [AddNote])
 
@@ -273,6 +291,7 @@ function App(): JSX.Element {
     // re-sort when global settings changed
     setNotes(sortNotes(notes))
     i18n.changeLanguage(currentNoteEditorSettings.language)
+    window.api.updateMenuLanguage(currentNoteEditorSettings.language)
   }, [currentNoteEditorSettings])
 
   // Keyboard shortcuts
@@ -290,6 +309,14 @@ function App(): JSX.Element {
       if (isMod && e.shiftKey && e.key === 'J') {
         e.preventDefault()
         window.api.openJsonFormatter()
+      }
+
+      // Ctrl+Shift+F: Find in Notes
+      if (isMod && e.shiftKey && e.key === 'F') {
+        e.preventDefault()
+        setIsSearchOpen(true)
+        setSearchQuery('')
+        setSearchFocusIdx(0)
       }
 
       // F2: Rename active note
@@ -751,7 +778,10 @@ function App(): JSX.Element {
                   className="flex-shrink-0 bg-border h-[1px] w-full my-2"
                 ></div>
                 <div className="grow flex w-full min-h-0 pb-3">
-                  <GlobalSettingsTabs settingsForm={settingsForm} />
+                  <GlobalSettingsTabs
+                    settingsForm={settingsForm}
+                    onClose={() => setGlobalSettingsOpen(false)}
+                  />
                 </div>
                 <div
                   data-orientation="horizontal"
@@ -780,6 +810,11 @@ function App(): JSX.Element {
                 </div>
               </DialogContent>
             </Dialog>
+            <AboutDialog
+              open={aboutOpen}
+              onOpenChange={setAboutOpen}
+              theme={currentNoteEditorSettings.themeName}
+            />
           </div>
           {isSidebarOpen && (
             <div
