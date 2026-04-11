@@ -88,8 +88,66 @@ const LanguageComboboxForm = ({ form, field }) => {
   )
 }
 
+const BUNDLED_FONTS: { name: string; fontFamily: string }[] = [
+  {
+    name: 'NOTONOTO',
+    fontFamily:
+      "NOTONOTO, HackGen, Consolas, Menlo, Monaco, 'Courier New', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
+  },
+  {
+    name: 'HackGen',
+    fontFamily:
+      "HackGen, NOTONOTO, Consolas, Menlo, Monaco, 'Courier New', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
+  },
+  {
+    name: 'Geist Mono',
+    fontFamily:
+      "'Geist Mono', NOTONOTO, HackGen, Consolas, Menlo, Monaco, 'Courier New', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
+  },
+  {
+    name: 'Moralerspace HWJPDOC Neon',
+    fontFamily:
+      "'Moralerspace HWJPDOC Neon', NOTONOTO, HackGen, Consolas, Menlo, Monaco, 'Courier New', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
+  },
+  {
+    name: 'M PLUS 1 Code',
+    fontFamily:
+      "'M PLUS 1 Code', NOTONOTO, HackGen, Consolas, Menlo, Monaco, 'Courier New', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
+  }
+]
+
+const CUSTOM_FONT_FALLBACK =
+  "NOTONOTO, HackGen, Consolas, Menlo, Monaco, 'Courier New', monospace, 'Noto Sans JP', 'Noto Color Emoji'"
+
+const getPrimaryFont = (fontFamily: string): string =>
+  fontFamily.split(',')[0].replace(/'/g, '').trim()
+
+const isBundledFont = (fontFamily: string): boolean =>
+  BUNDLED_FONTS.some((f) => getPrimaryFont(f.fontFamily) === getPrimaryFont(fontFamily))
+
+const detectBundledFontName = (fontFamily: string): string =>
+  BUNDLED_FONTS.find((f) => getPrimaryFont(f.fontFamily) === getPrimaryFont(fontFamily))?.name ??
+  'NOTONOTO'
+
 const EditorTabsContent = ({ settingsForm }) => {
   const { t } = useTranslation()
+  const currentFontFamily: string = settingsForm.watch('editorOptions.fontFamily') ?? ''
+  const [customFont, setCustomFont] = useState<string>(
+    () => (isBundledFont(currentFontFamily) ? '' : getPrimaryFont(currentFontFamily))
+  )
+
+  const applyCustomFont = (name: string) => {
+    setCustomFont(name)
+    if (name.trim()) {
+      settingsForm.setValue(
+        'editorOptions.fontFamily',
+        `'${name.trim()}', ${CUSTOM_FONT_FALLBACK}`
+      )
+    } else {
+      const bundled = BUNDLED_FONTS.find((f) => f.name === detectBundledFontName(currentFontFamily))
+      settingsForm.setValue('editorOptions.fontFamily', bundled?.fontFamily ?? BUNDLED_FONTS[0].fontFamily)
+    }
+  }
 
   return (
     <TabsContent value="editor" className="p-1">
@@ -102,6 +160,39 @@ const EditorTabsContent = ({ settingsForm }) => {
               <FormItem className="flex flex-col">
                 <FormLabel>{t('globalSettingsGroup.fontSize')}</FormLabel>
                 <Input {...field} />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={settingsForm.control}
+            name="editorOptions.fontFamily"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>{t('globalSettingsGroup.font')}</FormLabel>
+                <FormControl>
+                  <select
+                    className={cn(buttonVariants({ variant: 'outline' }), 'w-full font-normal')}
+                    value={detectBundledFontName(field.value ?? '')}
+                    disabled={!!customFont.trim()}
+                    onChange={(e) => {
+                      const selected = BUNDLED_FONTS.find((f) => f.name === e.target.value)
+                      if (selected) field.onChange(selected.fontFamily)
+                    }}
+                  >
+                    {BUNDLED_FONTS.map((f) => (
+                      <option key={f.name} value={f.name}>
+                        {f.name}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+                <FormDescription>{t('globalSettingsGroup.fontCustomDescription')}</FormDescription>
+                <Input
+                  placeholder={t('globalSettingsGroup.fontCustomPlaceholder')}
+                  value={customFont}
+                  onChange={(e) => applyCustomFont(e.target.value)}
+                />
               </FormItem>
             )}
           />

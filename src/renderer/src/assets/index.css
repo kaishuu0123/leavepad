@@ -4,6 +4,8 @@
 @import './fonts/noto-color-emoji.css';
 @import './fonts/hackgen.css';
 @import './fonts/notonoto.css';
+@import './fonts/moralerspace.css';
+@import './fonts/mplus-code.css';
 @import '../../../../node_modules/@vscode/codicons/dist/codicon.css';
 
 html, body, #root {
