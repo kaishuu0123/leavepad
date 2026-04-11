@@ -2,7 +2,8 @@ import useHorizontalScroll from '@renderer/lib/useHorizontalScroll'
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs'
 import { Button } from './ui/button'
-import { useState } from 'react'
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
+import { useEffect, useState } from 'react'
 
 function NoteTabs({
   noteTabs,
@@ -16,6 +17,12 @@ function NoteTabs({
   const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
   const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (!activeTabId) return
+    const el = document.querySelector(`[data-tab-id="${activeTabId}"]`) as HTMLElement | null
+    el?.scrollIntoView({ behavior: 'auto', block: 'nearest', inline: 'nearest' })
+  }, [activeTabId])
+
   if (noteTabs == null) {
     return <></>
   }
@@ -28,11 +35,9 @@ function NoteTabs({
     setDraggedTabId(tabId)
     e.dataTransfer.effectAllowed = 'move'
 
-    // Create a custom drag image (ghost)
     const target = e.currentTarget as HTMLElement
     const clone = target.cloneNode(true) as HTMLElement
 
-    // Style the clone for the drag preview
     clone.style.position = 'absolute'
     clone.style.top = '-9999px'
     clone.style.left = '-9999px'
@@ -47,14 +52,12 @@ function NoteTabs({
 
     document.body.appendChild(clone)
 
-    // Calculate offset from the click position within the element
     const rect = target.getBoundingClientRect()
     const offsetX = e.clientX - rect.left
     const offsetY = e.clientY - rect.top
 
     e.dataTransfer.setDragImage(clone, offsetX, offsetY)
 
-    // Remove the clone after drag starts
     setTimeout(() => {
       document.body.removeChild(clone)
     }, 0)
@@ -91,7 +94,6 @@ function NoteTabs({
       return
     }
 
-    // Create new array with reordered tabs
     const newTabs = [...noteTabs]
     const [removed] = newTabs.splice(draggedIndex, 1)
     newTabs.splice(targetIndex, 0, removed)
@@ -113,6 +115,7 @@ function NoteTabs({
           {tabs.map((tab) => {
             const isDragging = draggedTabId === tab
             const isDragOver = dragOverTabId === tab
+            const tabName = noteTabs.find((nt) => nt.id === tab).name
 
             return (
               <TabsTrigger
@@ -125,7 +128,7 @@ function NoteTabs({
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, tab)}
                 onDragEnd={handleDragEnd}
-                className={`flex items-center gap-3 h-full rounded-none rounded-t-sm border border-b-0 transition-all ${
+                className={`flex items-center gap-3 h-full rounded-none rounded-t-sm border border-b-0 transition-all overflow-hidden min-w-0 flex-1 max-w-[30%] ${
                   isDragging ? 'opacity-40 bg-muted' : ''
                 } ${isDragOver ? 'border-l-4 border-l-blue-500 shadow-lg' : ''}`}
                 style={{
@@ -133,11 +136,16 @@ function NoteTabs({
                 }}
                 asChild
               >
-                <div>
-                  <button className="grow">
-                    {noteTabs.find((noteTabs) => noteTabs.id === tab).name}
-                  </button>
-                  <div className="flex h-full items-center">
+                <div onAuxClick={(e) => { if (e.button === 1) onTabCloseClick(tab) }}>
+                  <Tooltip delayDuration={700}>
+                    <TooltipTrigger asChild>
+                      <button className="grow min-w-0 truncate text-left">
+                        {tabName}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>{tabName}</TooltipContent>
+                  </Tooltip>
+                  <div className="flex h-full items-center shrink-0">
                     <Button
                       variant="ghost"
                       className="flex items-center w-4 h-4 rounded-none"

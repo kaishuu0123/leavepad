@@ -325,6 +325,29 @@ function App(): JSX.Element {
         setRenamingNoteId(currentNote.id)
       }
 
+      // Ctrl+W: Close active tab
+      if (isMod && e.key === 'w') {
+        e.preventDefault()
+        if (currentNote) {
+          onTabCloseClick(currentNote.id)
+        }
+      }
+
+      // Ctrl+Tab / Ctrl+Shift+Tab: Switch tabs
+      if (isMod && e.key === 'Tab') {
+        e.preventDefault()
+        if (noteTabs.length > 1 && currentNote) {
+          const currentIndex = noteTabs.findIndex((tab) => tab.id === currentNote.id)
+          if (currentIndex !== -1) {
+            const nextIndex = e.shiftKey
+              ? (currentIndex - 1 + noteTabs.length) % noteTabs.length
+              : (currentIndex + 1) % noteTabs.length
+            const note = notes.find((n) => n.id === noteTabs[nextIndex].id)
+            if (note) setCurrentNote(note)
+          }
+        }
+      }
+
       // Escape: close search modal
       if (e.key === 'Escape' && isSearchOpen) {
         setIsSearchOpen(false)
@@ -334,7 +357,7 @@ function App(): JSX.Element {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [AddNote, renamingNoteId, isSearchOpen, currentNote])
+  }, [AddNote, renamingNoteId, isSearchOpen, currentNote, noteTabs, notes, setCurrentNote])
 
   const onTabClick = (tabId: string) => {
     const note = notes.find((note) => note.id === tabId)

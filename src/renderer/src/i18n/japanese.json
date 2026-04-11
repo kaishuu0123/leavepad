@@ -83,6 +83,17 @@
     "useTabStops": "useTabStops",
     "useTabStopsDescription": "空白の挿入や削除はタブ位置に従って行われます。",
     "wordWrap": "wordWrap",
-    "wordWrapDescription": "行は、wordWrap の設定に従って折り返します。"
+    "wordWrapDescription": "行は、wordWrap の設定に従って折り返します。",
+    "lineNumbers": "行番号",
+    "lineNumbersDescription": "エディタに行番号を表示します。",
+    "lineHeight": "行の高さ",
+    "lineHeightDescription": "行の高さをピクセルで指定します。0 はデフォルト値を使用します。",
+    "renderWhitespace": "ホワイトスペースの可視化",
+    "renderWhitespaceDescription": "どの空白文字を記号で表示するかを設定します。",
+    "renderWhitespaceNone": "表示しない",
+    "renderWhitespaceBoundary": "単語境界のみ",
+    "renderWhitespaceSelection": "選択範囲のみ",
+    "renderWhitespaceTrailing": "末尾のみ",
+    "renderWhitespaceAll": "すべて表示"
   }
 }

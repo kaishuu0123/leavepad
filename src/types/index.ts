@@ -23,6 +23,8 @@ export type ConfigurableMonacoEditorOptions =
   | 'automaticLayout'
   | 'language'
   | 'insertSpaces'
+  | 'lineHeight'
+  | 'lineNumbers'
   | 'minimap'
   | 'padding'
   | 'quickSuggestions'
@@ -57,6 +59,8 @@ export const defaultNoteEditorSettings: NoteEditorSettings = {
     },
     tabSize: 2,
     useTabStops: false,
+    lineNumbers: 'on',
+    lineHeight: 0,
     wordWrap: 'off',
     fontSize: 14,
     fontFamily:
