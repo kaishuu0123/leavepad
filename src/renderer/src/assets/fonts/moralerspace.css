@@ -1,0 +1,12 @@
+/*
+ * Moralerspace HWJPDOC Neon
+ * Copyright (c) 2023 yuru7
+ * Licensed under the SIL Open Font License, Version 1.1
+ * https://github.com/yuru7/moralerspace
+ */
+@font-face {
+  font-family: 'Moralerspace HWJPDOC Neon';
+  src: url('./Moralerspace/MoralerspaceNeonHWJPDOC-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

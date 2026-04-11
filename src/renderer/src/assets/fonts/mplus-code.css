@@ -1,0 +1,12 @@
+/*
+ * M PLUS 1 Code
+ * Copyright 2021 The M+ FONTS Project Authors (https://github.com/coz-m/MPLUS_FONTS)
+ * Licensed under the SIL Open Font License, Version 1.1
+ * https://github.com/coz-m/MPLUS_FONTS
+ */
+@font-face {
+  font-family: 'M PLUS 1 Code';
+  src: url('./MPlusCode/MPLUS1Code-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}

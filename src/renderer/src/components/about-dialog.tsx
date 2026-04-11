@@ -12,28 +12,38 @@ type UpdateStatus = 'checking' | 'up-to-date' | 'available' | 'downloaded' | 'er
 const fontCredits = [
   {
     name: 'Geist Sans / Geist Mono',
-    copyright: 'Copyright (c) 2023 Vercel, in collaboration with basement.studio',
+    copyright: 'Copyright (c) 2023 vercel',
     url: 'https://github.com/vercel/geist-font'
   },
   {
     name: '白源 (HackGen)',
-    copyright: 'Copyright (c) 2019 Yuko OTAWARA',
+    copyright: 'Copyright (c) 2019 yuru7',
     url: 'https://github.com/yuru7/HackGen'
   },
   {
-    name: 'Noto Sans JP',
-    copyright: 'Copyright 2014-2021 Adobe',
-    url: 'https://fonts.google.com/noto/specimen/Noto+Sans+JP'
-  },
-  {
     name: 'NOTONOTO',
-    copyright: 'Copyright (c) 2024 Yuko Otawara',
+    copyright: 'Copyright (c) 2024 yuru7',
     url: 'https://github.com/yuru7/NOTONOTO'
   },
   {
+    name: 'Moralerspace HWJPDOC Neon',
+    copyright: 'Copyright (c) 2023 yuru7',
+    url: 'https://github.com/yuru7/moralerspace'
+  },
+  {
+    name: 'M PLUS 1 Code',
+    copyright: 'Copyright 2021 coz-m',
+    url: 'https://github.com/coz-m/MPLUS_FONTS'
+  },
+  {
+    name: 'Noto Sans JP',
+    copyright: 'Copyright 2014-2021 googlefonts',
+    url: 'https://github.com/googlefonts/noto-cjk'
+  },
+  {
     name: 'Noto Color Emoji',
-    copyright: 'Copyright 2021 Google Inc.',
-    url: 'https://fonts.google.com/noto/specimen/Noto+Color+Emoji'
+    copyright: 'Copyright 2021 googlefonts',
+    url: 'https://github.com/googlefonts/noto-emoji'
   }
 ]
 
