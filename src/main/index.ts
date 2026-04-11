@@ -1,3 +1,6 @@
+console.time('[startup] total')
+console.time('[startup] app-ready')
+
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
 import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
@@ -204,6 +207,7 @@ function createWindow(): void {
   }
 
   mainWindow.on('ready-to-show', () => {
+    console.timeLog('[startup] total', 'window visible (ready-to-show)')
     mainWindow.show()
   })
 
@@ -220,6 +224,10 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.timeEnd('[startup] total')
+  })
+
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -234,6 +242,9 @@ function createWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(async () => {
+  console.timeEnd('[startup] app-ready')
+  console.time('[startup] create-window')
+
   // Set app user model id for windows
   electronApp.setAppUserModelId('me.saino.leavepad')
 
@@ -253,6 +264,7 @@ app.whenReady().then(async () => {
   registerJsonFormatterWindowHandlers()
 
   createWindow()
+  console.timeEnd('[startup] create-window')
 
   registerIpcHandles(ipcMain, mainWindow)
 
