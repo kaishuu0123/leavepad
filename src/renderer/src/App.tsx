@@ -299,8 +299,9 @@ function App(): JSX.Element {
 
   // Keyboard shortcuts
   useEffect(() => {
+    const isMac = navigator.platform.includes('Mac')
     const handleKeyDown = (e: KeyboardEvent): void => {
-      const isMod = e.ctrlKey || e.metaKey
+      const isMod = isMac ? e.metaKey : e.ctrlKey
 
       // Ctrl+N: New note
       if (isMod && e.key === 'n' && !e.shiftKey) {
