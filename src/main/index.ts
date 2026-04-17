@@ -56,6 +56,7 @@ const menuTranslations: Record<string, Record<string, string>> = {
 
 function buildAppMenu(language: string = 'english'): void {
   const t = menuTranslations[language] ?? menuTranslations.english
+  const isMac = process.platform === 'darwin'
   const template: Electron.MenuItemConstructorOptions[] = [
     {
       label: t.file,
@@ -63,7 +64,7 @@ function buildAppMenu(language: string = 'english'): void {
         {
           label: t.newNote,
           accelerator: 'CmdOrCtrl+N',
-          registerAccelerator: false,
+          registerAccelerator: isMac,
           click: () => mainWindow.webContents.send('menu-new-note')
         },
         {
@@ -73,14 +74,14 @@ function buildAppMenu(language: string = 'english'): void {
         {
           label: t.jsonFormatter,
           accelerator: 'CmdOrCtrl+Shift+J',
-          registerAccelerator: false,
+          registerAccelerator: isMac,
           click: () => mainWindow.webContents.send('menu-open-json-formatter')
         },
         { type: 'separator' },
         {
           label: t.settings,
           accelerator: 'CmdOrCtrl+,',
-          registerAccelerator: false,
+          registerAccelerator: isMac,
           click: () => mainWindow.webContents.send('menu-open-settings')
         },
         { type: 'separator' },
@@ -93,13 +94,13 @@ function buildAppMenu(language: string = 'english'): void {
         {
           label: t.findInNotes,
           accelerator: 'CmdOrCtrl+Shift+F',
-          registerAccelerator: false,
+          registerAccelerator: isMac,
           click: () => mainWindow.webContents.send('menu-find-in-notes')
         },
         {
           label: t.findInEditor,
           accelerator: 'CmdOrCtrl+F',
-          registerAccelerator: false,
+          registerAccelerator: isMac,
           click: () => mainWindow.webContents.send('menu-find-in-editor')
         }
       ]
@@ -182,9 +183,20 @@ function createWindow(): void {
     }
   })
 
-  if (isNonMac) {
-    buildAppMenu()
+  buildAppMenu()
+  ipcMain.on('update-menu-language', (_, language: string) => buildAppMenu(language))
 
+  if (!isNonMac) {
+    mainWindow.webContents.on('before-input-event', (event, input) => {
+      if (input.type !== 'keyDown' || !input.meta || !input.shift) return
+      if (input.code === 'KeyF') {
+        event.preventDefault()
+        mainWindow.webContents.send('menu-find-in-notes')
+      }
+    })
+  }
+
+  if (isNonMac) {
     mainWindow.on('maximize', () => mainWindow.webContents.send('maximize-changed', true))
     mainWindow.on('unmaximize', () => mainWindow.webContents.send('maximize-changed', false))
 
@@ -197,7 +209,6 @@ function createWindow(): void {
     })
     ipcMain.on('close-window', () => mainWindow.close())
     ipcMain.handle('is-maximized', () => mainWindow.isMaximized())
-    ipcMain.on('update-menu-language', (_, language: string) => buildAppMenu(language))
   }
 
   if (appStateData.windowX != null && appStateData.windowY != null) {

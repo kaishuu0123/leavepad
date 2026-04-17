@@ -314,7 +314,7 @@ function App(): JSX.Element {
         window.api.openJsonFormatter()
       }
 
-      // Ctrl+Shift+F: Find in Notes
+      // Ctrl+Shift+F / Cmd+Shift+F: Find in Notes
       if (isMod && e.shiftKey && e.key === 'F') {
         e.preventDefault()
         setIsSearchOpen(true)
