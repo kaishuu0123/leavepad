@@ -91,6 +91,18 @@ function buildAppMenu(language: string = 'english'): void {
     {
       label: t.edit,
       submenu: [
+        ...(isMac
+          ? [
+              { role: 'undo' as const },
+              { role: 'redo' as const },
+              { type: 'separator' as const },
+              { role: 'cut' as const },
+              { role: 'copy' as const },
+              { role: 'paste' as const },
+              { role: 'selectAll' as const },
+              { type: 'separator' as const }
+            ]
+          : []),
         {
           label: t.findInNotes,
           accelerator: 'CmdOrCtrl+Shift+F',
