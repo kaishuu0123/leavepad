@@ -4608,9 +4608,9 @@ react-dom@^18.3.1:
     scheduler "^0.23.2"
 
 react-hook-form@^7.71.1:
-  version "7.72.1"
-  resolved "https://registry.npmjs.org/react-hook-form/-/react-hook-form-7.72.1.tgz"
-  integrity sha512-RhwBoy2ygeVZje+C+bwJ8g0NjTdBmDlJvAUHTxRjTmSUKPYsKfMphkS2sgEMotsY03bP358yEYlnUeZy//D9Ig==
+  version "7.74.0"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.74.0.tgz#7c55ac360290e7e7a78cc3169b0f07bce11a36c0"
+  integrity sha512-yR6wHr99p9wFv686jhRWVSFhUvDvNbdUf2dKlbno8/VKOCuoNobDGC6S+M2dua9A9Yo8vpcrp8assIYbsZCQ9g==
 
 react-i18next@^15.1.0:
   version "15.7.4"
