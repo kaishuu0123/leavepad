@@ -73,7 +73,7 @@ function NoteCard({
   const updatedAtStr = note.updatedAt ? format(new Date(note.updatedAt), 'yyyy/MM/dd HH:mm') : ''
 
   const cardClassName = cn(
-    'flex items-center w-full px-2.5 py-1.5 cursor-pointer group border-l-2 transition-colors',
+    'flex items-center w-full px-2.5 py-1.5 cursor-pointer group border-l-2 transition-colors focus:outline-none focus-visible:bg-accent focus-visible:border-l-foreground',
     isActive ? 'bg-accent border-l-foreground' : 'border-l-transparent hover:bg-accent'
   )
 
@@ -177,7 +177,20 @@ function NoteCard({
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div key={note.id} className={cardClassName} role="button" tabIndex={index} onClick={() => onClick(note)} onDoubleClick={() => onRenameStart(note)}>
+            <div
+              key={note.id}
+              className={cardClassName}
+              role="button"
+              tabIndex={index}
+              onClick={() => onClick(note)}
+              onDoubleClick={() => onRenameStart(note)}
+              onKeyDown={(e) => {
+                if (e.key === 'Delete') {
+                  e.preventDefault()
+                  setDeleteOpen(true)
+                }
+              }}
+            >
               {cardInner}
             </div>
           </TooltipTrigger>
