@@ -11,6 +11,22 @@ files:
   - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
 asarUnpack:
   - resources/**
+fileAssociations:
+  - ext:
+      - txt
+      - md
+      - json
+      - js
+      - ts
+      - tsx
+      - jsx
+      - css
+      - html
+      - log
+      - yml
+      - yaml
+    name: Text Document
+    role: Editor
 win:
   executableName: leavepad
 nsis:
@@ -22,7 +38,7 @@ mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSMicrophoneUsageDescription: Application requests access to the user's Microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: true
@@ -52,3 +68,4 @@ publish:
   repo: leavepad
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/
+
