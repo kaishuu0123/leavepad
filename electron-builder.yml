@@ -12,19 +12,40 @@ files:
 asarUnpack:
   - resources/**
 fileAssociations:
-  - ext:
-      - txt
-      - md
-      - json
-      - js
-      - ts
-      - tsx
-      - jsx
-      - css
-      - html
-      - log
-      - yml
-      - yaml
+  - ext: txt
+    name: Text Document
+    role: Editor
+  - ext: md
+    name: Text Document
+    role: Editor
+  - ext: json
+    name: Text Document
+    role: Editor
+  - ext: js
+    name: Text Document
+    role: Editor
+  - ext: ts
+    name: Text Document
+    role: Editor
+  - ext: tsx
+    name: Text Document
+    role: Editor
+  - ext: jsx
+    name: Text Document
+    role: Editor
+  - ext: css
+    name: Text Document
+    role: Editor
+  - ext: html
+    name: Text Document
+    role: Editor
+  - ext: log
+    name: Text Document
+    role: Editor
+  - ext: yml
+    name: Text Document
+    role: Editor
+  - ext: yaml
     name: Text Document
     role: Editor
 win:
