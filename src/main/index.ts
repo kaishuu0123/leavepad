@@ -11,7 +11,7 @@ import icon from '../../resources/icon.png?asset'
 import { registerIpcHandles } from './ipcHandles'
 import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
 import { registerFileEditorWindowHandlers } from './fileEditorWindow'
-import { createFileEditorWindow } from './fileEditorWindow'
+import { createFileEditorWindow, getFileEditorWindow } from './fileEditorWindow'
 import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
 import { dbInstance } from './db_singleton'
 
@@ -30,11 +30,12 @@ if (!gotTheLock) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
 
-      // Handle files passed via command line from second instance (Windows/Linux)
-      const fileToOpen = commandLine.find((arg, i) => i > 0 && !arg.startsWith('-'))
-      if (fileToOpen) {
-        createFileEditorWindow(fileToOpen)
-      }
+      // Handle all files passed via command line from second instance (Windows/Linux)
+      commandLine.forEach((arg, i) => {
+        if (i > 0 && !arg.startsWith('-')) {
+          createFileEditorWindow(arg)
+        }
+      })
     }
   })
 
@@ -281,14 +282,13 @@ if (!gotTheLock) {
     mainWindow.webContents.on('did-finish-load', () => {
       console.timeEnd('[startup] total')
 
-      // Handle files passed via command line (Windows/Linux)
-      const argv = process.argv
+      // Handle all files passed via command line (Windows/Linux)
       if (app.isPackaged) {
-        // In packaged apps, the first arg is the executable, the rest are files
-        const fileToOpen = argv.find((arg, i) => i > 0 && !arg.startsWith('-'))
-        if (fileToOpen) {
-          createFileEditorWindow(fileToOpen)
-        }
+        process.argv.forEach((arg, i) => {
+          if (i > 0 && !arg.startsWith('-')) {
+            createFileEditorWindow(arg)
+          }
+        })
       }
 
       // Handle queued files on macOS
@@ -345,6 +345,15 @@ if (!gotTheLock) {
       // dock icon is clicked and there are no other windows open.
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
     })
+  })
+
+  // Prevent app from quitting immediately to allow unsaved changes check
+  app.on('before-quit', (e) => {
+    const fileEditorWindow = getFileEditorWindow()
+    if (fileEditorWindow && !fileEditorWindow.isDestroyed()) {
+      e.preventDefault()
+      fileEditorWindow.close() // This will trigger the save confirmation logic
+    }
   })
 
   // Quit when all windows are closed, except on macOS. There, it's common
