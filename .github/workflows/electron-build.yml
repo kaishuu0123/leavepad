@@ -60,7 +60,7 @@ jobs:
           sudo snap install snapcraft --classic
           yarn build:linux
       - name: Upload artifacts (manual build)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: github.event_name == 'workflow_dispatch'
         with:
           name: leavepad-${{ matrix.os }}
