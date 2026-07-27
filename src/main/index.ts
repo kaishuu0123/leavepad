@@ -4,7 +4,6 @@ console.time('[startup] app-ready')
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
 import { app, shell, BrowserWindow, ipcMain, Menu, screen } from 'electron'
-import windowStateKeeper from 'electron-window-state'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -210,24 +209,36 @@ if (!gotTheLock) {
 
   function createWindow(): void {
     const appStateData = dbInstance.dbs.appStateDb.data
-
     const isNonMac = process.platform !== 'darwin'
 
-    // Manage window state (bounds, position, max/min state) with auto screen bounds validation
-    const mainWindowState = windowStateKeeper({
-      defaultWidth: appStateData?.windowWidth ?? 800,
-      defaultHeight: appStateData?.windowHeight ?? 600,
-      ...(appStateData?.windowX != null && appStateData?.windowY != null
-        ? { defaultX: appStateData.windowX, defaultY: appStateData.windowY }
-        : {})
-    })
+    const savedWidth = appStateData?.windowWidth ?? 800
+    const savedHeight = appStateData?.windowHeight ?? 600
+    let savedX = appStateData?.windowX
+    let savedY = appStateData?.windowY
+
+    // Validate if the saved coordinates are within any connected display
+    if (savedX != null && savedY != null) {
+      const displays = screen.getAllDisplays()
+      const isVisible = displays.some((display) => {
+        const { x, y, width, height } = display.workArea
+        return (
+          savedX! + savedWidth > x &&
+          savedX! < x + width &&
+          savedY! + savedHeight > y &&
+          savedY! < y + height
+        )
+      })
+      if (!isVisible) {
+        savedX = undefined
+        savedY = undefined
+      }
+    }
 
     // Create the browser window.
     mainWindow = new BrowserWindow({
-      x: mainWindowState.x,
-      y: mainWindowState.y,
-      width: mainWindowState.width,
-      height: mainWindowState.height,
+      ...(savedX != null && savedY != null ? { x: savedX, y: savedY } : {}),
+      width: savedWidth,
+      height: savedHeight,
       useContentSize: true,
       show: false,
       autoHideMenuBar: true,
@@ -239,7 +250,28 @@ if (!gotTheLock) {
       }
     })
 
-    mainWindowState.manage(mainWindow)
+    if (savedX == null || savedY == null) {
+      mainWindow.center()
+    }
+
+    // Automatically save window position and size on resize / move / close
+    const saveWindowState = (): void => {
+      if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isMinimized()) {
+        const bounds = mainWindow.getBounds()
+        dbInstance.dbs.appStateDb.data = {
+          ...(dbInstance.dbs.appStateDb.data ?? {}),
+          windowX: bounds.x,
+          windowY: bounds.y,
+          windowWidth: bounds.width,
+          windowHeight: bounds.height
+        }
+        dbInstance.dbs.appStateDb.write()
+      }
+    }
+
+    mainWindow.on('resize', saveWindowState)
+    mainWindow.on('move', saveWindowState)
+    mainWindow.on('close', saveWindowState)
 
     // Move window back inside visible display bounds if an external monitor is disconnected at runtime
     screen.on('display-removed', () => {
