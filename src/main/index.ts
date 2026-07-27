@@ -13,7 +13,7 @@ import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
 import { registerFileEditorWindowHandlers } from './fileEditorWindow'
 import { createFileEditorWindow, getFileEditorWindow } from './fileEditorWindow'
 import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
-import { dbInstance } from './db_singleton'
+import { dbInstance, safeWrite } from './db_singleton'
 
 let mainWindow: BrowserWindow
 const filesToOpen: string[] = []
@@ -255,23 +255,38 @@ if (!gotTheLock) {
     }
 
     // Automatically save window position and size on resize / move / close
-    const saveWindowState = (): void => {
-      if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isMinimized()) {
-        const bounds = mainWindow.getBounds()
-        dbInstance.dbs.appStateDb.data = {
-          ...(dbInstance.dbs.appStateDb.data ?? {}),
-          windowX: bounds.x,
-          windowY: bounds.y,
-          windowWidth: bounds.width,
-          windowHeight: bounds.height
+    let saveTimeout: NodeJS.Timeout | null = null
+
+    const saveWindowState = (immediate = false): void => {
+      if (saveTimeout) {
+        clearTimeout(saveTimeout)
+        saveTimeout = null
+      }
+
+      const performSave = (): void => {
+        if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isMinimized()) {
+          const bounds = mainWindow.getBounds()
+          dbInstance.dbs.appStateDb.data = {
+            ...(dbInstance.dbs.appStateDb.data ?? {}),
+            windowX: bounds.x,
+            windowY: bounds.y,
+            windowWidth: bounds.width,
+            windowHeight: bounds.height
+          }
+          safeWrite(dbInstance.dbs.appStateDb)
         }
-        dbInstance.dbs.appStateDb.write()
+      }
+
+      if (immediate) {
+        performSave()
+      } else {
+        saveTimeout = setTimeout(performSave, 500)
       }
     }
 
-    mainWindow.on('resize', saveWindowState)
-    mainWindow.on('move', saveWindowState)
-    mainWindow.on('close', saveWindowState)
+    mainWindow.on('resize', () => saveWindowState(false))
+    mainWindow.on('move', () => saveWindowState(false))
+    mainWindow.on('close', () => saveWindowState(true))
 
     // Move window back inside visible display bounds if an external monitor is disconnected at runtime
     screen.on('display-removed', () => {
