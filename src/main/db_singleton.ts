@@ -16,6 +16,28 @@ type Dbs = {
   appStateDb: LowSync<AppState>
 }
 
+export const safeWrite = async (
+  db: LowSync<any>,
+  retries = 5,
+  delay = 100
+): Promise<void> => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      db.write()
+      return
+    } catch (err: any) {
+      if ((err?.code === 'EPERM' || err?.code === 'EBUSY') && i < retries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)))
+      } else if (i === retries - 1) {
+        console.error(`Failed to write database after ${retries} attempts:`, err)
+      } else {
+        console.error(`Error writing database:`, err)
+        return
+      }
+    }
+  }
+}
+
 class DbSingleton {
   private static instance: DbSingleton
   public dbs: Dbs
@@ -55,9 +77,9 @@ class DbSingleton {
   }
 
   public async writeAllDbs(): Promise<void> {
-    await this.dbs.notesDb.write()
-    await this.dbs.settingsDb.write()
-    await this.dbs.appStateDb.write()
+    await safeWrite(this.dbs.notesDb)
+    await safeWrite(this.dbs.settingsDb)
+    await safeWrite(this.dbs.appStateDb)
   }
 }
 

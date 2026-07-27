@@ -5,7 +5,7 @@ import { getTime } from 'date-fns'
 import { uuidv7 } from 'uuidv7'
 
 import { AppState, Note, NoteEditorSettings } from '../types'
-import { dbInstance } from './db_singleton'
+import { dbInstance, safeWrite } from './db_singleton'
 import { BrowserWindow } from 'electron'
 
 export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => {
@@ -35,7 +35,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
       updatedAt: getTime(new Date())
     }
     notesDb.data.push(note)
-    await notesDb.write()
+    await safeWrite(notesDb)
 
     return note
   })
@@ -57,7 +57,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
 
       notesDb.data = newNotes
 
-      await notesDb.write()
+      await safeWrite(notesDb)
 
       return note
     }
@@ -80,7 +80,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
 
     notesDb.data = newNotes
 
-    await notesDb.write()
+    await safeWrite(notesDb)
 
     return note
   })
@@ -89,7 +89,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
     'update-settings',
     async (_event: Electron.IpcMainInvokeEvent, settings: NoteEditorSettings) => {
       settingsDb.data = settings
-      await settingsDb.write()
+      await safeWrite(settingsDb)
     }
   )
 
@@ -114,7 +114,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
         windowHeight: bounds.height
       }
 
-      await appStateDb.write()
+      await safeWrite(appStateDb)
     }
   )
 
@@ -129,7 +129,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
         updatedAt: getTime(new Date())
       }
       notesDb.data.push(note)
-      await notesDb.write()
+      await safeWrite(notesDb)
 
       // Notify main window to refresh notes list
       if (!mainWindow.isDestroyed()) {
@@ -142,7 +142,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
 
   ipcMain.handle('delete-all-notes', async () => {
     notesDb.data = []
-    await notesDb.write()
+    await safeWrite(notesDb)
   })
 
   ipcMain.handle(
@@ -158,7 +158,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
       }))
 
       notesDb.data.push(...newNotes)
-      await notesDb.write()
+      await safeWrite(notesDb)
 
       return notesDb.data
     }
