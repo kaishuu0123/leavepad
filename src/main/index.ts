@@ -3,7 +3,8 @@ console.time('[startup] app-ready')
 
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
-import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu, screen } from 'electron'
+import windowStateKeeper from 'electron-window-state'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -212,10 +213,21 @@ if (!gotTheLock) {
 
     const isNonMac = process.platform !== 'darwin'
 
+    // Manage window state (bounds, position, max/min state) with auto screen bounds validation
+    const mainWindowState = windowStateKeeper({
+      defaultWidth: appStateData?.windowWidth ?? 800,
+      defaultHeight: appStateData?.windowHeight ?? 600,
+      ...(appStateData?.windowX != null && appStateData?.windowY != null
+        ? { defaultX: appStateData.windowX, defaultY: appStateData.windowY }
+        : {})
+    })
+
     // Create the browser window.
     mainWindow = new BrowserWindow({
-      width: appStateData?.windowWidth != null ? appStateData?.windowWidth : 800,
-      height: appStateData?.windowHeight != null ? appStateData?.windowHeight : 600,
+      x: mainWindowState.x,
+      y: mainWindowState.y,
+      width: mainWindowState.width,
+      height: mainWindowState.height,
       useContentSize: true,
       show: false,
       autoHideMenuBar: true,
@@ -224,6 +236,28 @@ if (!gotTheLock) {
       webPreferences: {
         preload: join(__dirname, '../preload/index.mjs'),
         sandbox: false
+      }
+    })
+
+    mainWindowState.manage(mainWindow)
+
+    // Move window back inside visible display bounds if an external monitor is disconnected at runtime
+    screen.on('display-removed', () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        const bounds = mainWindow.getBounds()
+        const displays = screen.getAllDisplays()
+        const isVisible = displays.some((display) => {
+          const { x, y, width, height } = display.workArea
+          return (
+            bounds.x + bounds.width > x &&
+            bounds.x < x + width &&
+            bounds.y + bounds.height > y &&
+            bounds.y < y + height
+          )
+        })
+        if (!isVisible) {
+          mainWindow.center()
+        }
       }
     })
 
@@ -255,23 +289,9 @@ if (!gotTheLock) {
       ipcMain.handle('is-maximized', () => mainWindow.isMaximized())
     }
 
-    if (appStateData.windowX != null && appStateData.windowY != null) {
-      mainWindow.setPosition(appStateData.windowX, appStateData.windowY, false)
-    } else {
-      mainWindow.center()
-    }
-
     mainWindow.on('ready-to-show', () => {
       console.timeLog('[startup] total', 'window visible (ready-to-show)')
       mainWindow.show()
-    })
-
-    mainWindow.on('move', async () => {
-      const bounds = mainWindow.getBounds()
-      const appStateDb = dbInstance.dbs.appStateDb
-      appStateDb.data.windowX = bounds.x
-      appStateDb.data.windowY = bounds.y
-      await appStateDb.write()
     })
 
     mainWindow.webContents.setWindowOpenHandler((details) => {
