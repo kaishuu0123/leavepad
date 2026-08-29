@@ -6,7 +6,7 @@
   "build": { "dockerfile": "Dockerfile" },
   // Features to add to the dev container. More info: https://containers.dev/features.
   "features": {
-    "ghcr.io/devcontainers/features/node:1": { "version": "24.13.0" },
+    "ghcr.io/devcontainers/features/node:2": { "version": "24.13.0" },
     "ghcr.io/devcontainers/features/desktop-lite:1": {
       "version": "latest",
       "noVncVersion": "1.2.0",
