@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { AppState, Note, NoteEditorSettings } from '../types'
+import { AppState, Note, NoteEditorSettings, UpdateNotePayload } from '../types'
 
 // Custom APIs for renderer
 const api = {
@@ -26,7 +26,7 @@ const api = {
     const note = await ipcRenderer.invoke('create-note')
     return note
   },
-  updateNote: (willUpdateNote: Note): Promise<Note> => {
+  updateNote: (willUpdateNote: UpdateNotePayload): Promise<Note | undefined> => {
     return ipcRenderer.invoke('update-note', willUpdateNote)
   },
   deleteNote: (noteId: string): Promise<void> => {

@@ -9,7 +9,8 @@ import {
   defaultAppState,
   defaultNoteEditorSettings,
   Note,
-  NoteEditorSettings
+  NoteEditorSettings,
+  UpdateNotePayload
 } from '../../types'
 import { LowSync } from 'lowdb'
 import { LocalStorage } from 'lowdb/browser'
@@ -65,11 +66,7 @@ if (window.api === undefined) {
 
       return note
     },
-    updateNote: async (willUpdateNote: Note): Promise<Note | undefined> => {
-      const note = notesDb.data.find((note) => {
-        note.id === willUpdateNote.id
-      })
-
+    updateNote: async (willUpdateNote: UpdateNotePayload): Promise<Note | undefined> => {
       const newNotes = notesDb.data.map((note) => {
         if (note.id === willUpdateNote.id) {
           return { ...note, ...willUpdateNote }
@@ -82,12 +79,10 @@ if (window.api === undefined) {
 
       await notesDb.write()
 
-      return note
+      return notesDb.data.find((note) => note.id === willUpdateNote.id)
     },
     deleteNote: async (noteId: string): Promise<Note | undefined> => {
-      const note = notesDb.data.find((note) => {
-        note.id === noteId
-      })
+      const note = notesDb.data.find((note) => note.id === noteId)
 
       const newNotes = notesDb.data
         .map((note) => {

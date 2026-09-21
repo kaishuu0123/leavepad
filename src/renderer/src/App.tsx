@@ -382,10 +382,15 @@ function App(): JSX.Element {
   }
 
   const onEditorChange = async (currentNote: Note, value: string) => {
+    const updatedAt = getTime(new Date())
+    setCurrentNote((prev) =>
+      prev && prev.id === currentNote.id ? { ...prev, body: value, updatedAt } : prev
+    )
+
     const willUpdateNote = {
-      ...currentNote,
+      id: currentNote.id,
       body: value,
-      updatedAt: getTime(new Date())
+      updatedAt
     }
 
     await window.api.updateNote(willUpdateNote)
@@ -411,14 +416,20 @@ function App(): JSX.Element {
   }
 
   const onNoteCardSetName = async (changedNote: Note, title: string) => {
+    const updatedAt = getTime(new Date())
     const willUpdateNote = {
-      ...changedNote,
+      id: changedNote.id,
       name: title,
-      updatedAt: getTime(new Date())
+      updatedAt
     }
 
     // Update note.
     await window.api.updateNote(willUpdateNote)
+
+    // Keep currentNote state in sync if renaming active note
+    if (currentNote?.id === changedNote.id) {
+      setCurrentNote((prev) => (prev ? { ...prev, name: title, updatedAt } : null))
+    }
 
     // Get all notes after updating note.
     const notes = await window.api.getNotes()
