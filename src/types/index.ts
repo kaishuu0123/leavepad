@@ -9,6 +9,8 @@ export type Note = {
   language?: string // per-note language mode (undefined = use global setting)
 }
 
+export type UpdateNotePayload = Partial<Omit<Note, 'id'>> & { id: string }
+
 export type NoteTab = {
   id: string
   name: string

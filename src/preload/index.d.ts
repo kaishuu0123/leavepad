@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { AppState, Note, NoteEditorSettings } from 'src/types'
+import { AppState, Note, NoteEditorSettings, UpdateNotePayload } from 'src/types'
 
 declare global {
   interface Window {
@@ -11,7 +11,7 @@ declare global {
       getNotes: () => Promise<Note[]>
       getNote: (noteId: string) => Promise<Note | undefined>
       createNote: () => Promise<Note>
-      updateNote: (willUpdateNote: Note) => Promise<Note | undefined>
+      updateNote: (willUpdateNote: UpdateNotePayload) => Promise<Note | undefined>
       deleteNote: (noteId: string) => Promise<Note | undefined>
       updateSettings: (settings: NoteEditorSettings) => void
       getSettings: () => Promise<NoteEditorSettings>

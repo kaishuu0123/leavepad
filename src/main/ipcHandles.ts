@@ -4,7 +4,7 @@ import { app } from 'electron'
 import { getTime } from 'date-fns'
 import { uuidv7 } from 'uuidv7'
 
-import { AppState, Note, NoteEditorSettings } from '../types'
+import { AppState, Note, NoteEditorSettings, UpdateNotePayload } from '../types'
 import { dbInstance, safeWrite } from './db_singleton'
 import { BrowserWindow } from 'electron'
 
@@ -18,11 +18,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
   ipcMain.handle(
     'get-note',
     (_event: Electron.IpcMainInvokeEvent, noteId: string): Note | undefined => {
-      const note = notesDb.data.find((note) => {
-        note.id == noteId
-      })
-
-      return note
+      return notesDb.data.find((note) => note.id === noteId)
     }
   )
 
@@ -42,11 +38,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
 
   ipcMain.handle(
     'update-note',
-    async (_event: Electron.IpcMainInvokeEvent, willUpdateNote: Note) => {
-      const note = notesDb.data.find((note) => {
-        note.id === willUpdateNote.id
-      })
-
+    async (_event: Electron.IpcMainInvokeEvent, willUpdateNote: UpdateNotePayload) => {
       const newNotes = notesDb.data.map((note) => {
         if (note.id === willUpdateNote.id) {
           return { ...note, ...willUpdateNote }
@@ -59,14 +51,12 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
 
       await safeWrite(notesDb)
 
-      return note
+      return notesDb.data.find((note) => note.id === willUpdateNote.id)
     }
   )
 
   ipcMain.handle('delete-note', async (_event: Electron.IpcMainInvokeEvent, noteId: string) => {
-    const note = notesDb.data.find((note) => {
-      note.id === noteId
-    })
+    const note = notesDb.data.find((note) => note.id === noteId)
 
     const newNotes = notesDb.data
       .map((note) => {
