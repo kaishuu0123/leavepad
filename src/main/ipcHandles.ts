@@ -4,7 +4,13 @@ import { app } from 'electron'
 import { getTime } from 'date-fns'
 import { uuidv7 } from 'uuidv7'
 
-import { AppState, Note, NoteEditorSettings, UpdateNotePayload } from '../types'
+import {
+  AppState,
+  Note,
+  NoteEditorSettings,
+  UpdateNotePayload,
+  generateUntitledNoteName
+} from '../types'
 import { dbInstance, safeWrite } from './db_singleton'
 import { BrowserWindow } from 'electron'
 
@@ -23,9 +29,11 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
   )
 
   ipcMain.handle('create-note', async () => {
+    const language = settingsDb.data?.language
+    const name = generateUntitledNoteName(notesDb.data, language)
     const note: Note = {
       id: uuidv7(),
-      name: `No Name ${notesDb.data.length + 1}`,
+      name,
       body: '',
       createdAt: getTime(new Date()),
       updatedAt: getTime(new Date())
