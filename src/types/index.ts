@@ -11,6 +11,32 @@ export type Note = {
 
 export type UpdateNotePayload = Partial<Omit<Note, 'id'>> & { id: string }
 
+export const generateUntitledNoteName = (
+  existingNotes: { name: string }[],
+  language?: string
+): string => {
+  const prefix = language === 'japanese' ? '無題' : 'Untitled'
+  const pattern = new RegExp(`^${prefix} (\\d+)$`)
+  const usedNumbers = new Set<number>()
+
+  for (const note of existingNotes) {
+    const match = note.name.match(pattern)
+    if (match) {
+      const num = parseInt(match[1], 10)
+      if (!isNaN(num) && num > 0) {
+        usedNumbers.add(num)
+      }
+    }
+  }
+
+  let nextNum = 1
+  while (usedNumbers.has(nextNum)) {
+    nextNum++
+  }
+
+  return `${prefix} ${nextNum}`
+}
+
 export type NoteTab = {
   id: string
   name: string

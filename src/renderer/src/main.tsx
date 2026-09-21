@@ -10,7 +10,8 @@ import {
   defaultNoteEditorSettings,
   Note,
   NoteEditorSettings,
-  UpdateNotePayload
+  UpdateNotePayload,
+  generateUntitledNoteName
 } from '../../types'
 import { LowSync } from 'lowdb'
 import { LocalStorage } from 'lowdb/browser'
@@ -54,9 +55,11 @@ if (window.api === undefined) {
       return note
     },
     createNote: async (): Promise<Note> => {
+      const language = settingsDb.data?.language
+      const name = generateUntitledNoteName(notesDb.data, language)
       const note: Note = {
         id: uuidv7(),
-        name: `No Name ${notesDb.data.length + 1}`,
+        name,
         body: '',
         createdAt: getTime(new Date()),
         updatedAt: getTime(new Date())
