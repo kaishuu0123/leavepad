@@ -18,12 +18,12 @@ function FileTabs({
   onTabClick,
   onTabCloseClick,
   onTabReorder
-}: FileTabsProps): JSX.Element {
+}: FileTabsProps): JSX.Element | null {
   const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
   const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
 
   if (fileTabs.length === 0) {
-    return <></>
+    return null
   }
 
   const onTabChange = (value: string): void => {
@@ -140,7 +140,7 @@ function FileTabs({
                 asChild
               >
                 <div>
-                  <button className="grow text-sm">
+                  <button type="button" className="grow text-sm">
                     {tab.isModified ? `${tab.fileName} *` : tab.fileName}
                   </button>
                   <div className="flex h-full items-center">

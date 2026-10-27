@@ -1,6 +1,6 @@
+import { readFile, writeFile } from 'node:fs/promises'
+import { basename } from 'node:path'
 import { BrowserWindow, dialog, ipcMain } from 'electron'
-import { readFile, writeFile } from 'fs/promises'
-import { basename } from 'path'
 import type { FileInfo } from '../types'
 
 export const registerFileEditorIpcHandles = (): void => {
@@ -9,6 +9,7 @@ export const registerFileEditorIpcHandles = (): void => {
     'file-editor:open-dialog',
     async (_event: Electron.IpcMainInvokeEvent): Promise<FileInfo | null> => {
       const focusedWindow = BrowserWindow.getFocusedWindow()
+      // biome-ignore lint/style/noNonNullAssertion: Electron typings require a BrowserWindow here although getFocusedWindow() may return null; existing behavior left unchanged
       const result = await dialog.showOpenDialog(focusedWindow!, {
         properties: ['openFile'],
         filters: [
@@ -95,6 +96,7 @@ export const registerFileEditorIpcHandles = (): void => {
       defaultFileName?: string
     ): Promise<string | null> => {
       const focusedWindow = BrowserWindow.getFocusedWindow()
+      // biome-ignore lint/style/noNonNullAssertion: Electron typings require a BrowserWindow here although getFocusedWindow() may return null; existing behavior left unchanged
       const result = await dialog.showSaveDialog(focusedWindow!, {
         defaultPath: defaultFileName,
         filters: [
@@ -122,6 +124,7 @@ export const registerFileEditorIpcHandles = (): void => {
       fileName: string
     ): Promise<'save' | 'discard' | 'cancel'> => {
       const focusedWindow = BrowserWindow.getFocusedWindow()
+      // biome-ignore lint/style/noNonNullAssertion: Electron typings require a BrowserWindow here although getFocusedWindow() may return null; existing behavior left unchanged
       const result = await dialog.showMessageBox(focusedWindow!, {
         type: 'question',
         buttons: ['Save', "Don't Save", 'Cancel'],

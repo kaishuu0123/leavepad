@@ -1,6 +1,6 @@
+import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 
 let jsonFormatterWindow: BrowserWindow | null = null
@@ -41,8 +41,8 @@ export function createJsonFormatterWindow(): BrowserWindow {
   })
 
   // Load the JSON formatter renderer
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    const devUrl = process.env['ELECTRON_RENDERER_URL'].replace(/\/$/, '')
+  if (is.dev && process.env.ELECTRON_RENDERER_URL) {
+    const devUrl = process.env.ELECTRON_RENDERER_URL.replace(/\/$/, '')
     jsonFormatterWindow.loadURL(`${devUrl}/json-formatter/index.html`)
   } else {
     jsonFormatterWindow.loadFile(join(__dirname, '../renderer/json-formatter/index.html'))

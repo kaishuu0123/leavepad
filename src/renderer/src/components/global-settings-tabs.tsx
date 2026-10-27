@@ -3,7 +3,9 @@ import { cn } from '@renderer/lib/utils'
 import { useAtom } from 'jotai'
 import * as monaco from 'monaco-editor'
 import { useRef, useState } from 'react'
+import type { UseFormReturn } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
+import type { NoteEditorSettings } from '../../../types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -403,8 +405,7 @@ const GeneralTabsContent = ({
   settingsForm,
   onClose
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  settingsForm: any
+  settingsForm: UseFormReturn<NoteEditorSettings>
   onClose: () => void
 }) => {
   const [notes, setNotes] = useAtom(notesAtom)
@@ -496,9 +497,9 @@ const GeneralTabsContent = ({
             )}
           />
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {t('globalSettingsGroup.backup')}
-            </label>
+            </span>
             <div className="flex gap-2">
               <Button size="sm" onClick={exportNotes}>
                 {t('globalSettingsGroup.exportNotes')}
@@ -516,9 +517,9 @@ const GeneralTabsContent = ({
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {t('globalSettingsGroup.dangerZone')}
-            </label>
+            </span>
             <div className="flex">
               <Button size="sm" variant="destructive" onClick={() => setDeleteAllOpen(true)}>
                 {t('globalSettingsGroup.deleteAllNotes')}
@@ -573,8 +574,7 @@ const GlobalSettingsTabs = ({
   settingsForm,
   onClose
 }: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  settingsForm: any
+  settingsForm: UseFormReturn<NoteEditorSettings>
   onClose: () => void
 }) => {
   const { t } = useTranslation()

@@ -1,7 +1,7 @@
+import path from 'node:path'
 import { app } from 'electron'
 import type { LowSync } from 'lowdb'
 import { JSONFileSyncPreset } from 'lowdb/node'
-import path from 'path'
 import {
   type AppState,
   defaultAppState,
@@ -16,13 +16,14 @@ type Dbs = {
   appStateDb: LowSync<AppState>
 }
 
-export const safeWrite = async (db: LowSync<any>, retries = 5, delay = 100): Promise<void> => {
+export const safeWrite = async <T>(db: LowSync<T>, retries = 5, delay = 100): Promise<void> => {
   for (let i = 0; i < retries; i++) {
     try {
       db.write()
       return
-    } catch (err: any) {
-      if ((err?.code === 'EPERM' || err?.code === 'EBUSY') && i < retries - 1) {
+    } catch (err) {
+      const code = (err as NodeJS.ErrnoException | undefined)?.code
+      if ((code === 'EPERM' || code === 'EBUSY') && i < retries - 1) {
         await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)))
       } else if (i === retries - 1) {
         console.error(`Failed to write database after ${retries} attempts:`, err)

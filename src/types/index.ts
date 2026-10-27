@@ -23,7 +23,7 @@ export const generateUntitledNoteName = (
     const match = note.name.match(pattern)
     if (match) {
       const num = parseInt(match[1], 10)
-      if (!isNaN(num) && num > 0) {
+      if (!Number.isNaN(num) && num > 0) {
         usedNumbers.add(num)
       }
     }

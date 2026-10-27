@@ -100,7 +100,12 @@ export const AboutDialog = ({ open, onOpenChange, theme }: AboutDialogProps) => 
       case 'checking':
         return (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <svg
+              aria-hidden="true"
+              className="animate-spin h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
               <circle
                 className="opacity-25"
                 cx="12"

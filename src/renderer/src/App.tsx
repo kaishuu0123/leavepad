@@ -155,7 +155,7 @@ function App(): JSX.Element {
     })
   }
 
-  const AddNote = async () => {
+  const addNote = async () => {
     const note = await window.api.createNote()
     const notes = await window.api.getNotes()
     setNotes(sortNotes(notes))
@@ -163,7 +163,7 @@ function App(): JSX.Element {
     setNoteTabs([...noteTabs, { id: note.id, name: note.name }])
   }
 
-  const DeleteNote = async (willDeleteNote: Note) => {
+  const deleteNote = async (willDeleteNote: Note) => {
     await window.api.deleteNote(willDeleteNote.id)
     const notes = await window.api.getNotes()
     setNotes(sortNotes(notes))
@@ -188,6 +188,7 @@ function App(): JSX.Element {
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: one-time initial load on mount; the setters and sortNotes are not listed so the effect does not re-run (it must not re-fetch notes/settings on every render); dependency array intentionally left unchanged to preserve existing behavior
   useEffect(() => {
     const fetchNotes = async () => {
       const notes = await window.api.getNotes()
@@ -230,38 +231,44 @@ function App(): JSX.Element {
   }, [])
 
   // Menu IPC actions from main process
-  useEffect(() => {
-    const removeNewNote = window.electron.ipcRenderer.on('menu-new-note', () => AddNote())
-    const removeOpenSettings = window.electron.ipcRenderer.on('menu-open-settings', () =>
-      setGlobalSettingsOpen(true)
-    )
-    const removeOpenJsonFormatter = window.electron.ipcRenderer.on('menu-open-json-formatter', () =>
-      window.api.openJsonFormatter()
-    )
-    const removeFindInNotes = window.electron.ipcRenderer.on('menu-find-in-notes', () => {
-      setIsSearchOpen(true)
-      setSearchQuery('')
-      setSearchFocusIdx(0)
-    })
-    const removeFindInEditor = window.electron.ipcRenderer.on('menu-find-in-editor', () => {
-      editorRef.current?.getAction('actions.find')?.run()
-    })
-    const removeAbout = window.electron.ipcRenderer.on('menu-about', () => setAboutOpen(true))
-    const removeCheckForUpdates = window.electron.ipcRenderer.on('menu-check-for-updates', () =>
-      setAboutOpen(true)
-    )
-    return () => {
-      removeNewNote()
-      removeOpenSettings()
-      removeOpenJsonFormatter()
-      removeFindInNotes()
-      removeFindInEditor()
-      removeAbout()
-      removeCheckForUpdates()
-    }
-  }, [AddNote])
+  useEffect(
+    () => {
+      const removeNewNote = window.electron.ipcRenderer.on('menu-new-note', () => addNote())
+      const removeOpenSettings = window.electron.ipcRenderer.on('menu-open-settings', () =>
+        setGlobalSettingsOpen(true)
+      )
+      const removeOpenJsonFormatter = window.electron.ipcRenderer.on(
+        'menu-open-json-formatter',
+        () => window.api.openJsonFormatter()
+      )
+      const removeFindInNotes = window.electron.ipcRenderer.on('menu-find-in-notes', () => {
+        setIsSearchOpen(true)
+        setSearchQuery('')
+        setSearchFocusIdx(0)
+      })
+      const removeFindInEditor = window.electron.ipcRenderer.on('menu-find-in-editor', () => {
+        editorRef.current?.getAction('actions.find')?.run()
+      })
+      const removeAbout = window.electron.ipcRenderer.on('menu-about', () => setAboutOpen(true))
+      const removeCheckForUpdates = window.electron.ipcRenderer.on('menu-check-for-updates', () =>
+        setAboutOpen(true)
+      )
+      return () => {
+        removeNewNote()
+        removeOpenSettings()
+        removeOpenJsonFormatter()
+        removeFindInNotes()
+        removeFindInEditor()
+        removeAbout()
+        removeCheckForUpdates()
+      }
+    },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: addNote is re-created on every render, so listing it would re-register the IPC menu listeners each render; dependency array intentionally left unchanged to preserve existing behavior
+    [addNote]
+  )
 
   // Refresh notes when a note is created from JSON Tool
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally re-registers the note-list-updated listener only when the editor settings change; setNotes/sortNotes are not listed; dependency array intentionally left unchanged to preserve existing behavior
   useEffect(() => {
     const handleNoteListUpdated = async (): Promise<void> => {
       const notes = await window.api.getNotes()
@@ -288,6 +295,7 @@ function App(): JSX.Element {
     }
   }, [isSidebarOpen])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally re-sorts notes only when the editor settings change; notes/setNotes/sortNotes are not listed (listing notes would cause a re-sort loop); dependency array intentionally left unchanged to preserve existing behavior
   useEffect(() => {
     // re-sort when global settings changed
     setNotes(sortNotes(notes))
@@ -296,70 +304,74 @@ function App(): JSX.Element {
   }, [currentNoteEditorSettings])
 
   // Keyboard shortcuts
-  useEffect(() => {
-    const isMac = navigator.platform.includes('Mac')
-    const handleKeyDown = (e: KeyboardEvent): void => {
-      const isMod = isMac ? e.metaKey : e.ctrlKey
+  useEffect(
+    () => {
+      const isMac = navigator.platform.includes('Mac')
+      const handleKeyDown = (e: KeyboardEvent): void => {
+        const isMod = isMac ? e.metaKey : e.ctrlKey
 
-      // Ctrl+N: New note
-      if (isMod && e.key === 'n' && !e.shiftKey) {
-        e.preventDefault()
-        AddNote()
-      }
-
-      // Ctrl+Shift+J: Open JSON Tool
-      if (isMod && e.shiftKey && e.key === 'J') {
-        e.preventDefault()
-        window.api.openJsonFormatter()
-      }
-
-      // Ctrl+Shift+F / Cmd+Shift+F: Find in Notes
-      if (isMod && e.shiftKey && e.key === 'F') {
-        e.preventDefault()
-        setIsSearchOpen(true)
-        setSearchQuery('')
-        setSearchFocusIdx(0)
-      }
-
-      // F2: Rename active note
-      if (e.key === 'F2' && renamingNoteId === null && currentNote) {
-        e.preventDefault()
-        setRenamingNoteId(currentNote.id)
-      }
-
-      // Ctrl+W: Close active tab
-      if (isMod && e.key === 'w') {
-        e.preventDefault()
-        if (currentNote) {
-          onTabCloseClick(currentNote.id)
+        // Ctrl+N: New note
+        if (isMod && e.key === 'n' && !e.shiftKey) {
+          e.preventDefault()
+          addNote()
         }
-      }
 
-      // Ctrl+Tab / Ctrl+Shift+Tab: Switch tabs
-      if (isMod && e.key === 'Tab') {
-        e.preventDefault()
-        if (noteTabs.length > 1 && currentNote) {
-          const currentIndex = noteTabs.findIndex((tab) => tab.id === currentNote.id)
-          if (currentIndex !== -1) {
-            const nextIndex = e.shiftKey
-              ? (currentIndex - 1 + noteTabs.length) % noteTabs.length
-              : (currentIndex + 1) % noteTabs.length
-            const note = notes.find((n) => n.id === noteTabs[nextIndex].id)
-            if (note) setCurrentNote(note)
+        // Ctrl+Shift+J: Open JSON Tool
+        if (isMod && e.shiftKey && e.key === 'J') {
+          e.preventDefault()
+          window.api.openJsonFormatter()
+        }
+
+        // Ctrl+Shift+F / Cmd+Shift+F: Find in Notes
+        if (isMod && e.shiftKey && e.key === 'F') {
+          e.preventDefault()
+          setIsSearchOpen(true)
+          setSearchQuery('')
+          setSearchFocusIdx(0)
+        }
+
+        // F2: Rename active note
+        if (e.key === 'F2' && renamingNoteId === null && currentNote) {
+          e.preventDefault()
+          setRenamingNoteId(currentNote.id)
+        }
+
+        // Ctrl+W: Close active tab
+        if (isMod && e.key === 'w') {
+          e.preventDefault()
+          if (currentNote) {
+            onTabCloseClick(currentNote.id)
           }
         }
+
+        // Ctrl+Tab / Ctrl+Shift+Tab: Switch tabs
+        if (isMod && e.key === 'Tab') {
+          e.preventDefault()
+          if (noteTabs.length > 1 && currentNote) {
+            const currentIndex = noteTabs.findIndex((tab) => tab.id === currentNote.id)
+            if (currentIndex !== -1) {
+              const nextIndex = e.shiftKey
+                ? (currentIndex - 1 + noteTabs.length) % noteTabs.length
+                : (currentIndex + 1) % noteTabs.length
+              const note = notes.find((n) => n.id === noteTabs[nextIndex].id)
+              if (note) setCurrentNote(note)
+            }
+          }
+        }
+
+        // Escape: close search modal
+        if (e.key === 'Escape' && isSearchOpen) {
+          setIsSearchOpen(false)
+          setSearchQuery('')
+        }
       }
 
-      // Escape: close search modal
-      if (e.key === 'Escape' && isSearchOpen) {
-        setIsSearchOpen(false)
-        setSearchQuery('')
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [AddNote, renamingNoteId, isSearchOpen, currentNote, noteTabs, notes, setCurrentNote])
+      window.addEventListener('keydown', handleKeyDown)
+      return () => window.removeEventListener('keydown', handleKeyDown)
+    },
+    // biome-ignore lint/correctness/useExhaustiveDependencies: addNote is re-created on every render, so listing it would re-register the keyboard handler each render; dependency array intentionally left unchanged to preserve existing behavior
+    [addNote, renamingNoteId, isSearchOpen, currentNote, noteTabs, notes, setCurrentNote]
+  )
 
   const onTabClick = (tabId: string) => {
     const note = notes.find((note) => note.id === tabId)
@@ -552,6 +564,7 @@ function App(): JSX.Element {
         )}
       >
         <TitleBar />
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: this div is only a drag-and-drop target for dropping files; drag events have no keyboard equivalent (files can be opened via the menu) */}
         <div
           className="flex flex-1 items-stretch relative overflow-hidden"
           onDragEnter={handleDragEnter}
@@ -595,7 +608,7 @@ function App(): JSX.Element {
                   'w-full items-center justify-start',
                   isSidebarOpen === false && 'p-2 h-8'
                 )}
-                onClick={AddNote}
+                onClick={addNote}
                 title={isSidebarOpen === false ? t('createNote') : undefined}
               >
                 <span className="codicon codicon-new-file"></span>
@@ -621,7 +634,7 @@ function App(): JSX.Element {
                     }}
                     title={t('searchByNoteNameOrNoteBody')}
                   >
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16" fill="none">
                       <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
                       <path
                         d="M10.5 10.5L14 14"
@@ -633,9 +646,7 @@ function App(): JSX.Element {
                   </Button>
                 </div>
               </div>
-            ) : (
-              <></>
-            )}
+            ) : null}
 
             <div className="grow overflow-y-auto px-2">
               {isSidebarOpen === true ? (
@@ -651,7 +662,7 @@ function App(): JSX.Element {
                           isRenaming={renamingNoteId === note.id}
                           onClick={onNoteCardClick}
                           onNoteCardSetName={onNoteCardSetName}
-                          onDeleteNote={DeleteNote}
+                          onDeleteNote={deleteNote}
                           onRenameStart={(note) => setRenamingNoteId(note.id)}
                           onRenameEnd={() => setRenamingNoteId(null)}
                         />
@@ -669,6 +680,8 @@ function App(): JSX.Element {
                   >
                     <DrawerTrigger asChild>
                       <Button className={cn(isSidebarOpen === false && 'p-2 h-8')} title="Notes">
+                        {/* biome-ignore lint/a11y/noStaticElementInteractions: click handler on the decorative icon inside a real <Button>; the Button remains the keyboard-accessible control */}
+                        {/* biome-ignore lint/a11y/useKeyWithClickEvents: click handler on the decorative icon inside a real <Button>; the Button remains the keyboard-accessible control */}
                         <div
                           className="codicon codicon-note"
                           onClick={() => setDrawerOpen(false)}
@@ -705,7 +718,13 @@ function App(): JSX.Element {
                               }}
                               title={t('searchByNoteNameOrNoteBody')}
                             >
-                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                              <svg
+                                aria-hidden="true"
+                                width="13"
+                                height="13"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                              >
                                 <circle
                                   cx="6.5"
                                   cy="6.5"
@@ -737,7 +756,7 @@ function App(): JSX.Element {
                                     isRenaming={renamingNoteId === note.id}
                                     onClick={onNoteCardClick}
                                     onNoteCardSetName={onNoteCardSetName}
-                                    onDeleteNote={DeleteNote}
+                                    onDeleteNote={deleteNote}
                                     onRenameStart={(note) => setRenamingNoteId(note.id)}
                                     onRenameEnd={() => setRenamingNoteId(null)}
                                   />
@@ -758,7 +777,7 @@ function App(): JSX.Element {
                     }}
                     title={t('searchByNoteNameOrNoteBody')}
                   >
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                    <svg aria-hidden="true" width="13" height="13" viewBox="0 0 16 16" fill="none">
                       <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
                       <path
                         d="M10.5 10.5L14 14"
@@ -847,6 +866,7 @@ function App(): JSX.Element {
               </Suspense>
             </div>
             {isSidebarOpen && (
+              // biome-ignore lint/a11y/noStaticElementInteractions: mouse-only sidebar resize handle; resizing by keyboard is not supported
               <div
                 className="absolute inset-y-0 right-0 translate-x-1/2 w-2 cursor-col-resize hover:bg-primary/20 transition-colors z-10 select-none !mt-0"
                 onMouseDown={handleResizeMouseDown}
@@ -873,7 +893,7 @@ function App(): JSX.Element {
 
                   {/* Action Buttons */}
                   <div className="inline-flex flex-col gap-3 mb-4">
-                    <Button size="lg" onClick={AddNote} className="flex items-center gap-2">
+                    <Button size="lg" onClick={addNote} className="flex items-center gap-2">
                       <span className="codicon codicon-new-file"></span>
                       <span>{t('createNote')}</span>
                     </Button>
@@ -995,6 +1015,8 @@ function App(): JSX.Element {
           </div>
           {/* Search overlay */}
           {isSearchOpen && (
+            // biome-ignore lint/a11y/noStaticElementInteractions: click-away backdrop for the search modal; keyboard users close it with Escape (window keydown handler)
+            // biome-ignore lint/a11y/useKeyWithClickEvents: click-away backdrop for the search modal; keyboard users close it with Escape (window keydown handler)
             <div
               className="absolute inset-0 z-40 bg-black/35"
               onClick={() => {
@@ -1030,6 +1052,8 @@ function App(): JSX.Element {
               }
 
               return (
+                // biome-ignore lint/a11y/noStaticElementInteractions: the handler only calls stopPropagation so clicks inside the modal do not reach the backdrop; it exposes no action
+                // biome-ignore lint/a11y/useKeyWithClickEvents: the handler only calls stopPropagation so clicks inside the modal do not reach the backdrop; it exposes no action
                 <div
                   className="absolute top-12 left-1/2 -translate-x-1/2 w-[85%] max-w-[720px] bg-background border border-border rounded-lg z-50 overflow-hidden shadow-lg"
                   onClick={(e) => e.stopPropagation()}
@@ -1037,6 +1061,7 @@ function App(): JSX.Element {
                   {/* Input row */}
                   <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
                     <svg
+                      aria-hidden="true"
                       width="16"
                       height="16"
                       viewBox="0 0 16 16"
@@ -1090,6 +1115,8 @@ function App(): JSX.Element {
                       </div>
                     ) : (
                       results.map((note, i) => (
+                        // biome-ignore lint/a11y/noStaticElementInteractions: search result rows are navigated by keyboard from the search input (ArrowUp/ArrowDown/Enter, via focusedIdx); the click handler is the mouse equivalent
+                        // biome-ignore lint/a11y/useKeyWithClickEvents: search result rows are navigated by keyboard from the search input (ArrowUp/ArrowDown/Enter, via focusedIdx); the click handler is the mouse equivalent
                         <div
                           key={note.id}
                           className={cn(
@@ -1109,6 +1136,7 @@ function App(): JSX.Element {
                             <FileText className="shrink-0 h-3.5 w-3.5 text-muted-foreground" />
                             <div
                               className="text-sm font-medium text-foreground"
+                              // biome-ignore lint/security/noDangerouslySetInnerHtml: the text is passed through highlight(), which HTML-escapes it with escapeHtml before wrapping matches in <mark>
                               dangerouslySetInnerHTML={{
                                 __html: highlight(note.name, searchQuery)
                               }}
@@ -1117,6 +1145,7 @@ function App(): JSX.Element {
                           {note.body.length > 0 && (
                             <div
                               className="text-xs text-muted-foreground mt-0.5 truncate"
+                              // biome-ignore lint/security/noDangerouslySetInnerHtml: the text is passed through highlight(), which HTML-escapes it with escapeHtml before wrapping matches in <mark>
                               dangerouslySetInnerHTML={{
                                 __html: highlight(note.body.slice(0, 80), searchQuery)
                               }}
