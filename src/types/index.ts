@@ -107,19 +107,11 @@ export type NoteEditorSettings = {
 export type AppState = {
   isSidebarOpen: boolean
   sidebarRatio?: number
-  windowWidth: number | undefined
-  windowHeight: number | undefined
-  windowX: number | undefined
-  windowY: number | undefined
 }
 
 export const defaultAppState: AppState = {
   isSidebarOpen: true,
-  sidebarRatio: undefined,
-  windowWidth: undefined,
-  windowHeight: undefined,
-  windowX: undefined,
-  windowY: undefined
+  sidebarRatio: undefined
 }
 
 // File Editor types

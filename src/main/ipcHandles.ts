@@ -102,15 +102,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
   ipcMain.handle(
     'update-app-state',
     async (_event: Electron.IpcMainInvokeEvent, appState: AppState) => {
-      const bounds = mainWindow.getBounds()
-
-      appStateDb.data = {
-        ...appState,
-        windowX: bounds.x,
-        windowY: bounds.y,
-        windowWidth: bounds.width,
-        windowHeight: bounds.height
-      }
+      appStateDb.data = { ...appState }
 
       await safeWrite(appStateDb)
     }
