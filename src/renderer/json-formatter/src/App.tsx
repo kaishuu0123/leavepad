@@ -1,8 +1,8 @@
 import { Editor, loader } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import editorWorker from 'monaco-editor/editor/editor.worker?worker'
+import jsonWorker from 'monaco-editor/language/json/json.worker?worker'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from './components/ui/button'
 

@@ -3,7 +3,7 @@ import { currentNoteEditorSettingsAtom } from '@renderer/lib/atoms/note-editor-s
 import { useAtom } from 'jotai'
 import type { editor } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import editorWorker from 'monaco-editor/editor/editor.worker?worker'
 import { type ForwardedRef, forwardRef } from 'react'
 import type { Note } from '../../../types'
 
@@ -12,22 +12,22 @@ export function initializeNoteEditor() {
   self.MonacoEnvironment = {
     getWorker(_, label) {
       if (label === 'json') {
-        return import('monaco-editor/esm/vs/language/json/json.worker?worker').then(
+        return import('monaco-editor/language/json/json.worker?worker').then(
           ({ default: JsonWorker }) => new JsonWorker()
         ) as unknown as Worker
       }
       if (label === 'css' || label === 'scss' || label === 'less') {
-        return import('monaco-editor/esm/vs/language/css/css.worker?worker').then(
+        return import('monaco-editor/language/css/css.worker?worker').then(
           ({ default: CssWorker }) => new CssWorker()
         ) as unknown as Worker
       }
       if (label === 'html' || label === 'handlebars' || label === 'razor') {
-        return import('monaco-editor/esm/vs/language/html/html.worker?worker').then(
+        return import('monaco-editor/language/html/html.worker?worker').then(
           ({ default: HtmlWorker }) => new HtmlWorker()
         ) as unknown as Worker
       }
       if (label === 'typescript' || label === 'javascript') {
-        return import('monaco-editor/esm/vs/language/typescript/ts.worker?worker').then(
+        return import('monaco-editor/language/typescript/ts.worker?worker').then(
           ({ default: TsWorker }) => new TsWorker()
         ) as unknown as Worker
       }

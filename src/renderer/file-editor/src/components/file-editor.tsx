@@ -1,19 +1,17 @@
 import { Editor, loader } from '@monaco-editor/react'
 import type { editor } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
-import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
-import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import editorWorker from 'monaco-editor/editor/editor.worker?worker'
+import cssWorker from 'monaco-editor/language/css/css.worker?worker'
+import htmlWorker from 'monaco-editor/language/html/html.worker?worker'
+import jsonWorker from 'monaco-editor/language/json/json.worker?worker'
+import tsWorker from 'monaco-editor/language/typescript/ts.worker?worker'
 import { type ForwardedRef, forwardRef } from 'react'
 import type { FileTab } from '../../../../types'
 
 export async function applyMonacoLocale(language: string): Promise<void> {
   if (language === 'japanese') {
-    await import('monaco-editor/esm/nls.messages.ja.js')
-  } else {
-    await import('monaco-editor/esm/nls.messages.js')
+    await import('monaco-editor/nls/lang/ja.js')
   }
 }
 

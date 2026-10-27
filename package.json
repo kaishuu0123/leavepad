@@ -52,7 +52,7 @@
     "i18next": "^23.16.4",
     "jotai": "^2.10.1",
     "lowdb": "^7.0.1",
-    "monaco-editor": "^0.55.1",
+    "monaco-editor": "^0.57.0",
     "react-hook-form": "^7.71.1",
     "react-i18next": "^15.1.0",
     "runes": "^0.4.3",
