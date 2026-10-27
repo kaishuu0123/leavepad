@@ -1,8 +1,7 @@
-import * as React from 'react'
 import * as ContextMenuPrimitive from '@radix-ui/react-context-menu'
-import { Check, ChevronRight, Circle } from 'lucide-react'
-
 import { cn } from '@renderer/lib/utils'
+import { Check, ChevronRight, Circle } from 'lucide-react'
+import * as React from 'react'
 
 const ContextMenu = ContextMenuPrimitive.Root
 
@@ -170,18 +169,18 @@ ContextMenuShortcut.displayName = 'ContextMenuShortcut'
 
 export {
   ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
   ContextMenuCheckboxItem,
-  ContextMenuRadioItem,
+  ContextMenuContent,
+  ContextMenuGroup,
+  ContextMenuItem,
   ContextMenuLabel,
+  ContextMenuPortal,
+  ContextMenuRadioGroup,
+  ContextMenuRadioItem,
   ContextMenuSeparator,
   ContextMenuShortcut,
-  ContextMenuGroup,
-  ContextMenuPortal,
   ContextMenuSub,
   ContextMenuSubContent,
   ContextMenuSubTrigger,
-  ContextMenuRadioGroup
+  ContextMenuTrigger
 }

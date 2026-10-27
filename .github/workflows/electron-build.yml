@@ -3,13 +3,13 @@ name: Electron App Build/release
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
     inputs:
       os:
-        description: 'Target OS'
+        description: "Target OS"
         required: true
-        default: 'macos-latest'
+        default: "macos-latest"
         type: choice
         options:
           - macos-latest

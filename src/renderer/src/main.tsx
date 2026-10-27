@@ -1,22 +1,22 @@
 import './assets/index.css'
 
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
+import { getTime } from 'date-fns'
 import { createStore, Provider } from 'jotai'
-import {
-  AppState,
-  defaultAppState,
-  defaultNoteEditorSettings,
-  Note,
-  NoteEditorSettings,
-  UpdateNotePayload,
-  generateUntitledNoteName
-} from '../../types'
 import { LowSync } from 'lowdb'
 import { LocalStorage } from 'lowdb/browser'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
 import { uuidv7 } from 'uuidv7'
-import { getTime } from 'date-fns'
+import {
+  type AppState,
+  defaultAppState,
+  defaultNoteEditorSettings,
+  generateUntitledNoteName,
+  type Note,
+  type NoteEditorSettings,
+  type UpdateNotePayload
+} from '../../types'
+import App from './App'
 import './i18n/configs'
 
 export const leavepadStore: ReturnType<typeof createStore> = createStore()

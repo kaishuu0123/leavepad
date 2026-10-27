@@ -1,9 +1,9 @@
 import useHorizontalScroll from '@renderer/lib/useHorizontalScroll'
+import { useEffect, useState } from 'react'
+import { Button } from './ui/button'
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from './ui/tabs'
-import { Button } from './ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
-import { useEffect, useState } from 'react'
 
 function NoteTabs({
   noteTabs,
@@ -136,12 +136,14 @@ function NoteTabs({
                 }}
                 asChild
               >
-                <div onAuxClick={(e) => { if (e.button === 1) onTabCloseClick(tab) }}>
+                <div
+                  onAuxClick={(e) => {
+                    if (e.button === 1) onTabCloseClick(tab)
+                  }}
+                >
                   <Tooltip delayDuration={700}>
                     <TooltipTrigger asChild>
-                      <button className="grow min-w-0 truncate text-left">
-                        {tabName}
-                      </button>
+                      <button className="grow min-w-0 truncate text-left">{tabName}</button>
                     </TooltipTrigger>
                     <TooltipContent>{tabName}</TooltipContent>
                   </Tooltip>

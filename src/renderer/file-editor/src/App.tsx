@@ -1,12 +1,12 @@
 import { useAtom } from 'jotai'
+import type { editor } from 'monaco-editor'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { uuidv7 } from 'uuidv7'
-import { editor } from 'monaco-editor'
-import { FileTab } from '../../../types'
-import { fileTabsAtom, activeTabIdAtom, activeTabAtom, unsavedTabsAtom } from './lib/atoms/files'
-import { detectLanguageFromFileName } from './lib/languageDetection'
+import type { FileTab } from '../../../types'
+import FileEditor, { applyMonacoLocale, initializeFileEditor } from './components/file-editor'
 import FileTabs from './components/file-tabs'
-import FileEditor, { initializeFileEditor, applyMonacoLocale } from './components/file-editor'
+import { activeTabAtom, activeTabIdAtom, fileTabsAtom, unsavedTabsAtom } from './lib/atoms/files'
+import { detectLanguageFromFileName } from './lib/languageDetection'
 
 // Simple basename function for browser environment
 function basename(filePath: string): string {
@@ -456,9 +456,7 @@ function App(): JSX.Element {
             </>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          {activeTab && <span>{language}</span>}
-        </div>
+        <div className="flex items-center gap-3">{activeTab && <span>{language}</span>}</div>
       </div>
     </div>
   )

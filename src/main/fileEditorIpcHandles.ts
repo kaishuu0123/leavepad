@@ -1,7 +1,7 @@
-import { dialog, BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow, dialog, ipcMain } from 'electron'
 import { readFile, writeFile } from 'fs/promises'
 import { basename } from 'path'
-import { FileInfo } from '../types'
+import type { FileInfo } from '../types'
 
 export const registerFileEditorIpcHandles = (): void => {
   // Open file dialog

@@ -1,12 +1,14 @@
-@import '../../../src/assets/fonts/geist.css';
-@import '../../../src/assets/fonts/geist-mono.css';
-@import '../../../src/assets/fonts/noto-sans.css';
-@import '../../../src/assets/fonts/noto-color-emoji.css';
-@import '../../../src/assets/fonts/hackgen.css';
-@import '../../../src/assets/fonts/notonoto.css';
-@import '../../../../../node_modules/@vscode/codicons/dist/codicon.css';
+@import "../../../src/assets/fonts/geist.css";
+@import "../../../src/assets/fonts/geist-mono.css";
+@import "../../../src/assets/fonts/noto-sans.css";
+@import "../../../src/assets/fonts/noto-color-emoji.css";
+@import "../../../src/assets/fonts/hackgen.css";
+@import "../../../src/assets/fonts/notonoto.css";
+@import "../../../../../node_modules/@vscode/codicons/dist/codicon.css";
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   overflow: hidden;
 }
@@ -38,8 +40,8 @@ html, body, #root {
     --ring: 0 0% 3.9%;
     --radius: 0.5rem;
 
-    --font-sans: 'Geist Sans', 'Noto Sans JP', 'Noto Color Emoji';
-    --font-mono: 'Geist Mono', 'Noto Sans JP', 'Noto Color Emoji';
+    --font-sans: "Geist Sans", "Noto Sans JP", "Noto Color Emoji";
+    --font-mono: "Geist Mono", "Noto Sans JP", "Noto Color Emoji";
   }
 
   .dark {
@@ -72,7 +74,7 @@ html, body, #root {
   body {
     @apply bg-background text-foreground;
     font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+      "rlig" 1,
+      "calt" 1;
   }
 }

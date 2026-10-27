@@ -1,14 +1,14 @@
 import { app } from 'electron'
+import type { LowSync } from 'lowdb'
+import { JSONFileSyncPreset } from 'lowdb/node'
 import path from 'path'
 import {
-  AppState,
+  type AppState,
   defaultAppState,
   defaultNoteEditorSettings,
-  Note,
-  NoteEditorSettings
+  type Note,
+  type NoteEditorSettings
 } from '../types'
-import { JSONFileSyncPreset } from 'lowdb/node'
-import { LowSync } from 'lowdb'
 
 type Dbs = {
   notesDb: LowSync<Note[]>
@@ -16,11 +16,7 @@ type Dbs = {
   appStateDb: LowSync<AppState>
 }
 
-export const safeWrite = async (
-  db: LowSync<any>,
-  retries = 5,
-  delay = 100
-): Promise<void> => {
+export const safeWrite = async (db: LowSync<any>, retries = 5, delay = 100): Promise<void> => {
   for (let i = 0; i < retries; i++) {
     try {
       db.write()

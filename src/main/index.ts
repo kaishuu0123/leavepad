@@ -2,18 +2,22 @@ console.time('[startup] total')
 console.time('[startup] app-ready')
 
 import pkg from 'electron-updater'
-const { autoUpdater } = pkg
-import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
 
-import { registerIpcHandles } from './ipcHandles'
-import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
-import { registerFileEditorWindowHandlers } from './fileEditorWindow'
-import { createFileEditorWindow, getFileEditorWindow } from './fileEditorWindow'
-import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
+const { autoUpdater } = pkg
+
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'
+import { join } from 'path'
+import icon from '../../resources/icon.png?asset'
 import { dbInstance } from './db_singleton'
+import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
+import {
+  createFileEditorWindow,
+  getFileEditorWindow,
+  registerFileEditorWindowHandlers
+} from './fileEditorWindow'
+import { registerIpcHandles } from './ipcHandles'
+import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
 
 let mainWindow: BrowserWindow
 const filesToOpen: string[] = []
@@ -328,7 +332,7 @@ if (!gotTheLock) {
 
     initAutoUpdater(mainWindow)
 
-    app.on('activate', function () {
+    app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
       if (BrowserWindow.getAllWindows().length === 0) createWindow()

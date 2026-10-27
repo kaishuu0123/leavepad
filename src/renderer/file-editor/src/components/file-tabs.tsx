@@ -1,8 +1,8 @@
-import { FileTab } from '../../../../types'
+import { useState } from 'react'
+import type { FileTab } from '../../../../types'
+import { Button } from '../../../src/components/ui/button'
 import { ScrollArea, ScrollBar } from '../../../src/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '../../../src/components/ui/tabs'
-import { Button } from '../../../src/components/ui/button'
-import { useState } from 'react'
 
 type FileTabsProps = {
   fileTabs: FileTab[]

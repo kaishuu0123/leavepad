@@ -1,22 +1,9 @@
+import { notesAtom } from '@renderer/lib/atoms/notes'
+import { cn } from '@renderer/lib/utils'
+import { useAtom } from 'jotai'
 import * as monaco from 'monaco-editor'
 import { useRef, useState } from 'react'
-
-import { cn } from '@renderer/lib/utils'
-import { Button, buttonVariants } from './ui/button'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from './ui/form'
-import { Tabs, TabsList, TabsContent, TabsTrigger } from './ui/tabs'
-import { Input } from './ui/input'
-import { RadioGroup, RadioGroupItem } from './ui/radio-group'
-import { Switch } from './ui/switch'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList
-} from './ui/command'
+import { useTranslation } from 'react-i18next'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,17 +14,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from './ui/alert-dialog'
-import { useAtom } from 'jotai'
-import { notesAtom } from '@renderer/lib/atoms/notes'
-import { useTranslation } from 'react-i18next'
+import { Button, buttonVariants } from './ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from './ui/command'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from './ui/form'
+import { Input } from './ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
+import { RadioGroup, RadioGroupItem } from './ui/radio-group'
 import { ScrollArea } from './ui/scroll-area'
+import { Switch } from './ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs'
 
 const LanguageComboboxForm = ({ form, field }) => {
   const languages = monaco.languages.getLanguages()
   const { t } = useTranslation()
 
-  const getDisplayName = (id: string) =>
-    languages.find((l) => l.id === id)?.aliases?.[0] || id
+  const getDisplayName = (id: string) => languages.find((l) => l.id === id)?.aliases?.[0] || id
 
   return (
     <Popover>
@@ -132,20 +130,20 @@ const detectBundledFontName = (fontFamily: string): string =>
 const EditorTabsContent = ({ settingsForm }) => {
   const { t } = useTranslation()
   const currentFontFamily: string = settingsForm.watch('editorOptions.fontFamily') ?? ''
-  const [customFont, setCustomFont] = useState<string>(
-    () => (isBundledFont(currentFontFamily) ? '' : getPrimaryFont(currentFontFamily))
+  const [customFont, setCustomFont] = useState<string>(() =>
+    isBundledFont(currentFontFamily) ? '' : getPrimaryFont(currentFontFamily)
   )
 
   const applyCustomFont = (name: string) => {
     setCustomFont(name)
     if (name.trim()) {
-      settingsForm.setValue(
-        'editorOptions.fontFamily',
-        `'${name.trim()}', ${CUSTOM_FONT_FALLBACK}`
-      )
+      settingsForm.setValue('editorOptions.fontFamily', `'${name.trim()}', ${CUSTOM_FONT_FALLBACK}`)
     } else {
       const bundled = BUNDLED_FONTS.find((f) => f.name === detectBundledFontName(currentFontFamily))
-      settingsForm.setValue('editorOptions.fontFamily', bundled?.fontFamily ?? BUNDLED_FONTS[0].fontFamily)
+      settingsForm.setValue(
+        'editorOptions.fontFamily',
+        bundled?.fontFamily ?? BUNDLED_FONTS[0].fontFamily
+      )
     }
   }
 
@@ -327,13 +325,21 @@ const EditorTabsContent = ({ settingsForm }) => {
                     {...field}
                   >
                     <option value="none">{t('globalSettingsGroup.renderWhitespaceNone')}</option>
-                    <option value="boundary">{t('globalSettingsGroup.renderWhitespaceBoundary')}</option>
-                    <option value="selection">{t('globalSettingsGroup.renderWhitespaceSelection')}</option>
-                    <option value="trailing">{t('globalSettingsGroup.renderWhitespaceTrailing')}</option>
+                    <option value="boundary">
+                      {t('globalSettingsGroup.renderWhitespaceBoundary')}
+                    </option>
+                    <option value="selection">
+                      {t('globalSettingsGroup.renderWhitespaceSelection')}
+                    </option>
+                    <option value="trailing">
+                      {t('globalSettingsGroup.renderWhitespaceTrailing')}
+                    </option>
                     <option value="all">{t('globalSettingsGroup.renderWhitespaceAll')}</option>
                   </select>
                 </FormControl>
-                <FormDescription>{t('globalSettingsGroup.renderWhitespaceDescription')}</FormDescription>
+                <FormDescription>
+                  {t('globalSettingsGroup.renderWhitespaceDescription')}
+                </FormDescription>
               </FormItem>
             )}
           />
@@ -398,7 +404,7 @@ const GeneralTabsContent = ({
   onClose
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-settingsForm: any
+  settingsForm: any
   onClose: () => void
 }) => {
   const [notes, setNotes] = useAtom(notesAtom)
@@ -533,7 +539,10 @@ settingsForm: any
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-          <AlertDialog open={importResult !== null} onOpenChange={(open) => !open && handleImportResultClose()}>
+          <AlertDialog
+            open={importResult !== null}
+            onOpenChange={(open) => !open && handleImportResultClose()}
+          >
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
@@ -560,8 +569,14 @@ settingsForm: any
   )
 }
 
-const GlobalSettingsTabs = ({ settingsForm, onClose }: { // eslint-disable-next-line @typescript-eslint/no-explicit-any
-settingsForm: any; onClose: () => void }) => {
+const GlobalSettingsTabs = ({
+  settingsForm,
+  onClose
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  settingsForm: any
+  onClose: () => void
+}) => {
   const { t } = useTranslation()
 
   return (

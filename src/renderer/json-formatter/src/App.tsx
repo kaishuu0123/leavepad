@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
 import { Editor, loader } from '@monaco-editor/react'
-import { editor } from 'monaco-editor'
+import type { editor } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from './components/ui/button'
 
 // Monaco Editor Workers initialization
@@ -81,17 +81,20 @@ function App(): JSX.Element {
     })
   }, [])
 
-  const handleEditorChange = useCallback((value: string | undefined) => {
-    if (!value?.trim()) {
-      setResult(null)
-      setLineCount(0)
-      setCharCount(0)
-      return
-    }
-    setResult(parseJson(value, indentOption.indent))
-    setLineCount(value.split('\n').length)
-    setCharCount(value.length)
-  }, [indentOption])
+  const handleEditorChange = useCallback(
+    (value: string | undefined) => {
+      if (!value?.trim()) {
+        setResult(null)
+        setLineCount(0)
+        setCharCount(0)
+        return
+      }
+      setResult(parseJson(value, indentOption.indent))
+      setLineCount(value.split('\n').length)
+      setCharCount(value.length)
+    },
+    [indentOption]
+  )
 
   const formatJson = useCallback(() => {
     if (!editorRef.current) return
@@ -184,21 +187,11 @@ function App(): JSX.Element {
 
       {/* Toolbar */}
       <div className="flex items-center gap-1 px-2 py-1 border-b bg-muted/30">
-        <Button
-          onClick={formatJson}
-          size="sm"
-          variant="default"
-          title="Format JSON (Ctrl+S)"
-        >
+        <Button onClick={formatJson} size="sm" variant="default" title="Format JSON (Ctrl+S)">
           <span className="codicon codicon-symbol-namespace"></span>
           Format
         </Button>
-        <Button
-          onClick={clearEditor}
-          size="sm"
-          variant="outline"
-          title="Clear editor"
-        >
+        <Button onClick={clearEditor} size="sm" variant="outline" title="Clear editor">
           <span className="codicon codicon-clear-all"></span>
           Clear
         </Button>
@@ -219,13 +212,10 @@ function App(): JSX.Element {
         </select>
 
         <div className="flex-1" />
-        <Button
-          onClick={toggleLayout}
-          size="sm"
-          variant="ghost"
-          title="Toggle layout"
-        >
-          <span className={`codicon ${isHorizontal ? 'codicon-split-vertical' : 'codicon-split-horizontal'}`}></span>
+        <Button onClick={toggleLayout} size="sm" variant="ghost" title="Toggle layout">
+          <span
+            className={`codicon ${isHorizontal ? 'codicon-split-vertical' : 'codicon-split-horizontal'}`}
+          ></span>
           {isHorizontal ? 'Split ↕' : 'Split ↔'}
         </Button>
         <Button

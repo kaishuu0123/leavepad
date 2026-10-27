@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor'
-import { Note } from '../../../types'
+import { useTranslation } from 'react-i18next'
+import type { Note } from '../../../types'
 import { Button } from './ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import {
   Command,
   CommandEmpty,
@@ -10,8 +10,8 @@ import {
   CommandItem,
   CommandList
 } from './ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
 import { Separator } from './ui/separator'
-import { useTranslation } from 'react-i18next'
 
 type LanguagePickerProps = {
   currentNote: Note
@@ -19,7 +19,11 @@ type LanguagePickerProps = {
   onNoteChange: (updatedNote: Note) => void
 }
 
-export function LanguagePicker({ currentNote, defaultLanguage, onNoteChange }: LanguagePickerProps) {
+export function LanguagePicker({
+  currentNote,
+  defaultLanguage,
+  onNoteChange
+}: LanguagePickerProps) {
   const { t } = useTranslation()
   const currentLanguage = currentNote.language || defaultLanguage
   const allLanguages = monaco.languages.getLanguages()
@@ -53,9 +57,7 @@ export function LanguagePicker({ currentNote, defaultLanguage, onNoteChange }: L
                   {allLanguages.find((l) => l.id === defaultLanguage)?.aliases?.[0] ||
                     defaultLanguage}
                   )
-                  {!currentNote.language && (
-                    <span className="ml-auto codicon codicon-check"></span>
-                  )}
+                  {!currentNote.language && <span className="ml-auto codicon codicon-check"></span>}
                 </CommandItem>
                 <Separator className="my-1" />
                 {allLanguages.map((lang) => {
