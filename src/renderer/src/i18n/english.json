@@ -48,6 +48,9 @@
     "downloaded": "✓ v{{version}} ready to install",
     "devError": "— Not available in development",
     "error": "✗ Failed to check for updates",
+    "copyHint": "Click to copy error details",
+    "copied": "Copied",
+    "checkAgain": "Check for updates",
     "fontCredits": "Font Credits"
   },
   "globalSettingsGroup": {

@@ -2,12 +2,11 @@ import { cn } from '@renderer/lib/utils'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import appIcon from '../../../../resources/icon.png'
+import type { UpdateState } from '../../../types'
 import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import { ScrollArea } from './ui/scroll-area'
 import { Separator } from './ui/separator'
-
-type UpdateStatus = 'checking' | 'up-to-date' | 'available' | 'downloaded' | 'error'
 
 const fontCredits = [
   {
@@ -51,52 +50,43 @@ type AboutDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   theme: 'light' | 'dark'
+  updateState: UpdateState
 }
 
-export const AboutDialog = ({ open, onOpenChange, theme }: AboutDialogProps) => {
+export const AboutDialog = ({ open, onOpenChange, theme, updateState }: AboutDialogProps) => {
   const { t } = useTranslation()
   const [version] = useState(() => window.api.getAppVersion())
-  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('checking')
-  const [latestVersion, setLatestVersion] = useState('')
-  const [isDevError, setIsDevError] = useState(false)
+  const [copied, setCopied] = useState(false)
 
+  // 開くたびに確認する(確認中・DL中・DL済みなら main 側で何もしない)
   useEffect(() => {
-    if (!open) return
-
-    window.api.checkForUpdates()
-
-    const onChecking = () => setUpdateStatus('checking')
-    const onNotAvailable = () => setUpdateStatus('up-to-date')
-    const onAvailable = (_e, info: { version: string }) => {
-      setUpdateStatus('available')
-      setLatestVersion(info.version)
-    }
-    const onDownloaded = (_e, info: { version: string }) => {
-      setUpdateStatus('downloaded')
-      setLatestVersion(info.version)
-    }
-    const onError = (_e, msg: string) => {
-      setIsDevError(msg === 'dev')
-      setUpdateStatus('error')
-    }
-
-    window.electron.ipcRenderer.on('update-checking', onChecking)
-    window.electron.ipcRenderer.on('update-not-available', onNotAvailable)
-    window.electron.ipcRenderer.on('update-available', onAvailable)
-    window.electron.ipcRenderer.on('update-downloaded', onDownloaded)
-    window.electron.ipcRenderer.on('update-error', onError)
-
-    return () => {
-      window.electron.ipcRenderer.removeListener('update-checking', onChecking)
-      window.electron.ipcRenderer.removeListener('update-not-available', onNotAvailable)
-      window.electron.ipcRenderer.removeListener('update-available', onAvailable)
-      window.electron.ipcRenderer.removeListener('update-downloaded', onDownloaded)
-      window.electron.ipcRenderer.removeListener('update-error', onError)
-    }
+    if (open) window.api.checkForUpdates()
   }, [open])
 
+  const copyError = async () => {
+    try {
+      await navigator.clipboard.writeText(updateState.error ?? '')
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // clipboard unavailable
+    }
+  }
+
+  const checkAgainButton = (
+    <button
+      type="button"
+      onClick={() => window.api.checkForUpdates()}
+      title={t('about.checkAgain')}
+      className="cursor-pointer text-muted-foreground hover:text-foreground"
+    >
+      <span aria-hidden="true" className="codicon codicon-refresh" />
+    </button>
+  )
+
   const renderUpdateStatus = () => {
-    switch (updateStatus) {
+    switch (updateState.status) {
+      case 'idle':
       case 'checking':
         return (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -124,18 +114,23 @@ export const AboutDialog = ({ open, onOpenChange, theme }: AboutDialogProps) => 
           </div>
         )
       case 'up-to-date':
-        return <p className="text-sm text-green-600">{t('about.upToDate')}</p>
+        return (
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-green-600">{t('about.upToDate')}</p>
+            {checkAgainButton}
+          </div>
+        )
       case 'available':
         return (
           <p className="text-sm text-blue-500">
-            {t('about.available', { version: latestVersion })}
+            {t('about.available', { version: updateState.version })}
           </p>
         )
       case 'downloaded':
         return (
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm text-green-600">
-              {t('about.downloaded', { version: latestVersion })}
+              {t('about.downloaded', { version: updateState.version })}
             </p>
             <Button size="sm" onClick={() => window.api.installUpdate()}>
               {t('restartAndUpdate')}
@@ -143,10 +138,26 @@ export const AboutDialog = ({ open, onOpenChange, theme }: AboutDialogProps) => 
           </div>
         )
       case 'error':
+        if (updateState.error === 'dev') {
+          return <p className="text-sm text-muted-foreground">{t('about.devError')}</p>
+        }
         return (
-          <p className="text-sm text-muted-foreground">
-            {isDevError ? t('about.devError') : t('about.error')}
-          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={copyError}
+              title={`${updateState.error}\n\n${t('about.copyHint')}`}
+              className="inline-flex cursor-pointer items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <span>{t('about.error')}</span>
+              <span
+                aria-hidden="true"
+                className={`codicon ${copied ? 'codicon-check text-green-600' : 'codicon-copy'}`}
+              />
+              {copied && <span className="text-green-600">{t('about.copied')}</span>}
+            </button>
+            {checkAgainButton}
+          </div>
         )
     }
   }

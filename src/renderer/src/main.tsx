@@ -14,7 +14,8 @@ import {
   generateUntitledNoteName,
   type Note,
   type NoteEditorSettings,
-  type UpdateNotePayload
+  type UpdateNotePayload,
+  type UpdateState
 } from '../../types'
 import App from './App'
 import './i18n/configs'
@@ -119,6 +120,7 @@ if (window.api === undefined) {
     },
     installUpdate: () => {},
     getAppVersion: () => '0.0.0',
+    getUpdateState: async (): Promise<UpdateState> => ({ status: 'idle' }),
     checkForUpdates: () => {},
     popupMenu: () => {},
     minimizeWindow: () => {},

@@ -1,7 +1,3 @@
-import pkg from 'electron-updater'
-
-const { autoUpdater } = pkg
-
 import { getTime } from 'date-fns'
 import { app, type BrowserWindow } from 'electron'
 import { uuidv7 } from 'uuidv7'
@@ -155,20 +151,7 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
     }
   )
 
-  ipcMain.on('install-update', () => {
-    autoUpdater.quitAndInstall()
-  })
-
   ipcMain.on('get-app-version', (event) => {
     event.returnValue = app.getVersion()
-  })
-
-  // Trigger update check from renderer (e.g. About tab)
-  ipcMain.on('check-for-updates-now', () => {
-    if (!app.isPackaged) {
-      mainWindow.webContents.send('update-error', 'dev')
-      return
-    }
-    autoUpdater.checkForUpdates()
   })
 }

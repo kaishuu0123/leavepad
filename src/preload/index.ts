@@ -1,6 +1,6 @@
 import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
-import type { AppState, Note, NoteEditorSettings, UpdateNotePayload } from '../types'
+import type { AppState, Note, NoteEditorSettings, UpdateNotePayload, UpdateState } from '../types'
 
 // Custom APIs for renderer
 const api = {
@@ -49,6 +49,9 @@ const api = {
   },
   getAppVersion: (): string => {
     return ipcRenderer.sendSync('get-app-version')
+  },
+  getUpdateState: (): Promise<UpdateState> => {
+    return ipcRenderer.invoke('get-update-state')
   },
   checkForUpdates: (): void => {
     ipcRenderer.send('check-for-updates-now')

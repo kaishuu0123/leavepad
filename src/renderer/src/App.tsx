@@ -5,11 +5,13 @@ import { useForm } from 'react-hook-form'
 import NoteCard from './components/note-card'
 import NoteTabs from './components/note-tabs'
 import TitleBar from './components/title-bar'
+import { UpdateBanner } from './components/UpdateBanner'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { ScrollArea } from './components/ui/scroll-area'
 import { Separator } from './components/ui/separator'
 import { TooltipProvider } from './components/ui/tooltip'
+import { useUpdateState } from './hooks/useUpdateState'
 
 const NoteEditor = lazy(() => import('./components/note-editor'))
 const LanguagePicker = lazy(() =>
@@ -95,7 +97,7 @@ function App(): JSX.Element {
   const [isDrawerOpen, setDrawerOpen] = useState(false)
   const [, setAppState] = useState<AppState | undefined>(undefined)
   const [isDragOver, setIsDragOver] = useState(false)
-  const [updateInfo, setUpdateInfo] = useState<{ version: string } | null>(null)
+  const updateState = useUpdateState()
   const [localeReady, setLocaleReady] = useState(false)
   const dragCounterRef = useRef(0)
 
@@ -221,13 +223,6 @@ function App(): JSX.Element {
 
     document.fonts.load('14px HackGen')
     document.fonts.load('14px NOTONOTO')
-  }, [])
-
-  useEffect(() => {
-    window.electron.ipcRenderer.on('update-downloaded', (_event, info) => {
-      // トースト等でユーザーに通知
-      setUpdateInfo(info)
-    })
   }, [])
 
   // Menu IPC actions from main process
@@ -545,17 +540,7 @@ function App(): JSX.Element {
 
   return (
     <TooltipProvider delayDuration={400} skipDelayDuration={100}>
-      {updateInfo && (
-        <div className="fixed bottom-4 right-4 z-50 bg-background border border-border text-foreground p-3 rounded-lg shadow-md flex gap-3 items-center">
-          <span className="text-sm">{t('updateVersion', { version: updateInfo.version })}</span>
-          <Button size="sm" variant="default" onClick={() => window.api.installUpdate()}>
-            {t('restartAndUpdate')}
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setUpdateInfo(null)}>
-            {t('cancel')}
-          </Button>
-        </div>
-      )}
+      <UpdateBanner state={updateState} />
 
       <div
         className={cn(
@@ -862,6 +847,7 @@ function App(): JSX.Element {
                   open={aboutOpen}
                   onOpenChange={setAboutOpen}
                   theme={currentNoteEditorSettings.themeName}
+                  updateState={updateState}
                 />
               </Suspense>
             </div>
