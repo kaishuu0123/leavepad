@@ -30,6 +30,7 @@ function App(): JSX.Element {
   const language = activeTab ? detectLanguageFromFileName(activeTab.fileName) : 'plaintext'
 
   // Update window title based on active tab
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the title only needs to update when the file name or modified flag changes (not on every content change); dependency array intentionally left unchanged to preserve existing behavior
   useEffect(() => {
     if (activeTab) {
       const modifiedMark = activeTab.isModified ? ' *' : ''
@@ -183,9 +184,10 @@ function App(): JSX.Element {
       if (!savedPath) return false
       filePath = savedPath
     }
+    const savedFilePath: string = filePath
 
     // Write file
-    await window.fileEditorApi.writeFile(filePath, activeTab.content)
+    await window.fileEditorApi.writeFile(savedFilePath, activeTab.content)
 
     // Update tab state
     setFileTabs((prev) =>
@@ -194,7 +196,7 @@ function App(): JSX.Element {
           ? {
               ...tab,
               filePath,
-              fileName: basename(filePath!),
+              fileName: basename(savedFilePath),
               originalContent: tab.content,
               isModified: false
             }
@@ -369,6 +371,7 @@ function App(): JSX.Element {
   }, [handleNewFile, handleOpenFile, handleSaveFile, handleSaveAs, handleCloseTab, activeTabId])
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: this div is only a drag-and-drop target for dropping files; drag events have no keyboard equivalent (files can be opened via the menu or shortcut)
     <div
       className="flex flex-col h-screen relative"
       onDragEnter={handleDragEnter}
@@ -389,6 +392,7 @@ function App(): JSX.Element {
       {/* Toolbar */}
       <div className="flex items-center gap-1 px-2 py-1 border-b bg-muted/30">
         <button
+          type="button"
           onClick={handleNewFile}
           className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted"
           title="New File (Ctrl+N)"
@@ -397,6 +401,7 @@ function App(): JSX.Element {
           <span>New</span>
         </button>
         <button
+          type="button"
           onClick={handleOpenFile}
           className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted"
           title="Open File (Ctrl+O)"
@@ -405,6 +410,7 @@ function App(): JSX.Element {
           <span>Open</span>
         </button>
         <button
+          type="button"
           onClick={handleSaveFile}
           className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted disabled:opacity-50"
           disabled={!activeTab}
@@ -414,6 +420,7 @@ function App(): JSX.Element {
           <span>Save</span>
         </button>
         <button
+          type="button"
           onClick={handleSaveAs}
           className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted disabled:opacity-50"
           disabled={!activeTab}

@@ -1,6 +1,6 @@
+import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 
 let fileEditorWindow: BrowserWindow | null = null
@@ -57,8 +57,8 @@ export function createFileEditorWindow(filePath?: string): BrowserWindow {
   })
 
   // Load the file editor renderer
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    const devUrl = process.env['ELECTRON_RENDERER_URL'].replace(/\/$/, '')
+  if (is.dev && process.env.ELECTRON_RENDERER_URL) {
+    const devUrl = process.env.ELECTRON_RENDERER_URL.replace(/\/$/, '')
     fileEditorWindow.loadURL(`${devUrl}/file-editor/index.html`)
   } else {
     fileEditorWindow.loadFile(join(__dirname, '../renderer/file-editor/index.html'))

@@ -55,6 +55,7 @@ function NoteCard({
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [currentNoteEditorSettings] = useAtom(currentNoteEditorSettingsAtom)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the draft name should be reset only when renaming starts, not when note.name changes while renaming; dependency array intentionally left unchanged to preserve existing behavior
   useEffect(() => {
     if (isRenaming) {
       setNoteName(note.name)
@@ -85,7 +86,7 @@ function NoteCard({
         <div className="px-3 py-2">
           {note.body.trim().length > 0 ? (
             <p className="font-mono text-xs whitespace-pre-wrap leading-relaxed">
-              {isTruncated ? previewText + '\n…' : previewText}
+              {isTruncated ? `${previewText}\n…` : previewText}
             </p>
           ) : (
             <p className="text-xs text-muted-foreground italic">{t('emptyNote')}</p>
@@ -150,6 +151,8 @@ function NoteCard({
   return (
     <>
       {isRenaming ? (
+        // biome-ignore lint/a11y/useSemanticElements: the card contains an Input and cannot be a <button> (interactive content must not be nested inside a button)
+        // biome-ignore lint/a11y/useKeyWithClickEvents: while renaming, keyboard input is handled by the inline text Input (Enter/Escape); a card-level key handler would conflict with it
         <div
           key={note.id}
           className={cardClassName}
@@ -184,6 +187,7 @@ function NoteCard({
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
+            {/* biome-ignore lint/a11y/useSemanticElements: the card contains a dropdown menu trigger button, so it cannot itself be a <button> (nested buttons are invalid HTML) */}
             <div
               key={note.id}
               className={cardClassName}

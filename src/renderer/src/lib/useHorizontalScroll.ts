@@ -8,6 +8,7 @@ interface Props {
 const useHorizontalScroll = (_props?: Props) => {
   const ref = useRef<HTMLDivElement>(null)
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: ref is the stable ref object passed in by the caller; dependency array intentionally left unchanged to preserve existing behavior
   useEffect(() => {
     if (!ref.current) {
       return

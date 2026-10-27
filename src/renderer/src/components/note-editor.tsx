@@ -56,7 +56,7 @@ const getEditorThemeName = (themeName: 'light' | 'dark') => {
 function NoteEditor(
   { currentNote, onDidChangeCursorPosition, onEditorChange }: NoteEditorProps,
   ref: ForwardedRef<editor.IStandaloneCodeEditor | undefined>
-): JSX.Element {
+): JSX.Element | null {
   const [settings] = useAtom(currentNoteEditorSettingsAtom)
 
   const handleEditorDidMount = (monacoEditor, _monaco) => {
@@ -98,7 +98,7 @@ function NoteEditor(
   }
 
   if (currentNote == null) {
-    return <></>
+    return null
   }
 
   const editorLanguage = currentNote.language || settings.editorOptions.language

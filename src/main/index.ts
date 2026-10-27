@@ -5,9 +5,9 @@ import pkg from 'electron-updater'
 
 const { autoUpdater } = pkg
 
+import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'
-import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
 import { dbInstance } from './db_singleton'
 import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
@@ -285,15 +285,15 @@ if (!gotTheLock) {
 
       // Handle queued files on macOS
       if (filesToOpen.length > 0) {
-        filesToOpen.forEach((file) => createFileEditorWindow(file))
+        for (const file of filesToOpen) createFileEditorWindow(file)
         filesToOpen.length = 0
       }
     })
 
     // HMR for renderer base on electron-vite cli.
     // Load the remote URL for development or the local html file for production.
-    if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-      mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    if (is.dev && process.env.ELECTRON_RENDERER_URL) {
+      mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
       mainWindow.webContents.reloadIgnoringCache()
     } else {
       mainWindow.loadFile(join(__dirname, '../renderer/index.html'))

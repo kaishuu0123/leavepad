@@ -13,9 +13,11 @@ body,
   overflow: hidden;
 }
 
+/* biome-ignore-start lint/suspicious/noUnknownAtRules: Tailwind CSS v3 @tailwind directives are not known to Biome (tailwindDirectives only covers the v4 syntax) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* biome-ignore-end lint/suspicious/noUnknownAtRules: end of Tailwind v3 directives */
 
 @layer base {
   :root {

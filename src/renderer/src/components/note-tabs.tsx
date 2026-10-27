@@ -11,7 +11,7 @@ function NoteTabs({
   onTabClick,
   onTabCloseClick,
   onTabReorder
-}): JSX.Element {
+}): JSX.Element | null {
   const tabs = noteTabs.map((tab) => tab.id)
   const { ref } = useHorizontalScroll()
   const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
@@ -24,7 +24,7 @@ function NoteTabs({
   }, [activeTabId])
 
   if (noteTabs == null) {
-    return <></>
+    return null
   }
 
   const onTabChange = (value) => {
@@ -143,7 +143,9 @@ function NoteTabs({
                 >
                   <Tooltip delayDuration={700}>
                     <TooltipTrigger asChild>
-                      <button className="grow min-w-0 truncate text-left">{tabName}</button>
+                      <button type="button" className="grow min-w-0 truncate text-left">
+                        {tabName}
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>{tabName}</TooltipContent>
                   </Tooltip>

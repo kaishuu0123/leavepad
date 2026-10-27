@@ -41,8 +41,8 @@ function parseJson(value: string, indent: string | number): ParseResult {
     return {
       valid: false,
       error: msg,
-      line: lineColMatch ? parseInt(lineColMatch[1]) : undefined,
-      column: lineColMatch ? parseInt(lineColMatch[2]) : undefined
+      line: lineColMatch ? parseInt(lineColMatch[1], 10) : undefined,
+      column: lineColMatch ? parseInt(lineColMatch[2], 10) : undefined
     }
   }
 }
@@ -200,7 +200,7 @@ function App(): JSX.Element {
         <div className="w-px h-4 bg-border mx-1" />
         <select
           value={INDENT_OPTIONS.indexOf(indentOption)}
-          onChange={(e) => handleIndentChange(INDENT_OPTIONS[parseInt(e.target.value)])}
+          onChange={(e) => handleIndentChange(INDENT_OPTIONS[parseInt(e.target.value, 10)])}
           className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           title="Indentation"
         >
