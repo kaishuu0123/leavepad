@@ -1,18 +1,18 @@
 import pkg from 'electron-updater'
-const { autoUpdater } = pkg
-import { app } from 'electron'
-import { getTime } from 'date-fns'
-import { uuidv7 } from 'uuidv7'
 
+const { autoUpdater } = pkg
+
+import { getTime } from 'date-fns'
+import { app, type BrowserWindow } from 'electron'
+import { uuidv7 } from 'uuidv7'
 import {
-  AppState,
-  Note,
-  NoteEditorSettings,
-  UpdateNotePayload,
-  generateUntitledNoteName
+  type AppState,
+  generateUntitledNoteName,
+  type Note,
+  type NoteEditorSettings,
+  type UpdateNotePayload
 } from '../types'
 import { dbInstance, safeWrite } from './db_singleton'
-import { BrowserWindow } from 'electron'
 
 export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => {
   const { notesDb, settingsDb, appStateDb } = dbInstance.dbs

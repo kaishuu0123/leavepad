@@ -1,9 +1,9 @@
 import './assets/index.css'
 
+import { createStore, Provider } from 'jotai'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import { createStore, Provider } from 'jotai'
 
 export const fileEditorStore: ReturnType<typeof createStore> = createStore()
 

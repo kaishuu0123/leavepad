@@ -1,6 +1,6 @@
+import { is } from '@electron-toolkit/utils'
 import { BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
-import { is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 let jsonFormatterWindow: BrowserWindow | null = null

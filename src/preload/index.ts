@@ -1,6 +1,6 @@
-import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { AppState, Note, NoteEditorSettings, UpdateNotePayload } from '../types'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
+import type { AppState, Note, NoteEditorSettings, UpdateNotePayload } from '../types'
 
 // Custom APIs for renderer
 const api = {
@@ -93,8 +93,8 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
+  // @ts-expect-error (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
+  // @ts-expect-error (define in dts)
   window.api = api
 }

@@ -130,16 +130,19 @@ Interface language can be switched between:
 Master these shortcuts to boost your productivity:
 
 #### Note Operations
+
 - `Ctrl+N` - New note
 - `Ctrl+W` - Close tab
 - `Ctrl+Tab` - Switch between tabs
 
 #### File Operations
+
 - `Ctrl+O` - Open file
 - `Ctrl+S` - Save file
 - `Ctrl+Shift+S` - Save as
 
 #### Editor Operations
+
 - `Ctrl+F` - Find
 - `Ctrl+H` - Replace
 - `Ctrl+/` - Toggle comment

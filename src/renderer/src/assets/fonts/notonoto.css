@@ -4,7 +4,7 @@
  * by https://github.com/yuru7/NOTONOTO/
  */
 @font-face {
-  font-family: 'NOTONOTO';
-  src: url('./NOTONOTO/NOTONOTO-Regular.ttf') format('truetype');
+  font-family: "NOTONOTO";
+  src: url("./NOTONOTO/NOTONOTO-Regular.ttf") format("truetype");
   font-style: normal;
 }

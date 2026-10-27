@@ -1,6 +1,6 @@
-import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { FileInfo } from '../types'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
+import type { FileInfo } from '../types'
 
 // Custom APIs for file editor renderer
 const fileEditorApi = {
@@ -86,8 +86,8 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
+  // @ts-expect-error (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
+  // @ts-expect-error (define in dts)
   window.fileEditorApi = fileEditorApi
 }

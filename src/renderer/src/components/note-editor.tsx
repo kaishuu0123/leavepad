@@ -1,11 +1,11 @@
 import { Editor, loader } from '@monaco-editor/react'
 import { currentNoteEditorSettingsAtom } from '@renderer/lib/atoms/note-editor-settings'
-import { Note } from '../../../types'
 import { useAtom } from 'jotai'
-import { editor } from 'monaco-editor'
+import type { editor } from 'monaco-editor'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
-import { ForwardedRef, forwardRef } from 'react'
+import { type ForwardedRef, forwardRef } from 'react'
+import type { Note } from '../../../types'
 
 export function initializeNoteEditor() {
   if ((self as unknown as { MonacoEnvironment?: unknown }).MonacoEnvironment) return
@@ -84,9 +84,9 @@ function NoteEditor(
         monaco.editor.remeasureFonts()
       })
 
-      // @ts-ignore for DEBUG
+      // @ts-expect-error for DEBUG
       window.editor = monacoEditor
-      // @ts-ignore for DEBUG
+      // @ts-expect-error for DEBUG
       window.monaco = monaco
     }
   }

@@ -1,5 +1,5 @@
 import { atom } from 'jotai'
-import { FileTab } from '../../../../../types'
+import type { FileTab } from '../../../../../types'
 
 // All open file tabs
 export const fileTabsAtom = atom<FileTab[]>([])

@@ -1,14 +1,16 @@
-@import './fonts/geist.css';
-@import './fonts/geist-mono.css';
-@import './fonts/noto-sans.css';
-@import './fonts/noto-color-emoji.css';
-@import './fonts/hackgen.css';
-@import './fonts/notonoto.css';
-@import './fonts/moralerspace.css';
-@import './fonts/mplus-code.css';
-@import '../../../../node_modules/@vscode/codicons/dist/codicon.css';
+@import "./fonts/geist.css";
+@import "./fonts/geist-mono.css";
+@import "./fonts/noto-sans.css";
+@import "./fonts/noto-color-emoji.css";
+@import "./fonts/hackgen.css";
+@import "./fonts/notonoto.css";
+@import "./fonts/moralerspace.css";
+@import "./fonts/mplus-code.css";
+@import "../../../../node_modules/@vscode/codicons/dist/codicon.css";
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   overflow: hidden;
 }
@@ -45,8 +47,8 @@ html, body, #root {
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    --font-sans: 'Geist Sans', 'Noto Sans JP', 'Noto Color Emoji';
-    --font-mono: 'Geist Mono', 'Noto Sans JP', 'Noto Color Emoji';
+    --font-sans: "Geist Sans", "Noto Sans JP", "Noto Color Emoji";
+    --font-mono: "Geist Mono", "Noto Sans JP", "Noto Color Emoji";
   }
 
   .dark {
@@ -84,7 +86,7 @@ html, body, #root {
   body {
     @apply bg-background text-foreground;
     font-feature-settings:
-      'rlig' 1,
-      'calt' 1;
+      "rlig" 1,
+      "calt" 1;
   }
 }

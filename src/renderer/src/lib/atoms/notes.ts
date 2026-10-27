@@ -1,6 +1,6 @@
-import { atom } from 'jotai'
-import { Note } from '../../../../types'
 import { leavepadStore } from '@renderer/main'
+import { atom } from 'jotai'
+import type { Note } from '../../../../types'
 
 export const notesAtom = atom<Note[]>([])
 export const currentNoteAtom = atom<Note | null>(null)

@@ -1,25 +1,26 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { FileText } from 'lucide-react'
 import type { editor } from 'monaco-editor'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
-
-import { Button } from './components/ui/button'
-import { ScrollArea } from './components/ui/scroll-area'
-import { Input } from './components/ui/input'
-import { Separator } from './components/ui/separator'
-import { TooltipProvider } from './components/ui/tooltip'
 import NoteCard from './components/note-card'
 import NoteTabs from './components/note-tabs'
 import TitleBar from './components/title-bar'
+import { Button } from './components/ui/button'
+import { Input } from './components/ui/input'
+import { ScrollArea } from './components/ui/scroll-area'
+import { Separator } from './components/ui/separator'
+import { TooltipProvider } from './components/ui/tooltip'
+
 const NoteEditor = lazy(() => import('./components/note-editor'))
 const LanguagePicker = lazy(() =>
   import('./components/language-picker').then((m) => ({ default: m.LanguagePicker }))
 )
+
 import {
   ContextMenu,
-  ContextMenuTrigger,
   ContextMenuContent,
-  ContextMenuItem
+  ContextMenuItem,
+  ContextMenuTrigger
 } from './components/ui/context-menu'
 import {
   Dialog,
@@ -28,21 +29,27 @@ import {
   DialogTitle,
   DialogTrigger
 } from './components/ui/dialog'
+
 const GlobalSettingsTabs = lazy(() =>
   import('./components/global-settings-tabs').then((m) => ({ default: m.GlobalSettingsTabs }))
 )
 const AboutDialog = lazy(() =>
   import('./components/about-dialog').then((m) => ({ default: m.AboutDialog }))
 )
-import { cn } from './lib/utils'
-import {
-  AppState,
-  CursorPosition,
-  defaultNoteEditorSettings,
-  Note,
-  NoteEditorSettings
-} from '../../types'
+
+import { getTime } from 'date-fns'
 import { useAtom } from 'jotai'
+import { useTranslation } from 'react-i18next'
+import {
+  type AppState,
+  type CursorPosition,
+  defaultNoteEditorSettings,
+  type Note,
+  type NoteEditorSettings
+} from '../../types'
+import appWelcomeIcon from './assets/leavepad_logo_welcome.svg'
+import { Drawer, DrawerContent, DrawerTrigger } from './components/ui/drawer'
+import i18n from './i18n/configs'
 import { currentNoteEditorSettingsAtom } from './lib/atoms/note-editor-settings'
 import { currentNoteAtom, notesAtom } from './lib/atoms/notes'
 import {
@@ -54,12 +61,8 @@ import {
   onCloseToTheRightTab,
   onTabCloseClick
 } from './lib/atoms/tabs'
-import { getTime } from 'date-fns'
-import { useTranslation } from 'react-i18next'
-import i18n from './i18n/configs'
-import { Drawer, DrawerContent, DrawerTrigger } from './components/ui/drawer'
-import appWelcomeIcon from './assets/leavepad_logo_welcome.svg'
 import { applyMonacoLocale } from './lib/monaco-locale'
+import { cn } from './lib/utils'
 
 const DEFAULT_SIDEBAR_RATIO = 0.25
 const MIN_SIDEBAR_RATIO = 0.12
@@ -67,7 +70,7 @@ const MAX_SIDEBAR_RATIO = 0.4
 
 function App(): JSX.Element {
   const { t } = useTranslation()
-  // @ts-ignore for DEBUG
+  // @ts-expect-error for DEBUG
   const _ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
   const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined)
   const [notes, setNotes] = useAtom(notesAtom)
@@ -232,9 +235,8 @@ function App(): JSX.Element {
     const removeOpenSettings = window.electron.ipcRenderer.on('menu-open-settings', () =>
       setGlobalSettingsOpen(true)
     )
-    const removeOpenJsonFormatter = window.electron.ipcRenderer.on(
-      'menu-open-json-formatter',
-      () => window.api.openJsonFormatter()
+    const removeOpenJsonFormatter = window.electron.ipcRenderer.on('menu-open-json-formatter', () =>
+      window.api.openJsonFormatter()
     )
     const removeFindInNotes = window.electron.ipcRenderer.on('menu-find-in-notes', () => {
       setIsSearchOpen(true)
@@ -557,575 +559,583 @@ function App(): JSX.Element {
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-        {/* Drag & Drop Overlay */}
-        {isDragOver && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center bg-primary/10 border-2 border-dashed border-primary pointer-events-none">
-            <div className="text-center">
-              <div className="codicon codicon-file-add text-4xl text-primary mb-2"></div>
-              <p className="text-lg font-medium text-primary">Drop files to open in File Editor</p>
-            </div>
-          </div>
-        )}
-        <div
-          className={cn(
-            'flex flex-col h-full space-y-2 relative shrink-0 border-r border-border'
-          )}
-          style={isSidebarOpen ? { width: `${sidebarRatio * 100}%` } : undefined}
-        >
-          <Button
-            className={cn('absolute left-[100%] top-[50%] -ml-3 w-7 h-7 z-10')}
-            variant="outline"
-            size="icon"
-            onClick={onClickSidebarMinimize}
-          >
-            {isSidebarOpen ? (
-              <span className="codicon codicon-chevron-left"></span>
-            ) : (
-              <span className="codicon codicon-chevron-right"></span>
-            )}
-          </Button>
-
-          <div className="px-2">
-            <Button
-              className={cn(
-                'w-full items-center justify-start',
-                isSidebarOpen === false && 'p-2 h-8'
-              )}
-              onClick={AddNote}
-              title={isSidebarOpen === false ? t('createNote') : undefined}
-            >
-              <span className="codicon codicon-new-file"></span>
-              {isSidebarOpen === true && <span>{t('createNote')}</span>}
-            </Button>
-          </div>
-
-          <Separator />
-
-          {isSidebarOpen === true ? (
-            <div className="px-2">
-              <div className="flex items-center w-full gap-1">
-                <h2 className="text-lg font-bold grow">Notes</h2>
-                <span className="text-sm text-muted-foreground">{notes.length}</span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-6 w-6 shrink-0"
-                  onClick={() => {
-                    setIsSearchOpen(true)
-                    setSearchQuery('')
-                    setSearchFocusIdx(0)
-                  }}
-                  title={t('searchByNoteNameOrNoteBody')}
-                >
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                    <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
-                    <path
-                      d="M10.5 10.5L14 14"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <></>
-          )}
-
-          <div className="grow overflow-y-auto px-2">
-            {isSidebarOpen === true ? (
-              <ScrollArea type="always" className="h-full">
-                <div className="flex flex-col h-full items-start text-left text-sm py-1">
-                  {notes.map((note, index) => {
-                    return (
-                      <NoteCard
-                        key={note.id}
-                        note={note}
-                        index={index}
-                        isActive={currentNote?.id === note.id}
-                        isRenaming={renamingNoteId === note.id}
-                        onClick={onNoteCardClick}
-                        onNoteCardSetName={onNoteCardSetName}
-                        onDeleteNote={DeleteNote}
-                        onRenameStart={(note) => setRenamingNoteId(note.id)}
-                        onRenameEnd={() => setRenamingNoteId(null)}
-                      />
-                    )
-                  })}
-                </div>
-              </ScrollArea>
-            ) : (
-              <div className="flex flex-col items-center gap-1">
-                <Drawer
-                  direction="left"
-                  open={isDrawerOpen}
-                  onOpenChange={setDrawerOpen}
-                  dismissible={false}
-                >
-                  <DrawerTrigger asChild>
-                    <Button className={cn(isSidebarOpen === false && 'p-2 h-8')} title="Notes">
-                      <div
-                        className="codicon codicon-note"
-                        onClick={() => setDrawerOpen(false)}
-                      ></div>
-                    </Button>
-                  </DrawerTrigger>
-                  <DrawerContent className="w-6/12 md:w-4/12 lg:max-2xl:w-3/12 h-full rounded-none py-3">
-                    <div className="flex flex-col h-full space-y-4">
-                      <div className="px-3">
-                        <div className="flex items-center w-full">
-                          <Button
-                            className="w-full items-center justify-start"
-                            onClick={() => setDrawerOpen(false)}
-                          >
-                            <span className="codicon codicon-close"></span>
-                            <span>{t('close')}</span>
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="px-3">
-                        <div className="flex items-center w-full gap-1">
-                          <h2 className="text-lg font-bold grow">Notes</h2>
-                          <span className="text-sm text-muted-foreground">{notes.length}</span>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-6 w-6 shrink-0"
-                            onClick={() => {
-                              setDrawerOpen(false)
-                              setIsSearchOpen(true)
-                              setSearchQuery('')
-                              setSearchFocusIdx(0)
-                            }}
-                            title={t('searchByNoteNameOrNoteBody')}
-                          >
-                            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                              <circle
-                                cx="6.5"
-                                cy="6.5"
-                                r="4"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                              />
-                              <path
-                                d="M10.5 10.5L14 14"
-                                stroke="currentColor"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                          </Button>
-                        </div>
-                      </div>
-
-                      <div className="grow overflow-y-auto px-3">
-                        <ScrollArea type="always" className="h-full">
-                          <div className="flex flex-col h-full items-start text-left text-sm py-1">
-                            {notes.map((note, index) => {
-                              return (
-                                <NoteCard
-                                  key={note.id}
-                                  note={note}
-                                  index={index}
-                                  isActive={currentNote?.id === note.id}
-                                  isRenaming={renamingNoteId === note.id}
-                                  onClick={onNoteCardClick}
-                                  onNoteCardSetName={onNoteCardSetName}
-                                  onDeleteNote={DeleteNote}
-                                  onRenameStart={(note) => setRenamingNoteId(note.id)}
-                                  onRenameEnd={() => setRenamingNoteId(null)}
-                                />
-                              )
-                            })}
-                          </div>
-                        </ScrollArea>
-                      </div>
-                    </div>
-                  </DrawerContent>
-                </Drawer>
-                <Button
-                  className="p-2 h-8"
-                  onClick={() => {
-                    setIsSearchOpen(true)
-                    setSearchQuery('')
-                    setSearchFocusIdx(0)
-                  }}
-                  title={t('searchByNoteNameOrNoteBody')}
-                >
-                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                    <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
-                    <path
-                      d="M10.5 10.5L14 14"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <div className="flex-shrink border-t h-8">
-            <Dialog open={globalSettingsOpen} onOpenChange={setGlobalSettingsOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="flex rounded-none gap-1 w-full h-full items-center justify-center text-sm"
-                >
-                  <div className="flex items-center min-h-5">
-                    <div className="codicon codicon-settings-gear"></div>
-                  </div>
-                  <div className={cn('text-sm', isSidebarOpen === true ? '' : 'hidden')}>
-                    {t('globalSettings')}
-                  </div>
-                </Button>
-              </DialogTrigger>
-              <DialogContent
-                className={cn(
-                  'flex flex-col bg-background text-foreground max-w-2xl h-[90%] gap-2',
-                  currentNoteEditorSettings.themeName === 'dark' && 'dark'
-                )}
-                aria-describedby={undefined}
-              >
-                <DialogHeader>
-                  <DialogTitle asChild>
-                    <h2 className="text-2xl font-bold tracking-tight">{t('globalSettings')}</h2>
-                  </DialogTitle>
-                </DialogHeader>
-                <div
-                  data-orientation="horizontal"
-                  className="flex-shrink-0 bg-border h-[1px] w-full my-2"
-                ></div>
-                <div className="grow flex w-full min-h-0 pb-3">
-                  <Suspense fallback={null}>
-                    <GlobalSettingsTabs
-                      settingsForm={settingsForm}
-                      onClose={() => setGlobalSettingsOpen(false)}
-                    />
-                  </Suspense>
-                </div>
-                <div
-                  data-orientation="horizontal"
-                  className="flex-shrink-0 bg-border h-[1px] w-full my-2"
-                ></div>
-                <div className="flex gap-3 justify-end">
-                  <Button
-                    variant="default"
-                    onClick={() => {
-                      onGlobalSettingsSubmit(settingsForm.getValues())
-                      settingsForm.reset()
-                      setGlobalSettingsOpen(false)
-                    }}
-                  >
-                    {t('globalSettingsGroup.save')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      settingsForm.reset()
-                      setGlobalSettingsOpen(false)
-                    }}
-                  >
-                    {t('globalSettingsGroup.cancel')}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Suspense fallback={null}>
-              <AboutDialog
-                open={aboutOpen}
-                onOpenChange={setAboutOpen}
-                theme={currentNoteEditorSettings.themeName}
-              />
-            </Suspense>
-          </div>
-          {isSidebarOpen && (
-            <div
-              className="absolute inset-y-0 right-0 translate-x-1/2 w-2 cursor-col-resize hover:bg-primary/20 transition-colors z-10 select-none !mt-0"
-              onMouseDown={handleResizeMouseDown}
-              onDoubleClick={handleResizeDoubleClick}
-            />
-          )}
-        </div>
-        <div className="flex h-full flex-1 min-w-0">
-          {noteTabs.length === 0 ? (
-            <div className="flex flex-col items-center w-full h-full min-h-0 overflow-y-auto bg-muted/30">
-              <div className="text-center max-w-lg px-8 my-auto py-8">
-                {/* Icon */}
-                <div className="flex justify-center mb-6">
-                  <img src={appWelcomeIcon} alt="Leavepad" className="w-24 h-24" />
-                </div>
-
-                {/* Title */}
-                <h1 className="text-2xl font-semibold mb-4 text-foreground">{t('welcomeTitle')}</h1>
-
-                {/* Description */}
-                <p className="text-muted-foreground mb-4">{t('welcomeDescription')}</p>
-
-                {/* Action Buttons */}
-                <div className="inline-flex flex-col gap-3 mb-4">
-                  <Button size="lg" onClick={AddNote} className="flex items-center gap-2">
-                    <span className="codicon codicon-new-file"></span>
-                    <span>{t('createNote')}</span>
-                  </Button>
-
-                  {typeof window.api?.openFileInEditor === 'function' && (
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={() => window.api.openFileInEditor('')}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="codicon codicon-file-code"></span>
-                      <span>{t('fileEditor')}</span>
-                    </Button>
-                  )}
-
-                  {typeof window.api?.openJsonFormatter === 'function' && (
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      onClick={() => window.api.openJsonFormatter()}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="codicon codicon-json"></span>
-                      <span>{t('jsonTool')}</span>
-                    </Button>
-                  )}
-                </div>
-
-                {/* Hint Text */}
-                <p className="text-sm text-muted-foreground mb-3">{t('welcomeHint')}</p>
-
-                {/* Version */}
-                <p className="text-xs text-muted-foreground/50 mt-6">
-                  v{window.api.getAppVersion()}
+          {/* Drag & Drop Overlay */}
+          {isDragOver && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-primary/10 border-2 border-dashed border-primary pointer-events-none">
+              <div className="text-center">
+                <div className="codicon codicon-file-add text-4xl text-primary mb-2"></div>
+                <p className="text-lg font-medium text-primary">
+                  Drop files to open in File Editor
                 </p>
               </div>
             </div>
-          ) : (
-            <div className="flex flex-col w-full h-full">
-              <div className="w-full">
-                <ContextMenu>
-                  <ContextMenuTrigger
-                    onContextMenu={(event) => {
-                      if (event.target instanceof Element) {
-                        const tab = event.target.closest('[role="tab"]') as HTMLElement
-                        if (tab) {
-                          setContextSelectedTabId(tab.dataset?.tabId)
-                        }
-                      }
-                    }}
-                  >
-                    <NoteTabs
-                      noteTabs={noteTabs}
-                      activeTabId={currentNote?.id}
-                      onTabClick={onTabClick}
-                      onTabCloseClick={onTabCloseClick}
-                      onTabReorder={onTabReorder}
-                    />
-                  </ContextMenuTrigger>
-                  <ContextMenuContent className="w-64">
-                    <ContextMenuItem onSelect={onCloseTab}>
-                      {t('contextMenu.close')}
-                    </ContextMenuItem>
-                    <ContextMenuItem onSelect={onCloseOthersTab}>
-                      {t('contextMenu.closeOthers')}
-                    </ContextMenuItem>
-                    <ContextMenuItem onSelect={onCloseToTheRightTab}>
-                      {t('contextMenu.closeToTheRight')}
-                    </ContextMenuItem>
-                    <ContextMenuItem onSelect={onCloseAllTab}>
-                      {t('contextMenu.closeAll')}
-                    </ContextMenuItem>
-                  </ContextMenuContent>
-                </ContextMenu>
-              </div>
+          )}
+          <div
+            className={cn(
+              'flex flex-col h-full space-y-2 relative shrink-0 border-r border-border'
+            )}
+            style={isSidebarOpen ? { width: `${sidebarRatio * 100}%` } : undefined}
+          >
+            <Button
+              className={cn('absolute left-[100%] top-[50%] -ml-3 w-7 h-7 z-10')}
+              variant="outline"
+              size="icon"
+              onClick={onClickSidebarMinimize}
+            >
+              {isSidebarOpen ? (
+                <span className="codicon codicon-chevron-left"></span>
+              ) : (
+                <span className="codicon codicon-chevron-right"></span>
+              )}
+            </Button>
 
-              <div className="grow min-h-0">
-                {localeReady && (
-                  <Suspense fallback={null}>
-                    <NoteEditor
-                      currentNote={currentNote}
-                      onDidChangeCursorPosition={onDidChangeCursorPosition}
-                      onEditorChange={onEditorChange}
-                      ref={editorRef}
-                    />
-                  </Suspense>
+            <div className="px-2">
+              <Button
+                className={cn(
+                  'w-full items-center justify-start',
+                  isSidebarOpen === false && 'p-2 h-8'
                 )}
-              </div>
+                onClick={AddNote}
+                title={isSidebarOpen === false ? t('createNote') : undefined}
+              >
+                <span className="codicon codicon-new-file"></span>
+                {isSidebarOpen === true && <span>{t('createNote')}</span>}
+              </Button>
+            </div>
 
-              <div className="flex-shrink border-t h-8">
-                <div className="flex w-full h-full gap-3 justify-between px-3 text-sm items-center">
-                  <div className="flex gap-3">
-                    <div>
-                      {t('line')}: {cursorPosition?.line}
-                    </div>
-                    <div>
-                      {t('col')}: {cursorPosition?.col}
-                    </div>
+            <Separator />
+
+            {isSidebarOpen === true ? (
+              <div className="px-2">
+                <div className="flex items-center w-full gap-1">
+                  <h2 className="text-lg font-bold grow">Notes</h2>
+                  <span className="text-sm text-muted-foreground">{notes.length}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6 shrink-0"
+                    onClick={() => {
+                      setIsSearchOpen(true)
+                      setSearchQuery('')
+                      setSearchFocusIdx(0)
+                    }}
+                    title={t('searchByNoteNameOrNoteBody')}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                      <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
+                      <path
+                        d="M10.5 10.5L14 14"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
+
+            <div className="grow overflow-y-auto px-2">
+              {isSidebarOpen === true ? (
+                <ScrollArea type="always" className="h-full">
+                  <div className="flex flex-col h-full items-start text-left text-sm py-1">
+                    {notes.map((note, index) => {
+                      return (
+                        <NoteCard
+                          key={note.id}
+                          note={note}
+                          index={index}
+                          isActive={currentNote?.id === note.id}
+                          isRenaming={renamingNoteId === note.id}
+                          onClick={onNoteCardClick}
+                          onNoteCardSetName={onNoteCardSetName}
+                          onDeleteNote={DeleteNote}
+                          onRenameStart={(note) => setRenamingNoteId(note.id)}
+                          onRenameEnd={() => setRenamingNoteId(null)}
+                        />
+                      )
+                    })}
                   </div>
-                  {currentNote && (
+                </ScrollArea>
+              ) : (
+                <div className="flex flex-col items-center gap-1">
+                  <Drawer
+                    direction="left"
+                    open={isDrawerOpen}
+                    onOpenChange={setDrawerOpen}
+                    dismissible={false}
+                  >
+                    <DrawerTrigger asChild>
+                      <Button className={cn(isSidebarOpen === false && 'p-2 h-8')} title="Notes">
+                        <div
+                          className="codicon codicon-note"
+                          onClick={() => setDrawerOpen(false)}
+                        ></div>
+                      </Button>
+                    </DrawerTrigger>
+                    <DrawerContent className="w-6/12 md:w-4/12 lg:max-2xl:w-3/12 h-full rounded-none py-3">
+                      <div className="flex flex-col h-full space-y-4">
+                        <div className="px-3">
+                          <div className="flex items-center w-full">
+                            <Button
+                              className="w-full items-center justify-start"
+                              onClick={() => setDrawerOpen(false)}
+                            >
+                              <span className="codicon codicon-close"></span>
+                              <span>{t('close')}</span>
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="px-3">
+                          <div className="flex items-center w-full gap-1">
+                            <h2 className="text-lg font-bold grow">Notes</h2>
+                            <span className="text-sm text-muted-foreground">{notes.length}</span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-6 w-6 shrink-0"
+                              onClick={() => {
+                                setDrawerOpen(false)
+                                setIsSearchOpen(true)
+                                setSearchQuery('')
+                                setSearchFocusIdx(0)
+                              }}
+                              title={t('searchByNoteNameOrNoteBody')}
+                            >
+                              <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                                <circle
+                                  cx="6.5"
+                                  cy="6.5"
+                                  r="4"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                />
+                                <path
+                                  d="M10.5 10.5L14 14"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="grow overflow-y-auto px-3">
+                          <ScrollArea type="always" className="h-full">
+                            <div className="flex flex-col h-full items-start text-left text-sm py-1">
+                              {notes.map((note, index) => {
+                                return (
+                                  <NoteCard
+                                    key={note.id}
+                                    note={note}
+                                    index={index}
+                                    isActive={currentNote?.id === note.id}
+                                    isRenaming={renamingNoteId === note.id}
+                                    onClick={onNoteCardClick}
+                                    onNoteCardSetName={onNoteCardSetName}
+                                    onDeleteNote={DeleteNote}
+                                    onRenameStart={(note) => setRenamingNoteId(note.id)}
+                                    onRenameEnd={() => setRenamingNoteId(null)}
+                                  />
+                                )
+                              })}
+                            </div>
+                          </ScrollArea>
+                        </div>
+                      </div>
+                    </DrawerContent>
+                  </Drawer>
+                  <Button
+                    className="p-2 h-8"
+                    onClick={() => {
+                      setIsSearchOpen(true)
+                      setSearchQuery('')
+                      setSearchFocusIdx(0)
+                    }}
+                    title={t('searchByNoteNameOrNoteBody')}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                      <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
+                      <path
+                        d="M10.5 10.5L14 14"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex-shrink border-t h-8">
+              <Dialog open={globalSettingsOpen} onOpenChange={setGlobalSettingsOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="flex rounded-none gap-1 w-full h-full items-center justify-center text-sm"
+                  >
+                    <div className="flex items-center min-h-5">
+                      <div className="codicon codicon-settings-gear"></div>
+                    </div>
+                    <div className={cn('text-sm', isSidebarOpen === true ? '' : 'hidden')}>
+                      {t('globalSettings')}
+                    </div>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent
+                  className={cn(
+                    'flex flex-col bg-background text-foreground max-w-2xl h-[90%] gap-2',
+                    currentNoteEditorSettings.themeName === 'dark' && 'dark'
+                  )}
+                  aria-describedby={undefined}
+                >
+                  <DialogHeader>
+                    <DialogTitle asChild>
+                      <h2 className="text-2xl font-bold tracking-tight">{t('globalSettings')}</h2>
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div
+                    data-orientation="horizontal"
+                    className="flex-shrink-0 bg-border h-[1px] w-full my-2"
+                  ></div>
+                  <div className="grow flex w-full min-h-0 pb-3">
                     <Suspense fallback={null}>
-                      <LanguagePicker
+                      <GlobalSettingsTabs
+                        settingsForm={settingsForm}
+                        onClose={() => setGlobalSettingsOpen(false)}
+                      />
+                    </Suspense>
+                  </div>
+                  <div
+                    data-orientation="horizontal"
+                    className="flex-shrink-0 bg-border h-[1px] w-full my-2"
+                  ></div>
+                  <div className="flex gap-3 justify-end">
+                    <Button
+                      variant="default"
+                      onClick={() => {
+                        onGlobalSettingsSubmit(settingsForm.getValues())
+                        settingsForm.reset()
+                        setGlobalSettingsOpen(false)
+                      }}
+                    >
+                      {t('globalSettingsGroup.save')}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        settingsForm.reset()
+                        setGlobalSettingsOpen(false)
+                      }}
+                    >
+                      {t('globalSettingsGroup.cancel')}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Suspense fallback={null}>
+                <AboutDialog
+                  open={aboutOpen}
+                  onOpenChange={setAboutOpen}
+                  theme={currentNoteEditorSettings.themeName}
+                />
+              </Suspense>
+            </div>
+            {isSidebarOpen && (
+              <div
+                className="absolute inset-y-0 right-0 translate-x-1/2 w-2 cursor-col-resize hover:bg-primary/20 transition-colors z-10 select-none !mt-0"
+                onMouseDown={handleResizeMouseDown}
+                onDoubleClick={handleResizeDoubleClick}
+              />
+            )}
+          </div>
+          <div className="flex h-full flex-1 min-w-0">
+            {noteTabs.length === 0 ? (
+              <div className="flex flex-col items-center w-full h-full min-h-0 overflow-y-auto bg-muted/30">
+                <div className="text-center max-w-lg px-8 my-auto py-8">
+                  {/* Icon */}
+                  <div className="flex justify-center mb-6">
+                    <img src={appWelcomeIcon} alt="Leavepad" className="w-24 h-24" />
+                  </div>
+
+                  {/* Title */}
+                  <h1 className="text-2xl font-semibold mb-4 text-foreground">
+                    {t('welcomeTitle')}
+                  </h1>
+
+                  {/* Description */}
+                  <p className="text-muted-foreground mb-4">{t('welcomeDescription')}</p>
+
+                  {/* Action Buttons */}
+                  <div className="inline-flex flex-col gap-3 mb-4">
+                    <Button size="lg" onClick={AddNote} className="flex items-center gap-2">
+                      <span className="codicon codicon-new-file"></span>
+                      <span>{t('createNote')}</span>
+                    </Button>
+
+                    {typeof window.api?.openFileInEditor === 'function' && (
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        onClick={() => window.api.openFileInEditor('')}
+                        className="flex items-center gap-2"
+                      >
+                        <span className="codicon codicon-file-code"></span>
+                        <span>{t('fileEditor')}</span>
+                      </Button>
+                    )}
+
+                    {typeof window.api?.openJsonFormatter === 'function' && (
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        onClick={() => window.api.openJsonFormatter()}
+                        className="flex items-center gap-2"
+                      >
+                        <span className="codicon codicon-json"></span>
+                        <span>{t('jsonTool')}</span>
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Hint Text */}
+                  <p className="text-sm text-muted-foreground mb-3">{t('welcomeHint')}</p>
+
+                  {/* Version */}
+                  <p className="text-xs text-muted-foreground/50 mt-6">
+                    v{window.api.getAppVersion()}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col w-full h-full">
+                <div className="w-full">
+                  <ContextMenu>
+                    <ContextMenuTrigger
+                      onContextMenu={(event) => {
+                        if (event.target instanceof Element) {
+                          const tab = event.target.closest('[role="tab"]') as HTMLElement
+                          if (tab) {
+                            setContextSelectedTabId(tab.dataset?.tabId)
+                          }
+                        }
+                      }}
+                    >
+                      <NoteTabs
+                        noteTabs={noteTabs}
+                        activeTabId={currentNote?.id}
+                        onTabClick={onTabClick}
+                        onTabCloseClick={onTabCloseClick}
+                        onTabReorder={onTabReorder}
+                      />
+                    </ContextMenuTrigger>
+                    <ContextMenuContent className="w-64">
+                      <ContextMenuItem onSelect={onCloseTab}>
+                        {t('contextMenu.close')}
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={onCloseOthersTab}>
+                        {t('contextMenu.closeOthers')}
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={onCloseToTheRightTab}>
+                        {t('contextMenu.closeToTheRight')}
+                      </ContextMenuItem>
+                      <ContextMenuItem onSelect={onCloseAllTab}>
+                        {t('contextMenu.closeAll')}
+                      </ContextMenuItem>
+                    </ContextMenuContent>
+                  </ContextMenu>
+                </div>
+
+                <div className="grow min-h-0">
+                  {localeReady && (
+                    <Suspense fallback={null}>
+                      <NoteEditor
                         currentNote={currentNote}
-                        defaultLanguage={currentNoteEditorSettings.editorOptions.language ?? 'plaintext'}
-                        onNoteChange={(updatedNote) => {
-                          setCurrentNote(updatedNote)
-                          setNotes(notes.map((n) => (n.id === updatedNote.id ? updatedNote : n)))
-                        }}
+                        onDidChangeCursorPosition={onDidChangeCursorPosition}
+                        onEditorChange={onEditorChange}
+                        ref={editorRef}
                       />
                     </Suspense>
                   )}
                 </div>
-              </div>
-            </div>
-          )}
-        </div>
-        {/* Search overlay */}
-        {isSearchOpen && (
-          <div
-            className="absolute inset-0 z-40 bg-black/35"
-            onClick={() => {
-              setIsSearchOpen(false)
-              setSearchQuery('')
-            }}
-          />
-        )}
 
-        {/* Spotlight search modal */}
-        {isSearchOpen &&
-          (() => {
-            const results = filterNotesByQuery(notes, searchQuery)
-            const focusedIdx = Math.min(searchFocusIdx, results.length - 1)
-
-            const escapeHtml = (str: string) =>
-              str.replace(
-                /[&<>"]/g,
-                (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c
-              )
-            const highlight = (text: string, query: string) => {
-              if (!query) return escapeHtml(text)
-              try {
-                const escaped = escapeHtml(text)
-                return escaped.replace(
-                  new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
-                  (m) =>
-                    `<mark class="bg-yellow-200 dark:bg-yellow-700 text-inherit rounded px-px">${m}</mark>`
-                )
-              } catch {
-                return escapeHtml(text)
-              }
-            }
-
-            return (
-              <div
-                className="absolute top-12 left-1/2 -translate-x-1/2 w-[85%] max-w-[720px] bg-background border border-border rounded-lg z-50 overflow-hidden shadow-lg"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Input row */}
-                <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    className="text-muted-foreground shrink-0"
-                  >
-                    <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
-                    <path
-                      d="M10.5 10.5L14 14"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <Input
-                    className="flex-1 text-base border-none bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto"
-                    placeholder={t('searchByNoteNameOrNoteBody')}
-                    value={searchQuery}
-                    autoFocus
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value)
-                      setSearchFocusIdx(0)
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape') {
-                        setIsSearchOpen(false)
-                        setSearchQuery('')
-                      } else if (e.key === 'ArrowDown') {
-                        e.preventDefault()
-                        setSearchFocusIdx((i) => Math.min(i + 1, results.length - 1))
-                      } else if (e.key === 'ArrowUp') {
-                        e.preventDefault()
-                        setSearchFocusIdx((i) => Math.max(i - 1, 0))
-                      } else if (e.key === 'Enter' && results.length > 0) {
-                        const note = results[focusedIdx]
-                        if (note) {
-                          onNoteCardClick(note)
-                          setIsSearchOpen(false)
-                          setSearchQuery('')
-                        }
-                      }
-                    }}
-                  />
-                </div>
-
-                {/* Results */}
-                <div className="max-h-[300px] overflow-y-auto">
-                  {results.length === 0 ? (
-                    <div className="py-5 text-center text-sm text-muted-foreground">
-                      No matching notes found.
-                    </div>
-                  ) : (
-                    results.map((note, i) => (
-                      <div
-                        key={note.id}
-                        className={cn(
-                          'px-4 py-2.5 cursor-pointer border-l-2 transition-colors',
-                          i === focusedIdx
-                            ? 'bg-accent border-l-foreground'
-                            : 'border-l-transparent hover:bg-accent'
-                        )}
-                        onClick={() => {
-                          onNoteCardClick(note)
-                          setIsSearchOpen(false)
-                          setSearchQuery('')
-                        }}
-                        onMouseEnter={() => setSearchFocusIdx(i)}
-                      >
-                        <div className="flex items-center gap-1.5">
-                          <FileText className="shrink-0 h-3.5 w-3.5 text-muted-foreground" />
-                          <div
-                            className="text-sm font-medium text-foreground"
-                            dangerouslySetInnerHTML={{ __html: highlight(note.name, searchQuery) }}
-                          />
-                        </div>
-                        {note.body.length > 0 && (
-                          <div
-                            className="text-xs text-muted-foreground mt-0.5 truncate"
-                            dangerouslySetInnerHTML={{
-                              __html: highlight(note.body.slice(0, 80), searchQuery)
-                            }}
-                          />
-                        )}
+                <div className="flex-shrink border-t h-8">
+                  <div className="flex w-full h-full gap-3 justify-between px-3 text-sm items-center">
+                    <div className="flex gap-3">
+                      <div>
+                        {t('line')}: {cursorPosition?.line}
                       </div>
-                    ))
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className="px-4 py-1.5 border-t border-border flex gap-3 text-xs text-muted-foreground">
-                  <span>↑↓ {t('search.navigate')}</span>
-                  <span>Enter {t('search.select')}</span>
-                  <span>Esc {t('search.close')}</span>
+                      <div>
+                        {t('col')}: {cursorPosition?.col}
+                      </div>
+                    </div>
+                    {currentNote && (
+                      <Suspense fallback={null}>
+                        <LanguagePicker
+                          currentNote={currentNote}
+                          defaultLanguage={
+                            currentNoteEditorSettings.editorOptions.language ?? 'plaintext'
+                          }
+                          onNoteChange={(updatedNote) => {
+                            setCurrentNote(updatedNote)
+                            setNotes(notes.map((n) => (n.id === updatedNote.id ? updatedNote : n)))
+                          }}
+                        />
+                      </Suspense>
+                    )}
+                  </div>
                 </div>
               </div>
-            )
-          })()}
+            )}
+          </div>
+          {/* Search overlay */}
+          {isSearchOpen && (
+            <div
+              className="absolute inset-0 z-40 bg-black/35"
+              onClick={() => {
+                setIsSearchOpen(false)
+                setSearchQuery('')
+              }}
+            />
+          )}
+
+          {/* Spotlight search modal */}
+          {isSearchOpen &&
+            (() => {
+              const results = filterNotesByQuery(notes, searchQuery)
+              const focusedIdx = Math.min(searchFocusIdx, results.length - 1)
+
+              const escapeHtml = (str: string) =>
+                str.replace(
+                  /[&<>"]/g,
+                  (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] ?? c
+                )
+              const highlight = (text: string, query: string) => {
+                if (!query) return escapeHtml(text)
+                try {
+                  const escaped = escapeHtml(text)
+                  return escaped.replace(
+                    new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+                    (m) =>
+                      `<mark class="bg-yellow-200 dark:bg-yellow-700 text-inherit rounded px-px">${m}</mark>`
+                  )
+                } catch {
+                  return escapeHtml(text)
+                }
+              }
+
+              return (
+                <div
+                  className="absolute top-12 left-1/2 -translate-x-1/2 w-[85%] max-w-[720px] bg-background border border-border rounded-lg z-50 overflow-hidden shadow-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Input row */}
+                  <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      className="text-muted-foreground shrink-0"
+                    >
+                      <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" strokeWidth="1.5" />
+                      <path
+                        d="M10.5 10.5L14 14"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <Input
+                      className="flex-1 text-base border-none bg-transparent shadow-none focus-visible:ring-0 p-0 h-auto"
+                      placeholder={t('searchByNoteNameOrNoteBody')}
+                      value={searchQuery}
+                      autoFocus
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value)
+                        setSearchFocusIdx(0)
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                          setIsSearchOpen(false)
+                          setSearchQuery('')
+                        } else if (e.key === 'ArrowDown') {
+                          e.preventDefault()
+                          setSearchFocusIdx((i) => Math.min(i + 1, results.length - 1))
+                        } else if (e.key === 'ArrowUp') {
+                          e.preventDefault()
+                          setSearchFocusIdx((i) => Math.max(i - 1, 0))
+                        } else if (e.key === 'Enter' && results.length > 0) {
+                          const note = results[focusedIdx]
+                          if (note) {
+                            onNoteCardClick(note)
+                            setIsSearchOpen(false)
+                            setSearchQuery('')
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Results */}
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {results.length === 0 ? (
+                      <div className="py-5 text-center text-sm text-muted-foreground">
+                        No matching notes found.
+                      </div>
+                    ) : (
+                      results.map((note, i) => (
+                        <div
+                          key={note.id}
+                          className={cn(
+                            'px-4 py-2.5 cursor-pointer border-l-2 transition-colors',
+                            i === focusedIdx
+                              ? 'bg-accent border-l-foreground'
+                              : 'border-l-transparent hover:bg-accent'
+                          )}
+                          onClick={() => {
+                            onNoteCardClick(note)
+                            setIsSearchOpen(false)
+                            setSearchQuery('')
+                          }}
+                          onMouseEnter={() => setSearchFocusIdx(i)}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <FileText className="shrink-0 h-3.5 w-3.5 text-muted-foreground" />
+                            <div
+                              className="text-sm font-medium text-foreground"
+                              dangerouslySetInnerHTML={{
+                                __html: highlight(note.name, searchQuery)
+                              }}
+                            />
+                          </div>
+                          {note.body.length > 0 && (
+                            <div
+                              className="text-xs text-muted-foreground mt-0.5 truncate"
+                              dangerouslySetInnerHTML={{
+                                __html: highlight(note.body.slice(0, 80), searchQuery)
+                              }}
+                            />
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-4 py-1.5 border-t border-border flex gap-3 text-xs text-muted-foreground">
+                    <span>↑↓ {t('search.navigate')}</span>
+                    <span>Enter {t('search.select')}</span>
+                    <span>Esc {t('search.close')}</span>
+                  </div>
+                </div>
+              )
+            })()}
         </div>
       </div>
     </TooltipProvider>

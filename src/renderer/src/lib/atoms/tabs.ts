@@ -1,7 +1,7 @@
-import { atom } from 'jotai'
-import { NoteTab } from '../../../../types'
-import { clearCurrentNote } from './notes'
 import { leavepadStore } from '@renderer/main'
+import { atom } from 'jotai'
+import type { NoteTab } from '../../../../types'
+import { clearCurrentNote } from './notes'
 
 export const noteTabsAtom = atom<NoteTab[]>([])
 export const contextSelectedTabIdAtom = atom<string | undefined>()

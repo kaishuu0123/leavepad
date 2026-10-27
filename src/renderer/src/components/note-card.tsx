@@ -1,8 +1,11 @@
+import { currentNoteEditorSettingsAtom } from '@renderer/lib/atoms/note-editor-settings'
 import { cn } from '@renderer/lib/utils'
+import { format } from 'date-fns'
+import { useAtom } from 'jotai'
+import { FileText, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
-import { Note } from '../../../types'
+import { useTranslation } from 'react-i18next'
+import type { Note } from '../../../types'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,17 +16,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from './ui/alert-dialog'
+import { Button } from './ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from './ui/dropdown-menu'
-import { currentNoteEditorSettingsAtom } from '@renderer/lib/atoms/note-editor-settings'
-import { useAtom } from 'jotai'
-import { useTranslation } from 'react-i18next'
-import { FileText, Pencil, Trash2 } from 'lucide-react'
-import { format } from 'date-fns'
+import { Input } from './ui/input'
 import { Separator } from './ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip'
 
@@ -150,7 +150,14 @@ function NoteCard({
   return (
     <>
       {isRenaming ? (
-        <div key={note.id} className={cardClassName} role="button" tabIndex={index} onClick={() => onClick(note)} onDoubleClick={() => onRenameStart(note)}>
+        <div
+          key={note.id}
+          className={cardClassName}
+          role="button"
+          tabIndex={index}
+          onClick={() => onClick(note)}
+          onDoubleClick={() => onRenameStart(note)}
+        >
           <Input
             type="text"
             className="bg-background text-sm h-6 px-1 py-0 flex-1"
