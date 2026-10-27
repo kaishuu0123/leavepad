@@ -16,7 +16,7 @@ Wine で Electron を動かすのは Chromium との相性が悪くほぼ動作�
 **1. devcontainer 内でビルド**
 
 ```bash
-NODE_OPTIONS=--max-old-space-size=4096 pnpm build && npx electron-builder --win --dir --publish never
+NODE_OPTIONS=--max-old-space-size=4096 pnpm build && pnpm exec electron-builder --win --dir --publish never
 ```
 
 インストーラーは作らず、`dist/win-unpacked/` に Windows 向けの実行ファイル一式を展開する。
