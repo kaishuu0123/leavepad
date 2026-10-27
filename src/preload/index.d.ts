@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { AppState, Note, NoteEditorSettings, UpdateNotePayload } from 'src/types'
+import { AppState, Note, NoteEditorSettings, UpdateNotePayload, UpdateState } from 'src/types'
 
 declare global {
   interface Window {
@@ -19,6 +19,7 @@ declare global {
       updateAppState: (appState: AppState) => void
       installUpdate: () => void
       getAppVersion: () => string
+      getUpdateState: () => Promise<UpdateState>
       checkForUpdates: () => void
       popupMenu: () => void
       minimizeWindow: () => void

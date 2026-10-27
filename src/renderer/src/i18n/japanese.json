@@ -48,6 +48,9 @@
     "downloaded": "✓ v{{version}} の準備ができました",
     "devError": "— 開発環境では確認できません",
     "error": "✗ 確認中にエラーが発生しました",
+    "copyHint": "クリックでエラー詳細をコピー",
+    "copied": "コピーしました",
+    "checkAgain": "アップデートを確認",
     "fontCredits": "Font Credits"
   },
   "globalSettingsGroup": {

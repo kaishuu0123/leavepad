@@ -1,10 +1,6 @@
 console.time('[startup] total')
 console.time('[startup] app-ready')
 
-import pkg from 'electron-updater'
-
-const { autoUpdater } = pkg
-
 import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, Menu, shell } from 'electron'
@@ -18,6 +14,7 @@ import {
 } from './fileEditorWindow'
 import { registerIpcHandles } from './ipcHandles'
 import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
+import { initAutoUpdater } from './updater'
 
 let mainWindow: BrowserWindow
 const filesToOpen: string[] = []
@@ -179,38 +176,6 @@ if (!gotTheLock) {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template))
   }
 
-  function initAutoUpdater(mainWindow: BrowserWindow) {
-    // 開発環境では動かさない
-    if (!app.isPackaged) return
-
-    autoUpdater.autoDownload = true // バックグラウンドで自動DL
-    autoUpdater.autoInstallOnAppQuit = true // 終了時に自動インストール
-
-    autoUpdater.on('checking-for-update', () => {
-      mainWindow.webContents.send('update-checking')
-    })
-
-    autoUpdater.on('update-available', (info) => {
-      mainWindow.webContents.send('update-available', info)
-    })
-
-    autoUpdater.on('update-not-available', () => {
-      mainWindow.webContents.send('update-not-available')
-    })
-
-    autoUpdater.on('update-downloaded', (info) => {
-      mainWindow.webContents.send('update-downloaded', info)
-    })
-
-    autoUpdater.on('error', (err) => {
-      console.error('AutoUpdater error:', err)
-      mainWindow.webContents.send('update-error', err.message)
-    })
-
-    // 起動時にチェック
-    autoUpdater.checkForUpdates()
-  }
-
   function createWindow(): void {
     const isNonMac = process.platform !== 'darwin'
 
@@ -330,7 +295,7 @@ if (!gotTheLock) {
 
     registerIpcHandles(ipcMain, mainWindow)
 
-    initAutoUpdater(mainWindow)
+    initAutoUpdater(() => mainWindow?.webContents)
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
