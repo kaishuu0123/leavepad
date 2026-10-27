@@ -90,7 +90,7 @@ function App(): JSX.Element {
   const [sidebarRatio, setSidebarRatio] = useState(DEFAULT_SIDEBAR_RATIO)
   const [isSidebarOpen, setSidebarOpen] = useState(true)
   const [isDrawerOpen, setDrawerOpen] = useState(false)
-  const [appState, setAppState] = useState<AppState | undefined>(undefined)
+  const [, setAppState] = useState<AppState | undefined>(undefined)
   const [isDragOver, setIsDragOver] = useState(false)
   const [updateInfo, setUpdateInfo] = useState<{ version: string } | null>(null)
   const [localeReady, setLocaleReady] = useState(false)
@@ -276,11 +276,7 @@ function App(): JSX.Element {
       editorRef.current?.layout()
 
       window.api.updateAppState({
-        isSidebarOpen: isSidebarOpen,
-        windowWidth: window.outerWidth,
-        windowHeight: window.outerHeight,
-        windowX: appState?.windowX,
-        windowY: appState?.windowY
+        isSidebarOpen: isSidebarOpen
       })
     }
     window.addEventListener('resize', updateWindowState)
@@ -506,11 +502,7 @@ function App(): JSX.Element {
       window.removeEventListener('mouseup', onMouseUp)
       await window.api.updateAppState({
         isSidebarOpen,
-        sidebarRatio: latestRatio,
-        windowWidth: window.outerWidth,
-        windowHeight: window.outerHeight,
-        windowX: appState?.windowX,
-        windowY: appState?.windowY
+        sidebarRatio: latestRatio
       })
     }
     window.addEventListener('mousemove', onMouseMove)
@@ -522,11 +514,7 @@ function App(): JSX.Element {
     editorRef.current?.layout()
     await window.api.updateAppState({
       isSidebarOpen,
-      sidebarRatio: DEFAULT_SIDEBAR_RATIO,
-      windowWidth: window.outerWidth,
-      windowHeight: window.outerHeight,
-      windowX: appState?.windowX,
-      windowY: appState?.windowY
+      sidebarRatio: DEFAULT_SIDEBAR_RATIO
     })
   }
 
@@ -537,11 +525,7 @@ function App(): JSX.Element {
     setTimeout(() => editorRef.current?.layout(), 0)
 
     await window.api.updateAppState({
-      isSidebarOpen: nextState,
-      windowWidth: window.outerWidth,
-      windowHeight: window.outerHeight,
-      windowX: appState?.windowX,
-      windowY: appState?.windowY
+      isSidebarOpen: nextState
     })
   }
 

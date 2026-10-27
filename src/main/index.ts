@@ -3,7 +3,7 @@ console.time('[startup] app-ready')
 
 import pkg from 'electron-updater'
 const { autoUpdater } = pkg
-import { app, shell, BrowserWindow, ipcMain, Menu, screen } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
@@ -13,7 +13,7 @@ import { registerFileEditorIpcHandles } from './fileEditorIpcHandles'
 import { registerFileEditorWindowHandlers } from './fileEditorWindow'
 import { createFileEditorWindow, getFileEditorWindow } from './fileEditorWindow'
 import { registerJsonFormatterWindowHandlers } from './jsonFormatterWindow'
-import { dbInstance, safeWrite } from './db_singleton'
+import { dbInstance } from './db_singleton'
 
 let mainWindow: BrowserWindow
 const filesToOpen: string[] = []
@@ -208,37 +208,16 @@ if (!gotTheLock) {
   }
 
   function createWindow(): void {
-    const appStateData = dbInstance.dbs.appStateDb.data
     const isNonMac = process.platform !== 'darwin'
 
-    const savedWidth = appStateData?.windowWidth ?? 800
-    const savedHeight = appStateData?.windowHeight ?? 600
-    let savedX = appStateData?.windowX
-    let savedY = appStateData?.windowY
-
-    // Validate if the saved coordinates are within any connected display
-    if (savedX != null && savedY != null) {
-      const displays = screen.getAllDisplays()
-      const isVisible = displays.some((display) => {
-        const { x, y, width, height } = display.workArea
-        return (
-          savedX! + savedWidth > x &&
-          savedX! < x + width &&
-          savedY! + savedHeight > y &&
-          savedY! < y + height
-        )
-      })
-      if (!isVisible) {
-        savedX = undefined
-        savedY = undefined
-      }
-    }
-
     // Create the browser window.
+    // Position, size and maximized state are persisted and restored by Electron itself,
+    // which also keeps the window on a connected display when monitors change.
     mainWindow = new BrowserWindow({
-      ...(savedX != null && savedY != null ? { x: savedX, y: savedY } : {}),
-      width: savedWidth,
-      height: savedHeight,
+      name: 'main-window',
+      windowStatePersistence: true,
+      width: 800,
+      height: 600,
       useContentSize: true,
       show: false,
       autoHideMenuBar: true,
@@ -247,64 +226,6 @@ if (!gotTheLock) {
       webPreferences: {
         preload: join(__dirname, '../preload/index.mjs'),
         sandbox: false
-      }
-    })
-
-    if (savedX == null || savedY == null) {
-      mainWindow.center()
-    }
-
-    // Automatically save window position and size on resize / move / close
-    let saveTimeout: NodeJS.Timeout | null = null
-
-    const saveWindowState = (immediate = false): void => {
-      if (saveTimeout) {
-        clearTimeout(saveTimeout)
-        saveTimeout = null
-      }
-
-      const performSave = (): void => {
-        if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.isMinimized()) {
-          const bounds = mainWindow.getBounds()
-          dbInstance.dbs.appStateDb.data = {
-            ...(dbInstance.dbs.appStateDb.data ?? {}),
-            windowX: bounds.x,
-            windowY: bounds.y,
-            windowWidth: bounds.width,
-            windowHeight: bounds.height
-          }
-          safeWrite(dbInstance.dbs.appStateDb)
-        }
-      }
-
-      if (immediate) {
-        performSave()
-      } else {
-        saveTimeout = setTimeout(performSave, 500)
-      }
-    }
-
-    mainWindow.on('resize', () => saveWindowState(false))
-    mainWindow.on('move', () => saveWindowState(false))
-    mainWindow.on('close', () => saveWindowState(true))
-
-    // Move window back inside visible display bounds if an external monitor is disconnected at runtime
-    screen.on('display-removed', () => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        const bounds = mainWindow.getBounds()
-        const displays = screen.getAllDisplays()
-        const isVisible = displays.some((display) => {
-          const { x, y, width, height } = display.workArea
-          return (
-            bounds.x + bounds.width > x &&
-            bounds.x < x + width &&
-            bounds.y + bounds.height > y &&
-            bounds.y < y + height
-          )
-        })
-        if (!isVisible) {
-          mainWindow.center()
-        }
       }
     })
 
