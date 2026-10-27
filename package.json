@@ -72,7 +72,7 @@
     "clsx": "^2.1.1",
     "cross-env": "^10.1.0",
     "electron": "^45.0.0",
-    "electron-builder": "~26.5.0",
+    "electron-builder": "26.18.0",
     "electron-vite": "^5.0.0",
     "lucide-react": "^0.452.0",
     "postcss": "^8.4.47",
@@ -84,5 +84,5 @@
     "typescript": "^5.5.2",
     "vite": "^7.1.10"
   },
-  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+  "packageManager": "pnpm@11.2.2"
 }

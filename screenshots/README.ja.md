@@ -5,7 +5,7 @@
 ### 環境
 
 このプロジェクトは devcontainer（Linux / WSL2 上の Docker）で開発しているため、
-Windows 上で直接 `yarn dev` を実行することができない。
+Windows 上で直接 `pnpm dev` を実行することができない。
 Wine で Electron を動かすのは Chromium との相性が悪くほぼ動作しないため、
 以下の手順で Windows 向けバイナリをビルドして Windows 側から実行する。
 
@@ -16,7 +16,7 @@ Wine で Electron を動かすのは Chromium との相性が悪くほぼ動作�
 **1. devcontainer 内でビルド**
 
 ```bash
-NODE_OPTIONS=--max-old-space-size=4096 yarn build && npx electron-builder --win --dir --publish never
+NODE_OPTIONS=--max-old-space-size=4096 pnpm build && npx electron-builder --win --dir --publish never
 ```
 
 インストーラーは作らず、`dist/win-unpacked/` に Windows 向けの実行ファイル一式を展開する。
