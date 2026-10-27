@@ -102,7 +102,8 @@ export const registerIpcHandles = (ipcMain, mainWindow: BrowserWindow): void => 
   ipcMain.handle(
     'update-app-state',
     async (_event: Electron.IpcMainInvokeEvent, appState: AppState) => {
-      appStateDb.data = { ...appState }
+      // Merge so that partial updates (e.g. only isSidebarOpen on window resize) keep other fields
+      appStateDb.data = { ...appStateDb.data, ...appState }
 
       await safeWrite(appStateDb)
     }
