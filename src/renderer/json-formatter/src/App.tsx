@@ -201,7 +201,7 @@ function App(): React.JSX.Element {
         <select
           value={INDENT_OPTIONS.indexOf(indentOption)}
           onChange={(e) => handleIndentChange(INDENT_OPTIONS[parseInt(e.target.value, 10)])}
-          className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+          className="h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus:outline-hidden focus:ring-1 focus:ring-ring"
           title="Indentation"
         >
           {INDENT_OPTIONS.map((opt, i) => (

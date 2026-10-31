@@ -575,7 +575,7 @@ function App(): React.JSX.Element {
             style={isSidebarOpen ? { width: `${sidebarRatio * 100}%` } : undefined}
           >
             <Button
-              className={cn('absolute left-[100%] top-[50%] -ml-3 w-7 h-7 z-10')}
+              className={cn('absolute left-full top-[50%] -ml-3 w-7 h-7 z-10')}
               variant="outline"
               size="icon"
               onClick={onClickSidebarMinimize}
@@ -776,7 +776,7 @@ function App(): React.JSX.Element {
               )}
             </div>
 
-            <div className="flex-shrink border-t h-8">
+            <div className="shrink border-t h-8">
               <Dialog open={globalSettingsOpen} onOpenChange={setGlobalSettingsOpen}>
                 <DialogTrigger asChild>
                   <Button
@@ -805,7 +805,7 @@ function App(): React.JSX.Element {
                   </DialogHeader>
                   <div
                     data-orientation="horizontal"
-                    className="flex-shrink-0 bg-border h-[1px] w-full my-2"
+                    className="shrink-0 bg-border h-px w-full my-2"
                   ></div>
                   <div className="grow flex w-full min-h-0 pb-3">
                     <Suspense fallback={null}>
@@ -817,7 +817,7 @@ function App(): React.JSX.Element {
                   </div>
                   <div
                     data-orientation="horizontal"
-                    className="flex-shrink-0 bg-border h-[1px] w-full my-2"
+                    className="shrink-0 bg-border h-px w-full my-2"
                   ></div>
                   <div className="flex gap-3 justify-end">
                     <Button
@@ -854,7 +854,7 @@ function App(): React.JSX.Element {
             {isSidebarOpen && (
               // biome-ignore lint/a11y/noStaticElementInteractions: mouse-only sidebar resize handle; resizing by keyboard is not supported
               <div
-                className="absolute inset-y-0 right-0 translate-x-1/2 w-2 cursor-col-resize hover:bg-primary/20 transition-colors z-10 select-none !mt-0"
+                className="absolute inset-y-0 right-0 translate-x-1/2 w-2 cursor-col-resize hover:bg-primary/20 transition-colors z-10 select-none mt-0!"
                 onMouseDown={handleResizeMouseDown}
                 onDoubleClick={handleResizeDoubleClick}
               />
@@ -985,7 +985,7 @@ function App(): React.JSX.Element {
                   )}
                 </div>
 
-                <div className="flex-shrink border-t h-8">
+                <div className="shrink border-t h-8">
                   <div className="flex w-full h-full gap-3 justify-between px-3 text-sm items-center">
                     <div className="flex gap-3">
                       <div>
