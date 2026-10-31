@@ -24,7 +24,8 @@
 }
 
 @theme {
-  --font-sans: "Geist Sans", "Noto Sans JP", "Noto Color Emoji", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:
+    "Geist Sans", "Noto Sans JP", "Noto Color Emoji", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", "Noto Sans JP", "Noto Color Emoji", ui-monospace, monospace;
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
