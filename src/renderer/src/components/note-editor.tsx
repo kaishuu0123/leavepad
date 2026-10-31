@@ -56,7 +56,7 @@ const getEditorThemeName = (themeName: 'light' | 'dark') => {
 function NoteEditor(
   { currentNote, onDidChangeCursorPosition, onEditorChange }: NoteEditorProps,
   ref: ForwardedRef<editor.IStandaloneCodeEditor | undefined>
-): JSX.Element | null {
+): React.JSX.Element | null {
   const [settings] = useAtom(currentNoteEditorSettingsAtom)
 
   const handleEditorDidMount = (monacoEditor, _monaco) => {

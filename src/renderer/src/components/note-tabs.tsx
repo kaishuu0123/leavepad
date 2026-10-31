@@ -11,7 +11,7 @@ function NoteTabs({
   onTabClick,
   onTabCloseClick,
   onTabReorder
-}): JSX.Element | null {
+}): React.JSX.Element | null {
   const tabs = noteTabs.map((tab) => tab.id)
   const { ref } = useHorizontalScroll()
   const [draggedTabId, setDraggedTabId] = useState<string | null>(null)

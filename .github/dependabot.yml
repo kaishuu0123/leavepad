@@ -30,6 +30,11 @@ updates:
       default-days: 3
     open-pull-requests-limit: 10
     versioning-strategy: lockfile-only
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
     labels:
       - "dependencies"
       - "npm"

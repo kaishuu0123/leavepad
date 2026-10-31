@@ -47,7 +47,7 @@ type FileEditorProps = {
 function FileEditor(
   { currentTab, language, onDidChangeCursorPosition, onEditorChange }: FileEditorProps,
   ref: ForwardedRef<editor.IStandaloneCodeEditor | undefined>
-): JSX.Element {
+): React.JSX.Element {
   const handleEditorDidMount = (
     monacoEditor: editor.IStandaloneCodeEditor,
     _monaco: typeof monaco

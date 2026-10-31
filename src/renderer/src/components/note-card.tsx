@@ -49,7 +49,7 @@ function NoteCard({
   onDeleteNote,
   onRenameStart,
   onRenameEnd
-}: Props): JSX.Element {
+}: Props): React.JSX.Element {
   const { t } = useTranslation()
   const [noteName, setNoteName] = useState(note.name)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -74,7 +74,7 @@ function NoteCard({
   const updatedAtStr = note.updatedAt ? format(new Date(note.updatedAt), 'yyyy/MM/dd HH:mm') : ''
 
   const cardClassName = cn(
-    'flex items-center w-full px-2.5 py-1.5 cursor-pointer group border-l-2 transition-colors focus:outline-none focus-visible:bg-accent focus-visible:border-l-foreground',
+    'flex items-center w-full px-2.5 py-1.5 cursor-pointer group border-l-2 transition-colors focus:outline-hidden focus-visible:bg-accent focus-visible:border-l-foreground',
     isActive ? 'bg-accent border-l-foreground' : 'border-l-transparent hover:bg-accent'
   )
 
