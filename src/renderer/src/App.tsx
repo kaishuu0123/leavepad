@@ -793,7 +793,7 @@ function App(): React.JSX.Element {
                 </DialogTrigger>
                 <DialogContent
                   className={cn(
-                    'flex flex-col bg-background text-foreground max-w-2xl h-[90%] gap-2',
+                    'flex flex-col bg-background text-foreground max-w-2xl sm:max-w-2xl h-[90%] gap-2',
                     currentNoteEditorSettings.themeName === 'dark' && 'dark'
                   )}
                   aria-describedby={undefined}

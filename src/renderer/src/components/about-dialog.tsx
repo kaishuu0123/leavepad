@@ -165,7 +165,10 @@ export const AboutDialog = ({ open, onOpenChange, theme, updateState }: AboutDia
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={cn('bg-background text-foreground max-w-sm', theme === 'dark' && 'dark')}
+        className={cn(
+          'bg-background text-foreground max-w-sm sm:max-w-sm',
+          theme === 'dark' && 'dark'
+        )}
         aria-describedby={undefined}
       >
         <DialogHeader>
