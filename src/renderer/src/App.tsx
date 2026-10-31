@@ -570,7 +570,7 @@ function App(): React.JSX.Element {
           )}
           <div
             className={cn(
-              'flex flex-col h-full space-y-2 relative shrink-0 border-r border-border'
+              'flex flex-col h-full gap-2 pt-2 relative shrink-0 border-r border-border'
             )}
             style={isSidebarOpen ? { width: `${sidebarRatio * 100}%` } : undefined}
           >
