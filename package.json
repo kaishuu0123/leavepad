@@ -66,14 +66,14 @@
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vitejs/plugin-react": "^4.7.0",
+    "@vitejs/plugin-react": "^6.1.2",
     "autoprefixer": "^10.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cross-env": "^10.1.0",
     "electron": "^45.1.0",
     "electron-builder": "26.18.0",
-    "electron-vite": "^5.0.0",
+    "electron-vite": "^6.0.0",
     "lucide-react": "^0.452.0",
     "postcss": "^8.5.32",
     "react": "^18.3.1",
@@ -82,7 +82,7 @@
     "tailwindcss": "^3.4.19",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.9.3",
-    "vite": "^7.3.7"
+    "vite": "^8.3.5"
   },
   "packageManager": "pnpm@11.2.2",
   "devEngines": {
