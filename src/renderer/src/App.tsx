@@ -674,7 +674,7 @@ function App(): React.JSX.Element {
                       </Button>
                     </DrawerTrigger>
                     <DrawerContent className="w-6/12 md:w-4/12 lg:max-2xl:w-3/12 h-full rounded-none py-3">
-                      <div className="flex flex-col h-full space-y-4">
+                      <div className="flex flex-col h-full gap-4">
                         <div className="px-3">
                           <div className="flex items-center w-full">
                             <Button

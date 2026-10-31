@@ -191,7 +191,7 @@ export const AboutDialog = ({ open, onOpenChange, theme, updateState }: AboutDia
               <p className="text-sm font-medium">{t('about.fontCredits')}</p>
               <div className="flex flex-col items-center gap-5">
                 {fontCredits.map((font) => (
-                  <div key={font.name} className="text-center space-y-0.5">
+                  <div key={font.name} className="flex flex-col items-center gap-0.5 text-center">
                     <p className="text-sm font-semibold font-mono">{font.name}</p>
                     <p className="text-xs text-muted-foreground">{font.copyright}</p>
                     <p className="text-xs text-muted-foreground">SIL Open Font License 1.1</p>
