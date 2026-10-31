@@ -70,7 +70,7 @@ const DEFAULT_SIDEBAR_RATIO = 0.25
 const MIN_SIDEBAR_RATIO = 0.12
 const MAX_SIDEBAR_RATIO = 0.4
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const { t } = useTranslation()
   // @ts-expect-error for DEBUG
   const _ipcHandle = (): void => window.electron.ipcRenderer.send('ping')

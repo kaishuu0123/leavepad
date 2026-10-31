@@ -17,12 +17,12 @@ function basename(filePath: string): string {
 // Initialize Monaco editor workers
 initializeFileEditor()
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const [fileTabs, setFileTabs] = useAtom(fileTabsAtom)
   const [activeTabId, setActiveTabId] = useAtom(activeTabIdAtom)
   const [activeTab] = useAtom(activeTabAtom)
   const [unsavedTabs] = useAtom(unsavedTabsAtom)
-  const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>()
+  const editorRef = useRef<editor.IStandaloneCodeEditor | undefined>(undefined)
   const [isDragOver, setIsDragOver] = useState(false)
   const [localeReady, setLocaleReady] = useState(false)
   const dragCounterRef = useRef(0)

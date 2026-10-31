@@ -47,7 +47,7 @@ function parseJson(value: string, indent: string | number): ParseResult {
   }
 }
 
-function App(): JSX.Element {
+function App(): React.JSX.Element {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null)
   const [result, setResult] = useState<ParseResult | null>(null)
   const [lineCount, setLineCount] = useState<number>(0)

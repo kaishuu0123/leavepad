@@ -49,7 +49,7 @@ function NoteCard({
   onDeleteNote,
   onRenameStart,
   onRenameEnd
-}: Props): JSX.Element {
+}: Props): React.JSX.Element {
   const { t } = useTranslation()
   const [noteName, setNoteName] = useState(note.name)
   const [deleteOpen, setDeleteOpen] = useState(false)

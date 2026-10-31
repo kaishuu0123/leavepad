@@ -18,7 +18,7 @@ function FileTabs({
   onTabClick,
   onTabCloseClick,
   onTabReorder
-}: FileTabsProps): JSX.Element | null {
+}: FileTabsProps): React.JSX.Element | null {
   const [draggedTabId, setDraggedTabId] = useState<string | null>(null)
   const [dragOverTabId, setDragOverTabId] = useState<string | null>(null)
 
