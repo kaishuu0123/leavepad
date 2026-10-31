@@ -878,34 +878,49 @@ function App(): JSX.Element {
                   <p className="text-muted-foreground mb-4">{t('welcomeDescription')}</p>
 
                   {/* Action Buttons */}
-                  <div className="inline-flex flex-col gap-3 mb-4">
-                    <Button size="lg" onClick={addNote} className="flex items-center gap-2">
-                      <span className="codicon codicon-new-file"></span>
-                      <span>{t('createNote')}</span>
-                    </Button>
+                  <div className="flex flex-col gap-5 mb-4 items-center">
+                    <div className="flex flex-col gap-2 w-56">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        {t('categoryNotes')}
+                      </p>
+                      <Button size="lg" onClick={addNote} className="flex items-center gap-2">
+                        <span className="codicon codicon-new-file"></span>
+                        <span>{t('createNote')}</span>
+                      </Button>
+                    </div>
 
                     {typeof window.api?.openFileInEditor === 'function' && (
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        onClick={() => window.api.openFileInEditor('')}
-                        className="flex items-center gap-2"
-                      >
-                        <span className="codicon codicon-file-code"></span>
-                        <span>{t('fileEditor')}</span>
-                      </Button>
+                      <div className="flex flex-col gap-2 w-56">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          {t('categoryFiles')}
+                        </p>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={() => window.api.openFileInEditor('')}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="codicon codicon-file-code"></span>
+                          <span>{t('fileEditor')}</span>
+                        </Button>
+                      </div>
                     )}
 
                     {typeof window.api?.openJsonFormatter === 'function' && (
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        onClick={() => window.api.openJsonFormatter()}
-                        className="flex items-center gap-2"
-                      >
-                        <span className="codicon codicon-json"></span>
-                        <span>{t('jsonTool')}</span>
-                      </Button>
+                      <div className="flex flex-col gap-2 w-56">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          {t('categoryTools')}
+                        </p>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          onClick={() => window.api.openJsonFormatter()}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="codicon codicon-json"></span>
+                          <span>{t('jsonTool')}</span>
+                        </Button>
+                      </div>
                     )}
                   </div>
 

@@ -28,7 +28,7 @@ Therefore, I decided to create a memo application by Electron for my own use.
 - Quick note creation with `Ctrl+N`
 - Full-featured Monaco Editor with syntax highlighting
 - **Per-note language mode settings** (changeable via status bar)
-- **JSON formatting** (F1 → "Format JSON" or click "Format" button in status bar)
+- Format JSON in place (F1 → "Format JSON" or click "Format" button in status bar)
 - Search notes by name or content
 - Tab-based interface with drag & drop reordering
 - Auto-save (close without saving)
@@ -44,6 +44,12 @@ Therefore, I decided to create a memo application by Electron for my own use.
 - Auto-detect file encoding
 - Unsaved changes detection
 - Keyboard shortcuts: `Ctrl+O` (Open), `Ctrl+S` (Save), `Ctrl+Shift+S` (Save As)
+
+### 🧰 Tools
+
+Small standalone utilities bundled with Leavepad (Tools menu / `Ctrl+Shift+J`). They are separate windows and do not touch your notes unless you ask.
+
+- **JSON Formatter**: side-by-side input / formatted output, indent selection, error position, copy, and save the result as a note. Works fully offline.
 
 ### 🎨 Customization
 

@@ -56,10 +56,11 @@ if (!gotTheLock) {
       newNote: 'New Note',
       fileEditor: 'File Editor',
       jsonFormatter: 'JSON Formatter',
+      tools: 'Tools',
       settings: 'Settings',
       edit: 'Edit',
-      findInNotes: 'Find in Notes',
-      findInEditor: 'Find in Editor',
+      findInNotes: 'Search All Notes',
+      findInEditor: 'Find in This Note',
       view: 'View',
       reload: 'Reload',
       forceReload: 'Force Reload',
@@ -73,10 +74,11 @@ if (!gotTheLock) {
       newNote: 'ノートを追加',
       fileEditor: 'ファイルエディタ',
       jsonFormatter: 'JSON Formatter',
+      tools: 'ツール',
       settings: 'グローバル設定',
       edit: '編集',
-      findInNotes: 'ノートを検索',
-      findInEditor: 'エディタ内を検索',
+      findInNotes: '全ノートを検索',
+      findInEditor: 'このノート内を検索',
       view: '表示',
       reload: '再読み込み',
       forceReload: '強制再読み込み',
@@ -103,12 +105,6 @@ if (!gotTheLock) {
           {
             label: t.fileEditor,
             click: () => createFileEditorWindow()
-          },
-          {
-            label: t.jsonFormatter,
-            accelerator: 'CmdOrCtrl+Shift+J',
-            registerAccelerator: isMac,
-            click: () => mainWindow.webContents.send('menu-open-json-formatter')
           },
           { type: 'separator' },
           {
@@ -147,6 +143,17 @@ if (!gotTheLock) {
             accelerator: 'CmdOrCtrl+F',
             registerAccelerator: isMac,
             click: () => mainWindow.webContents.send('menu-find-in-editor')
+          }
+        ]
+      },
+      {
+        label: t.tools,
+        submenu: [
+          {
+            label: t.jsonFormatter,
+            accelerator: 'CmdOrCtrl+Shift+J',
+            registerAccelerator: isMac,
+            click: () => mainWindow.webContents.send('menu-open-json-formatter')
           }
         ]
       },
