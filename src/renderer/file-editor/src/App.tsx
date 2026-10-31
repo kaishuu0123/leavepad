@@ -1,3 +1,4 @@
+import { Button } from '@renderer/components/ui/button'
 import { useAtom } from 'jotai'
 import type { editor } from 'monaco-editor'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -391,44 +392,48 @@ function App(): React.JSX.Element {
 
       {/* Toolbar */}
       <div className="flex items-center gap-1 px-2 py-1 border-b bg-muted/30">
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleNewFile}
-          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted"
           title="New File (Ctrl+N)"
         >
           <span className="codicon codicon-file-add"></span>
           <span>New</span>
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleOpenFile}
-          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted"
           title="Open File (Ctrl+O)"
         >
           <span className="codicon codicon-folder-opened"></span>
           <span>Open</span>
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleSaveFile}
-          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted disabled:opacity-50"
           disabled={!activeTab}
           title="Save (Ctrl+S)"
         >
           <span className="codicon codicon-save"></span>
           <span>Save</span>
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleSaveAs}
-          className="flex items-center gap-1 px-2 py-1 text-sm rounded hover:bg-muted disabled:opacity-50"
           disabled={!activeTab}
           title="Save As (Ctrl+Shift+S)"
         >
           <span className="codicon codicon-save-as"></span>
           <span>Save As</span>
-        </button>
+        </Button>
       </div>
 
       {/* Tabs */}
