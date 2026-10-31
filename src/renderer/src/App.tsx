@@ -591,7 +591,7 @@ function App(): React.JSX.Element {
               <Button
                 className={cn(
                   'w-full items-center justify-start',
-                  isSidebarOpen === false && 'p-2 h-8'
+                  isSidebarOpen === false && 'p-2 h-8 justify-center'
                 )}
                 onClick={addNote}
                 title={isSidebarOpen === false ? t('createNote') : undefined}
@@ -664,7 +664,10 @@ function App(): React.JSX.Element {
                     dismissible={false}
                   >
                     <DrawerTrigger asChild>
-                      <Button className={cn(isSidebarOpen === false && 'p-2 h-8')} title="Notes">
+                      <Button
+                        className={cn(isSidebarOpen === false && 'p-2 h-8 w-full')}
+                        title="Notes"
+                      >
                         {/* biome-ignore lint/a11y/noStaticElementInteractions: click handler on the decorative icon inside a real <Button>; the Button remains the keyboard-accessible control */}
                         {/* biome-ignore lint/a11y/useKeyWithClickEvents: click handler on the decorative icon inside a real <Button>; the Button remains the keyboard-accessible control */}
                         <div
@@ -754,7 +757,7 @@ function App(): React.JSX.Element {
                     </DrawerContent>
                   </Drawer>
                   <Button
-                    className="p-2 h-8"
+                    className="p-2 h-8 w-full"
                     onClick={() => {
                       setIsSearchOpen(true)
                       setSearchQuery('')
