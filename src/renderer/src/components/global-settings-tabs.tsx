@@ -151,7 +151,7 @@ const EditorTabsContent = ({ settingsForm }) => {
 
   return (
     <TabsContent value="editor" className="p-1">
-      <div className="flex flex-col space-y-6">
+      <div className="flex flex-col gap-6">
         <Form {...settingsForm}>
           <FormField
             control={settingsForm.control}
@@ -234,7 +234,7 @@ const EditorTabsContent = ({ settingsForm }) => {
                       settingsForm.setValue('editorOptions.insertSpaces', value === 'true')
                     }}
                   >
-                    <FormItem className="space-y-0 flex items-center gap-2">
+                    <FormItem className="flex items-center gap-2">
                       <FormControl>
                         <RadioGroupItem value="true" onChange={() => field.onChange(true)} />
                       </FormControl>
@@ -242,7 +242,7 @@ const EditorTabsContent = ({ settingsForm }) => {
                         {t('globalSettingsGroup.space')}
                       </FormLabel>
                     </FormItem>
-                    <FormItem className="space-y-0 flex items-center gap-2">
+                    <FormItem className="flex items-center gap-2">
                       <FormControl>
                         <RadioGroupItem value="false" onChange={() => field.onChange(false)} />
                       </FormControl>
@@ -356,7 +356,7 @@ const NotesTabsContent = ({ settingsForm }) => {
 
   return (
     <TabsContent value="notes" className="p-1">
-      <div className="flex flex-col space-y-6">
+      <div className="flex flex-col gap-6">
         <Form {...settingsForm}>
           <FormField
             control={settingsForm.control}
@@ -458,7 +458,7 @@ const GeneralTabsContent = ({
 
   return (
     <TabsContent value="general" className="p-1">
-      <div className="flex flex-col space-y-6">
+      <div className="flex flex-col gap-6">
         <Form {...settingsForm}>
           <FormField
             control={settingsForm.control}
@@ -496,7 +496,7 @@ const GeneralTabsContent = ({
               </FormItem>
             )}
           />
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {t('globalSettingsGroup.backup')}
             </span>
@@ -516,7 +516,7 @@ const GeneralTabsContent = ({
               />
             </div>
           </div>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               {t('globalSettingsGroup.dangerZone')}
             </span>
@@ -580,7 +580,7 @@ const GlobalSettingsTabs = ({
   const { t } = useTranslation()
 
   return (
-    <Tabs defaultValue="general" className="flex flex-col w-full space-y-6 h-full">
+    <Tabs defaultValue="general" className="flex flex-col w-full gap-6 h-full">
       <div>
         <TabsList className="flex w-full">
           <TabsTrigger value="general" className="grow">
