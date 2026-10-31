@@ -18,6 +18,12 @@ import {
 } from './ui/alert-dialog'
 import { Button } from './ui/button'
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger
+} from './ui/context-menu'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -185,28 +191,42 @@ function NoteCard({
           />
         </div>
       ) : (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            {/* biome-ignore lint/a11y/useSemanticElements: the card contains a dropdown menu trigger button, so it cannot itself be a <button> (nested buttons are invalid HTML) */}
-            <div
-              key={note.id}
-              className={cardClassName}
-              role="button"
-              tabIndex={index}
-              onClick={() => onClick(note)}
-              onDoubleClick={() => onRenameStart(note)}
-              onKeyDown={(e) => {
-                if (e.key === 'Delete') {
-                  e.preventDefault()
-                  setDeleteOpen(true)
-                }
-              }}
-            >
-              {cardInner}
-            </div>
-          </TooltipTrigger>
-          {tooltipContent}
-        </Tooltip>
+        <ContextMenu>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ContextMenuTrigger asChild>
+                {/* biome-ignore lint/a11y/useSemanticElements: the card contains a dropdown menu trigger button, so it cannot itself be a <button> (nested buttons are invalid HTML) */}
+                <div
+                  key={note.id}
+                  className={cardClassName}
+                  role="button"
+                  tabIndex={index}
+                  onClick={() => onClick(note)}
+                  onDoubleClick={() => onRenameStart(note)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Delete') {
+                      e.preventDefault()
+                      setDeleteOpen(true)
+                    }
+                  }}
+                >
+                  {cardInner}
+                </div>
+              </ContextMenuTrigger>
+            </TooltipTrigger>
+            {tooltipContent}
+          </Tooltip>
+          <ContextMenuContent>
+            <ContextMenuItem onSelect={() => onRenameStart(note)}>
+              <Pencil />
+              {t('rename')}
+            </ContextMenuItem>
+            <ContextMenuItem variant="destructive" onSelect={() => setDeleteOpen(true)}>
+              <Trash2 />
+              {t('delete')}
+            </ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
       )}
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
