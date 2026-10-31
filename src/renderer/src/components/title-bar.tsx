@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import appIcon from '../../../../resources/icon.png'
 import { cn } from '../lib/utils'
 
 const isMac = navigator.platform.includes('Mac')
@@ -32,6 +33,10 @@ export default function TitleBar(): JSX.Element | null {
       >
         <span className="codicon codicon-menu text-sm" />
       </button>
+
+      {/* App icon and title */}
+      <img src={appIcon} alt="" className="h-4 w-4 ml-1 mr-2 pointer-events-none" />
+      <span className="text-xs text-foreground/80 truncate">{document.title || 'Leavepad'}</span>
 
       {/* Drag area (fills remaining space) */}
       <div className="flex-1" />
