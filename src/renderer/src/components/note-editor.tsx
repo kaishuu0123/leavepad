@@ -106,7 +106,13 @@ function NoteEditor(
   return (
     <Editor
       height="100%"
-      value={currentNote.body}
+      // Uncontrolled: passing `value` makes @monaco-editor/react replace the whole model
+      // (moving the cursor to the end) whenever it lags behind the editor, e.g. during IME composition.
+      // Monaco owns the text; notes are switched through `path`.
+      // NOTE: changing `currentNote.body` from outside the editor (e.g. sync, import, JSON Tool)
+      // is NOT reflected here. Update the model explicitly, e.g. via the editor ref
+      // (`editor.getModel()?.setValue(body)` or `executeEdits`), and avoid doing so during IME composition.
+      defaultValue={currentNote.body}
       language={editorLanguage}
       theme={getEditorThemeName(settings.themeName)}
       options={settings.editorOptions}
